@@ -3,16 +3,20 @@
 #is all the pages as wget crawls the web in the same fashion.
 
 from fractions import Fraction
+from preciseFractions import *
 from numpy import *
+import numpy
+numpy.set_printoptions(threshold=numpy.nan)
 import sys
 from BeautifulSoup import BeautifulSoup
+from sets import Set
 
 
 class Page:
 
     def __init__(self,name):
         self.name = name
-        self.links = []
+        self.links = Set()
 
     def __repr__(self):
         return self.name #+ repr(self.links)
@@ -40,7 +44,7 @@ class Crawler:
 
         try:
             soup = self.parse(page.name)
-        except IOError:
+        except IOError:#if can't process page assume it has no links!
             return
 
         for tag in soup.findAll('a'):
@@ -56,17 +60,17 @@ class Crawler:
                     new_page = Page(link)
                     self.index[link] = next_index
                     self.pages.append(new_page)
-                    page.links.append(next_index)
+                    page.links.add(next_index)
                     self.crawl(new_page)
                 else: 
                     #if the link has already been encountered
                     index_to_add = self.index[link]
-                    page.links.append(index_to_add)
+                    page.links.add(index_to_add)
 
     def matrify(self):
-        G = zeros((self.dim,self.dim))
+        G = zeros((self.dim,self.dim))#,dtype='object')
         for (i, page) in enumerate(self.pages):
-            if((len(page.links)==0) or((len(page.links)==1)and page.links[0]==i)):
+            if(len(page.links)==0): # or((len(page.links)==1)and page.links[0]==i)):
                 p = Fraction(1,self.dim)
                 for n in xrange(0,self.dim):
                     G[n,i] = p
@@ -74,7 +78,6 @@ class Crawler:
                 for link in page.links:
                     G[link,i] = Fraction(1,len(page.links))
         return G
-
 
 
 class PageRank:
@@ -90,7 +93,8 @@ class PageRank:
     def __repr__(self):
         return str(squeeze(asarray(self.PR)))
 
-
+def near(a,b):
+    return abs(a-b)<0.001
 
 if __name__ == "__main__":
     #seed webpage must be supplied as an argument
@@ -99,5 +103,3 @@ if __name__ == "__main__":
     c = Crawler(prefix,page_name)
     pr = PageRank(c)
     print pr
-    print pr.one
-    print c.dim
