@@ -36,7 +36,8 @@ def index(folder,query):
         soup = BeautifulSoup(data)
         if (soup.title):
             myTitle = soup.title.string
-        myContent = filter(visible,soup.findAll(text=True))
+        texts = filter(visible,soup.findAll(text=True))
+        myContent = string.join(texts,u' ')
         myPath = folder+filename
 
         writer.add_document(title=myTitle,content=myContent,
