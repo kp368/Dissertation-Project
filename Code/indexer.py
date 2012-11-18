@@ -6,9 +6,7 @@ from BeautifulSoup import BeautifulSoup
 from whoosh.qparser import QueryParser
 from whoosh.searching import Searcher
 from whoosh.filedb.filestore import FileStorage
-
-
-#if __name__ == "__main__":
+import sys
 
 def visible(element):
     if element.parent.name in ['style', 'script', '[document]', 'head']:
@@ -47,16 +45,47 @@ def traverse(dir):
             yield root+u'/'+f
 
 
-def index(dir):
+def index(dir,clean=False):
+    if clean:
+        clean_index(dir)
+    else:
+        incremental_index(dir)
+
+def incremental_index(dir):
+    store = FileStorage("index")
+    ix = store.open_index()
+    indexed_paths = set()
+    to_index = set()
+
+    with ix.searcher() as searcher:
+        writer = ix.writer()
+        for fields in searcher.all_stored_fields():
+            indexed_path = fields['path']
+            indexed_paths.add(indexed_path)
+            if not os.path.exists(indexed_path):
+                writer.delete_by_term('path',indexed_path)
+            else:
+                indexed_time = fields['time']
+                mtime = os.path.getmtime(indexed_path)
+                if mtime > indexed_time:
+                    writer.delete_by_term('path',indexed_path)
+                    to_index.add(indexed_path)
+
+        for path in traverse(dir):
+            if path in to_index or path not in indexed_paths:
+                add_doc(writer,path)
+        writer.commit()
+
+
+def clean_index(dir):
     schema = getSchema()
     if not os.path.exists("index"):
         os.mkdir("index")
     store = FileStorage("index")
     ix = store.create_index(schema)
-    writer = ix.writer() #TODO:use with
-    for filename in traverse(dir):
-        add_doc(writer,filename)
-    writer.commit()
+    with ix.writer() as writer:
+        for filename in traverse(dir):
+            add_doc(writer,filename)
 
 
 def search(query):
@@ -70,3 +99,8 @@ def search(query):
             print doc
 
 
+if __name__ == "__main__":
+    folder = unicode(sys.argv[1])
+    isClean = (sys.argv[2]=='True')
+    print folder, isClean
+    index(folder,isClean)
