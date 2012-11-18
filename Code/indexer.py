@@ -1,6 +1,6 @@
 from whoosh.fields import Schema, TEXT, ID
 import os.path
-from whoosh.index import create_in
+from whoosh.index import create_in, open_dir
 from whoosh.query import *
 from BeautifulSoup import BeautifulSoup
 from whoosh.qparser import QueryParser
@@ -36,28 +36,23 @@ def index(folder,query):
         soup = BeautifulSoup(data)
         if (soup.title):
             myTitle = soup.title.string
-        texts = filter(visible,soup.findAll(text=True))
-        myContent = string.join(texts,u' ')
+        #texts = filter(visible,soup.getText(' '))
+        myContent = soup.getText(u' ')
         myPath = folder+filename
 
         writer.add_document(title=myTitle,content=myContent,
                 path=myPath)
     writer.commit()
 
+
+def search(query):
+    ix = open_dir("index")
     qp = QueryParser("content",schema=ix.schema)
     q = qp.parse(query)
     with ix.searcher() as s:
         results = s.search(q)
         for doc in results:
             print doc
-    
-
-def search(query):
-    qp = QueryParser("title", schema=ix.schema)
-    q = qp.parse(query)
-    with ix.searcher() as s:
-        results = s.search(q)
-    print result[0]
 
 
         #print str(title) + str(path)#  + str(content)
