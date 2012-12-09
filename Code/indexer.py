@@ -1,8 +1,9 @@
 from whoosh.fields import Schema, TEXT, ID, STORED
 import os.path
 from whoosh.index import create_in, open_dir
+from whoosh.writing import BufferedWriter
 from whoosh.query import *
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from whoosh.qparser import QueryParser
 from whoosh.searching import Searcher
 from whoosh.filedb.filestore import FileStorage
@@ -27,7 +28,8 @@ def add_doc(writer,path):
     file = open(path,'r')
     data = file.read()
     file.close()
-    soup = BeautifulSoup(data)
+    #Force BS to use lxml parser. It is the fastest.
+    soup = BeautifulSoup(data,"lxml")
     if (soup.title):
         title = unicode(soup.title.string)
     else:
@@ -83,7 +85,8 @@ def clean_index(dir):
         os.mkdir("index")
     store = FileStorage("index")
     ix = store.create_index(schema)
-    with ix.writer() as writer:
+    wr = BufferedWriter(ix,period=1000,limit=1000)
+    with wr as writer:
         for filename in traverse(dir):
             add_doc(writer,filename)
 
@@ -94,10 +97,11 @@ def search(query):
     qp = QueryParser("content",schema=ix.schema)
     q = qp.parse(query)
     with ix.searcher() as s:
-        results = s.search(q)
+        results = s.search(q,limit=None)
+        l = []
         for doc in results:
-            print doc
-
+            l.append(doc['path'])
+        return l
 
 if __name__ == "__main__":
     folder = unicode(sys.argv[1])

@@ -7,6 +7,8 @@ from numpy import *
 import sys
 from BeautifulSoup import BeautifulSoup
 from sets import Set
+import cPickle
+from os.path import normpath
 
 #force full arrays to be printed
 set_printoptions(threshold=nan)
@@ -65,6 +67,7 @@ class Crawler:
             soup = self.parse(page.name)
         except IOError:    
             #if page is unfriendly assume it has no links!
+            print page.name
             return
 
         for tag in soup.findAll('a'):
@@ -114,10 +117,30 @@ class PageRank:
         self.I = mat(eye(crawler.dim))
         #M = sG+tE && M(PR) = PR => PR = t*(I-s*G)^(-1)*E
         self.PR = self.t*((self.I-self.s*crawler.adjm).I)*self.E
+        self.by_name = {}
+        c = crawler
+        for i, pr in enumerate(self.PR):
+            self.by_name[normpath(c.prefix+c.index.reverse[i])] = pr[0,0]
         self.max = argmax(self.PR)
         
     def __repr__(self):
         return str(squeeze(asarray(self.PR)))
+
+
+    def save(self):
+        with open("pagerank.p","wb") as f:
+            cPickle.dump(self,f)
+            
+    @classmethod
+    def load(cls):
+        with open("pagerank.p","r") as f:
+            new = cPickle.load(f)
+        return new
+    
+    def sort(hits):
+        for hit in hits:
+            pass
+
 
 def near(a,b):
     return abs(a-b)<0.001
@@ -127,9 +150,12 @@ if __name__ == "__main__":
     prefix = sys.argv[1]
     page_name = sys.argv[2]
     filename = prefix+'.txt'
-    #f = open('filename.txt','w')
+    f = open('filename.txt','w')
     c = Crawler(prefix,page_name)
     pr = PageRank(c)
-    #f.write(pr.__repr__())
-    #f.close()
-    print c.index.reverse[pr.max]
+    f.write(str(c.pages))#pr.__repr__())
+    f.close()
+    print len(c.pages)
+    #print pr
+    #print c.index.reverse[pr.max]
+    pr.save()
