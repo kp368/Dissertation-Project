@@ -5,7 +5,7 @@
 from fractions import Fraction
 from numpy import *
 import sys
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from sets import Set
 import cPickle
 from os.path import normpath

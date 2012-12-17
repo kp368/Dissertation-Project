@@ -106,5 +106,4 @@ def search(query):
 if __name__ == "__main__":
     folder = unicode(sys.argv[1])
     isClean = (sys.argv[2]=='True')
-    print folder, isClean
     index(folder,isClean)
