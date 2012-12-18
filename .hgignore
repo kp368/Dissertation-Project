@@ -1,0 +1,8 @@
+syntax: glob
+
+Web/*
+Code/Web/*
+Code/Test/*
+Code/web/*
+Proposal/*
+Papers/*
