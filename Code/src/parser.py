@@ -14,8 +14,13 @@ def get_feature_set(uword,path_to_page):
     soup = BS(data,"lxml")
     text = unicode(soup.get_text(u' '))
     count = strip_punct(text).split().count(uword)
-    pr = PageRank.load()
-    rank = pr.by_name[path_to_page]
+    pr = PageRank.load(test=True)
+    try:
+        rank = pr.by_name[path_to_page]
+    except KeyError:
+        rank = 0
+    if count>0:
+        print path_to_page, rank, count
     featureset=dict(pr=rank,count=count)
     return featureset
 

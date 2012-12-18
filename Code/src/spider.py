@@ -9,7 +9,6 @@ from bs4 import BeautifulSoup
 from sets import Set
 import cPickle
 from os.path import dirname, abspath, normpath, join
-pagerank = '../Data/pagerank.p'
 
 #force full arrays to be printed
 set_printoptions(threshold=nan)
@@ -135,12 +134,20 @@ class PageRank:
         return str(squeeze(asarray(self.PR)))
 
 
-    def save(self):
+    def save(self,test=False):
+        if (test):
+            pagerank = '../Data/test_pr.p'
+        else:
+            pagerank = '../Data/pr.p'
         with open(pagerank,"wb") as f:
             cPickle.dump(self,f)
             
     @classmethod
-    def load(cls):
+    def load(cls,test=False):
+        if (test):
+            pagerank = '../Data/test_pr.p'
+        else:
+            pagerank = '../Data/pr.p'
         with open(pagerank,"r") as f:
             new = cPickle.load(f)
         return new
@@ -156,10 +163,11 @@ def near(a,b):
 if __name__ == "__main__":
     #seed webpage must be supplied as an argument
     page_name = sys.argv[1]
+    isTest = sys.argv[2]
     #f = open('filename.txt','w')
     c = Crawler(page_name)
     pr = PageRank(c)
     #f.write(str(c.pages))#pr.__repr__())
     #f.close()
     print pr.by_name
-    pr.save()
+    pr.save(isTest)

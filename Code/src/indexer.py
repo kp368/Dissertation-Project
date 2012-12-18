@@ -9,7 +9,6 @@ from whoosh.qparser import QueryParser
 from whoosh.searching import Searcher
 from whoosh.filedb.filestore import FileStorage
 import sys
-index_dir = abspath("../Data/index")
 
 def visible(element):
     if element.parent.name in ['style', 'script', '[document]', 'head']:
@@ -49,14 +48,21 @@ def traverse(dir):
             yield join(root,f)
 
 
-def index(dir,clean=False):
+def index(dir,test=False,clean=False):
     if clean:
-        clean_index(dir)
+        clean_index(dir,test)
     else:
-        incremental_index(dir)
+        incremental_index(dir,test)
 
-def incremental_index(dir):
-    store = FileStorage(nde)
+def incremental_index(dir,test=False):
+
+    schema = getSchema()
+    if (test):
+        index_dir = abspath('../Data/test_index')
+    else:
+        index_dir = abspath("../Data/index")
+    
+    store = FileStorage(index_dir)
     ix = store.open_index()
     indexed_paths = set()
     to_index = set()
@@ -81,8 +87,12 @@ def incremental_index(dir):
         writer.commit()
 
 
-def clean_index(dir):
+def clean_index(dir,test=False):
     schema = getSchema()
+    if (test):
+        index_dir = abspath('../Data/test_index')
+    else:
+        index_dir = abspath("../Data/index")
     if not os.path.exists(index_dir):
         os.mkdir(index_dir)
     store = FileStorage(index_dir)
@@ -93,7 +103,13 @@ def clean_index(dir):
             add_doc(writer,filename)
 
 
-def search(query):
+def search(query,test=False):
+
+    if (test):
+        index_dir = abspath('../Data/test_index')
+    else:
+        index_dir = abspath("../Data/index")
+
     store = FileStorage(index_dir)
     ix = store.open_index()
     qp = QueryParser("content",schema=ix.schema)
@@ -107,5 +123,6 @@ def search(query):
 
 if __name__ == "__main__":
     folder = unicode(abspath(sys.argv[1]))
+    isTest = (sys.argv[3]=='True')
     isClean = (sys.argv[2]=='True')
-    index(folder,isClean)
+    index(folder,isClean,isTest)
