@@ -1,52 +1,54 @@
 #Take a page and return a feature set!
 from bs4 import BeautifulSoup as BS
-from spider import PageRank
+from os.path import abspath, join
+from os import walk
+from pagerank import PageRank
 import sys
 from page import Page
-from util import strip_punct
+from sorter import sort
+from util import clean
 
-#FeatureSet is a collection of predefined page qualities. Curently of form [(rank,count),cat]
-class FeatureSet:
-    def __init__(self,prank=None,count=None,cat=None):
-        self.pr = prank
-        self.cnt = count
-        self.cat = cat
-
-    
-
-
-
-def get_feature_set(uwords,path_to_page):
+def get_feature_set(uword,path_to_page):
     #pr=pagerank, count=number of times @word occurs on the page
-    count = clean.count(uword)
+    clean_page = clean(path_to_page)
+    count = clean_page.count(uword)
     pr = PageRank.load(test=True)
     try:
         rank = pr.by_name[path_to_page]
     except KeyError:
         rank = 0
-    if count>0:
-        print path_to_page, rank, count
     featureset=dict(pr=rank,count=count)
     return featureset
 
 
-def get_train_set(terms):
+def get_train_set(term):
 
     test_dir = abspath('../Test')
     training_set = []
 
     def get_cat(path):
-        if (path in sort(term,test=True)):
+        res = sort(term,test=True)
+        l = len(res)
+        if (path in res[0:l/2]):
             return 1
+        elif (path in res[l/2:l]):
+            return 2
+        else:
+            return 0
 
-    for root, dirs, files in os.walk(test_dir):
+    for root, dirs, files in walk(test_dir):
         for f in files:
-            training_set.append((get_feature_set(terms,join(root,f)),get_cat(join(root,f))))
+            path = join(root,f)
+            fs = get_feature_set(term,path)
+            cat = get_cat(path)
+            training_set.append((fs,cat))
+            if cat != 0:
+                print (path,fs,cat)
     return training_set
 
 
 if __name__ == "__main__":
     word = unicode(sys.argv[1])
     path = sys.argv[2]
-    print get_feature_set(word,path)
+    print get_train_set(word)
 

@@ -24,9 +24,9 @@ class Page:
         soup = BS(data,"lxml")
         return soup
 
-    #parse a page into a clean unicode 
+    #parse a page into a clean unicode string.
     def parse(self):
-        soup = soupify()
+        soup = self.soupify()
         text = unicode(soup.get_text(u' '))
         clean = strip_punct(text).split()
         return clean
