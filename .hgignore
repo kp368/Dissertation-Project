@@ -1,7 +1,9 @@
 syntax: glob
 
-Web/*
-Code/Web/*
+Code/src/*.pyc
+Code/Data/*.p
+Code/Data/index/*
+Code/Data/test_index/*
 Code/Test/*
 Code/web/*
 Proposal/*
