@@ -2,19 +2,19 @@
 #the web and then computes and outputs pagerank vector. The web is only the pages discovered from the seed page (which 
 #is all the pages as wget crawls the web in the same fashion.
 
-from fractions import Fraction
-from numpy import *
+from pagerank import PageRank
 import sys
-from bs4 import BeautifulSoup
-from sets import Set
-import cPickle
 from os.path import dirname, abspath, normpath, join
+from page import Page
+from numpy import zeros, set_printoptions, nan
+from fractions import Fraction
 
 #force full arrays to be printed
 set_printoptions(threshold=nan)
 
+
 class BiMap(dict):
-    
+
     def __init__(self):
         super(BiMap,self).__init__()
         self.reverse = dict()
@@ -24,31 +24,8 @@ class BiMap(dict):
         self.reverse.__setitem__(value,key)
 
 
-class Page:
-
-    def __init__(self,path):
-        self.path = path
-        #use a set to avoid duplicate elements
-        self.links = Set()
-
-    def relative(self,link):
-        new_page = Page(normpath(join(self.root,link)))
-        return new_page
-
-    @property
-    def root(self):
-        return dirname(self.path)
-
-    def parse(self):
-        data = open(self.path,'r').read()
-        return BeautifulSoup(data)
-
-    def __repr__(self):
-        return self.name #+ repr(self.links)
-
-
 class Crawler:
-    
+
     def __init__(self, seed):
         #index maps pages to indices
         self.index = BiMap()
@@ -70,15 +47,14 @@ class Crawler:
             page = self.pages[0]
 
         try:
-            soup = page.parse()
-        except IOError:    
+            soup = page.soupify()
+        except IOError:
             #if page is unfriendly assume it has no links!
-            print 'IGNORED PAGE: '+ page.path
+            print 'IGNORED PAGE: '+ page.path#TODO:add logging
             return
 
         for tag in soup.findAll('a'):
             if tag.has_key('href'):
-                
                 link = tag['href']
                 if 'http' in link or 'mailto' in link:
                     continue
@@ -112,62 +88,11 @@ class Crawler:
         return G
 
 
-class PageRank:
-
-    def __init__(self,crawler):
-        #E models the teleportation step. Here it is a uniform distribution: all pages are equiprobable.
-        self.E = Fraction(1,crawler.dim)*ones((crawler.dim,1))
-        #s is the probability of following a random link
-        self.s = 0.85
-        #t is the probability of teleportation
-        self.t = 1-self.s
-        self.I = mat(eye(crawler.dim))
-        #M = sG+tE && M(PR) = PR => PR = t*(I-s*G)^(-1)*E
-        self.PR = self.t*((self.I-self.s*crawler.adjm).I)*self.E
-        self.by_name = {}
-        c = crawler
-        for i, pr in enumerate(self.PR):
-            self.by_name[abspath(c.index.reverse[i])] = pr[0,0]
-        self.max = argmax(self.PR)
-        
-    def __repr__(self):
-        return str(squeeze(asarray(self.PR)))
-
-
-    def save(self,test=False):
-        if (test):
-            pagerank = '../Data/test_pr.p'
-        else:
-            pagerank = '../Data/pr.p'
-        with open(pagerank,"wb") as f:
-            cPickle.dump(self,f)
-            
-    @classmethod
-    def load(cls,test=False):
-        if (test):
-            pagerank = '../Data/test_pr.p'
-        else:
-            pagerank = '../Data/pr.p'
-        with open(pagerank,"r") as f:
-            new = cPickle.load(f)
-        return new
-    
-    def sort(hits):
-        for hit in hits:
-            pass
-
-
-def near(a,b):
-    return abs(a-b)<0.001
-
 if __name__ == "__main__":
     #seed webpage must be supplied as an argument
-    page_name = sys.argv[1]
-    isTest = sys.argv[2]
-    #f = open('filename.txt','w')
+    page_name = abspath(sys.argv[1])
+    isTest = (sys.argv[2]=='True')
     c = Crawler(page_name)
     pr = PageRank(c)
-    #f.write(str(c.pages))#pr.__repr__())
-    #f.close()
     print pr.by_name
     pr.save(isTest)

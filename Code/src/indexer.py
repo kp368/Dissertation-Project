@@ -48,7 +48,7 @@ def traverse(dir):
             yield join(root,f)
 
 
-def index(dir,test=False,clean=False):
+def index(dir,clean=False,test=False):
     if clean:
         clean_index(dir,test)
     else:

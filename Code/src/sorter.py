@@ -1,10 +1,10 @@
 from indexer import search
-from spider import PageRank
+from pagerank import PageRank
 import sys
 
 def sort(uquery,test=False):
     res = search(uquery,test)
-    pr = PageRank.load()
+    pr = PageRank.load(test)
     def get_key(r):
         try:
             return pr.by_name[r]
@@ -18,5 +18,5 @@ def sort(uquery,test=False):
 if __name__ == "__main__":
     query = unicode(sys.argv[1])
     test = (sys.argv[2]=='True')
-    sort(query,test)
+    print sort(query,test)
 
