@@ -47,9 +47,7 @@ class LabeledFeatureSetCollection(defaultdict):
             clean_page = clean(page)
             for term in self.terms:
                 self[page][term].pr = pr
-                self[page][term].term_cnt = get_count(term,clean_page)
-                stem = PS().stem(term)
-                self[page][term].stem_cnt = get_count(stem,clean_page)
+                self[page][term].term_cnt, self[page][term].stem_cnt = get_count(term,clean_page)
 
 test_dir = abspath('../Test')
 
@@ -62,8 +60,10 @@ def get_page_rank(page):
     return rank
 
 def get_count(term,page):
-    count = page.count(term)+page.count(term.title())
-    return count
+    t_count = page.count(term)+page.count(term.title())
+    stem = PS().stem(term)
+    s_count = page.count(stem)+page.count(stem.title())
+    return t_count, s_count
 
 def get_pages(folder):
     pages = []
