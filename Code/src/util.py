@@ -10,6 +10,5 @@ def clean(path):
     data = open(path,'r').read()
     soup = BS(data,"lxml")
     text = unicode(soup.get_text(u' '))
-    clean = strip_punct(text)
-    stems = PS().stem(clean).split()
-    return stems
+    clean = strip_punct(text).split()
+    return clean
