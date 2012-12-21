@@ -123,6 +123,6 @@ def search(query,test=False):
 
 if __name__ == "__main__":
     folder = unicode(abspath(sys.argv[1]))
-    isTest = (sys.argv[3]=='True')
     isClean = (sys.argv[2]=='True')
+    isTest = (sys.argv[3]=='True')
     index(folder,isClean,isTest)

@@ -6,6 +6,9 @@ from sorter import sort
 from util import clean
 from nltk import PorterStemmer as PS
 
+train_dir = abspath('../Train')
+test_dir = abspath('../Test')
+
 class LabeledFeatureSet:
 
     def __init__(self,term_cnt=None,stem_cnt=None,pr=None,cat=None):
@@ -22,16 +25,39 @@ class LabeledFeatureSet:
     def tuple(self):
         return self.fs,self.cat
 
-class LabeledFeatureSetCollection(defaultdict):
+class FeatureSetCollection(defaultdict):
+
+    def __init__(self,terms,d=test_dir):
+        super(FeatureSetCollection,self).__init__(lambda:defaultdict(LabeledFeatureSet))
+        self.terms = terms
+        self.pages = get_pages(d)
+        self.compute_fs(d==test_dir)
+
+    def compute_fs(self,is_test):
+        for page in self.pages:
+            pr = get_page_rank(page,is_test)
+            clean_page = clean(page)
+            for term in self.terms:
+                self[page][term].pr = pr
+                self[page][term].term_cnt, self[page][term].stem_cnt = get_count(term,clean_page)
+
+    @property
+    def train_set(self):
+        train_set = []
+        for p in self.pages:
+            for t in self.terms:
+                train_set.append(self[p][t].fs)
+        return train_set
+
+class LabeledFeatureSetCollection(FeatureSetCollection):
 
     def __init__(self,terms):
-        super(LabeledFeatureSetCollection,self).__init__(lambda:defaultdict(LabeledFeatureSet))
-        self.terms = terms
-        self.pages = get_pages(test_dir)
+        super(LabeledFeatureSetCollection,self).__init__(terms,d=train_dir)
+        self.compute_cat()
 
     def compute_cat(self):
         for term in self.terms:
-            res = sort(term,test=True)
+            res = sort(term,test=False)
             l = len(res)
             for page in self.pages:
                 if (page in res[0:l/2]):
@@ -41,18 +67,17 @@ class LabeledFeatureSetCollection(defaultdict):
                 else:
                     self[page][term].cat =0
 
-    def compute_fs(self):
-        for page in self.pages:
-            pr = get_page_rank(page)
-            clean_page = clean(page)
-            for term in self.terms:
-                self[page][term].pr = pr
-                self[page][term].term_cnt, self[page][term].stem_cnt = get_count(term,clean_page)
+    @property
+    def train_set(self):
+        train_set = []
+        for p in self.pages:
+            for t in self.terms:
+                train_set.append(self[p][t].tuple)
+        return train_set
 
-test_dir = abspath('../Test')
 
-def get_page_rank(page):
-    pr = PageRank.load(test=True)
+def get_page_rank(page,is_test):
+    pr = PageRank.load(test=is_test)
     try:
         rank = pr.by_name[page]
     except KeyError:
