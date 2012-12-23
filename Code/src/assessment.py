@@ -1,10 +1,12 @@
+from fractions import Fraction
+
 class Assessment:
 
     def __init__(self,t):
-        self.total = len(t)
+        self.total = float(len(t))
         self.correct = [0,0,0]
         self.incor = [0,0,0]
-        self.tot_correct = sum(self.correct)
+        self.tot_correct = 100*round(float(sum(self.correct)),1)
         self.assess(t)
         self.value = self.tot_correct/self.total
 

@@ -1,1 +1,2 @@
 Type of Classifier	Training set	Query	Performance	Hit vector	Miss vector
+NaiveBayes 3	[u'building']	[u'building']	0	322	[276, 40, 6]	[0, 8, 40]

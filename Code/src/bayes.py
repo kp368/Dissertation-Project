@@ -5,18 +5,17 @@ from assessment import Assessment as A
 from nltk import PorterStemmer as PS
 import csv
 
-def write_result(a,train_set,query):
+def write_result(a,train_set):
     with open('results.csv','a') as f:
         writer = csv.writer(f,delimiter='\t')
-        writer.writerow(['NaiveBayes 3',train_set,query,
-            a.value,a.correct,a.incor])
+        writer.writerow(['NaiveBayes 3', train_set,
+            train_set, a.value, a.tot_correct, a.correct, a.incor])
 
-def predict(words):
-    t_set = LFSC(words).train_set
-    nb = NBC.train(t_set)
-    t = TFSC(words,nb)
+def predict(train_query):
+    nb = NBC.train(LFSC(train_query).train_set)
+    t = TFSC(train_query,nb)
     a = A(t)
-    write_result(a,t_set,query)
+    write_result(a,train_query)
 
 if __name__ == "__main__":
     for term in sys.argv:
