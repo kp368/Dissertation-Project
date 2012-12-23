@@ -1,13 +1,11 @@
 from nltk.classify.naivebayes import NaiveBayesClassifier as NBC
-from parser import get_train_set, get_feature_set
-from os.path import abspath
 import sys
-from features import LabeledFeatureSetCollection as LFSC,FeatureSetCollection as FSC
+from features import LabeledFeatureSetCollection as LFSC, TestFeatureSetCollection as TFSC
 from assessment import Assessment as A
 from nltk import PorterStemmer as PS
 import csv
 
-def write_csv(a,train_set,query):
+def write_result(a,train_set,query):
     with open('results.csv','a') as f:
         writer = csv.writer(f,delimiter='\t')
         writer.writerow(['NaiveBayes 3',train_set,query,
@@ -21,8 +19,6 @@ def predict(words):
     write_result(a,t_set,query)
 
 if __name__ == "__main__":
-    args = [abspath(sys.argv[1])]
-    for i in sys.argv[2:len(sys.argv)]:
-        term = PS().stem(unicode(i))
-        args.append(term)
+    for term in sys.argv:
+        args.append(unicode(term))
     predict(args)
