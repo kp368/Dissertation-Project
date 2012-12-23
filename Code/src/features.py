@@ -9,73 +9,6 @@ from nltk import PorterStemmer as PS
 train_dir = abspath('../Train')
 test_dir = abspath('../Test')
 
-class LabeledFeatureSet:
-
-    def __init__(self,term_cnt=None,stem_cnt=None,pr=None,cat=None):
-       self.pr = pr
-       self.stem_cnt = stem_cnt
-       self.term_cnt = term_cnt
-       self.cat = cat
-
-    @property
-    def fs(self):
-        return dict(pr=self.pr,stem_cnt=self.stem_cnt,term_cnt=self.term_cnt)
-
-    @property
-    def tuple(self):
-        return self.fs,self.cat
-
-class FeatureSetCollection(defaultdict):
-
-    def __init__(self,terms,d=test_dir):
-        super(FeatureSetCollection,self).__init__(lambda:defaultdict(LabeledFeatureSet))
-        self.terms = terms
-        self.pages = get_pages(d)
-        self.compute_fs(d==test_dir)
-
-    def compute_fs(self,is_test):
-        for page in self.pages:
-            pr = get_page_rank(page,is_test)
-            clean_page = clean(page)
-            for term in self.terms:
-                self[page][term].pr = pr
-                self[page][term].term_cnt, self[page][term].stem_cnt = get_count(term,clean_page)
-
-    @property
-    def train_set(self):
-        train_set = []
-        for p in self.pages:
-            for t in self.terms:
-                train_set.append(self[p][t].fs)
-        return train_set
-
-class LabeledFeatureSetCollection(FeatureSetCollection):
-
-    def __init__(self,terms):
-        super(LabeledFeatureSetCollection,self).__init__(terms,d=train_dir)
-        self.compute_cat()
-
-    def compute_cat(self):
-        for term in self.terms:
-            res = sort(term,test=False)
-            l = len(res)
-            for page in self.pages:
-                if (page in res[0:l/2]):
-                    self[page][term].cat =1
-                elif (page in res[l/2:l]):
-                    self[page][term].cat =2
-                else:
-                    self[page][term].cat =0
-
-    @property
-    def train_set(self):
-        train_set = []
-        for p in self.pages:
-            for t in self.terms:
-                train_set.append(self[p][t].tuple)
-        return train_set
-
-
 def get_page_rank(page,is_test):
     pr = PageRank.load(test=is_test)
     try:
@@ -97,4 +30,89 @@ def get_pages(folder):
             page = join(root,f)
             pages.append(page)
     return pages
+
+class LabeledFeatureSet:
+
+    def __init__(self,term_cnt=None,stem_cnt=None,pr=None,cat=None):
+       self.pr = pr
+       self.stem_cnt = stem_cnt
+       self.term_cnt = term_cnt
+       self.cat = cat
+
+    @property
+    def fs(self):
+        return dict(pr=self.pr,stem_cnt=self.stem_cnt,term_cnt=self.term_cnt)
+
+    @property
+    def tuple(self):
+        return self.fs,self.cat
+
+class TestFeatureSet(LabeledFeatureSet):
+    def __init__(self):
+        super(TestFeatureSet,self).__init__()
+        self.p_cat = None
+
+class FeatureSetCollection(defaultdict):
+
+    def __init__(self,terms):
+        super(FeatureSetCollection,self).__init__(lambda:defaultdict(LabeledFeatureSet))
+        self.terms = terms
+
+    def compute_fs(self,is_test):
+        for page in self.pages:
+            pr = get_page_rank(page,is_test)
+            clean_page = clean(page)
+            for term in self.terms:
+                self[page][term].pr = pr
+                self[page][term].term_cnt, self[page][term].stem_cnt = get_count(term,clean_page)
+
+    def compute_cat(self,is_test):
+        for term in self.terms:
+            res = sort(term,is_test)
+            l = len(res)
+            for page in self.pages:
+                if (page in res[0:l/2]):
+                    self[page][term].cat =1
+                elif (page in res[l/2:l]):
+                    self[page][term].cat =2
+                else:
+                    self[page][term].cat =0
+
+class TestFeatureSetCollection(FeatureSetCollection):
+
+    def __init__(self,terms,nb):
+        super(TestFeatureSetCollection,self).__init__(terms)
+        self.pages = get_pages(test_dir)
+        self.compute_cat(True)
+        self.correct = 0
+        self.total = 0
+        self.predict_cat(nb)
+
+    def predict_cat(self,nb):
+        for page in self.pages:
+            pr = get_page_rank(page,True)
+            clean_page = clean(page)
+            for term in self.terms:
+                self[page][term].pr = pr
+                self[page][term].term_cnt, self[page][term].stem_cnt = get_count(term,clean_page)
+                self.p_cat = nb.classify(self[page][term].fs)
+                if self.p_cat == self[page][term].cat:
+                    self.correct += 1
+                self.total += 1
+
+class LabeledFeatureSetCollection(FeatureSetCollection):
+
+    def __init__(self,terms):
+        super(LabeledFeatureSetCollection,self).__init__(terms)
+        self.pages = get_pages(train_dir)
+        self.compute_cat(False)
+        self.compute_fs(False)
+
+    @property
+    def train_set(self):
+        train_set = []
+        for p in self.pages:
+            for t in self.terms:
+                train_set.append(self[p][t].tuple)
+        return train_set
 

@@ -4,15 +4,10 @@ from os.path import abspath
 import sys
 from features import LabeledFeatureSetCollection as LFSC,FeatureSetCollection as FSC
 
-def train(train_set):
-    nb = NBC.train(train_set)
-    return nb
-
 def predict(page,words):
-    nb = train(LFSC(words).train_set)
-    fsets = FSC(words).train_set
-    for fs in fsets:
-        print nb.classify(fs)
+    nb = NBC.train(LFSC(words).train_set)
+    t = TFSC(words,nb)
+    return t
 
 if __name__ == "__main__":
     args = [abspath(sys.argv[1])]
