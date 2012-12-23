@@ -95,8 +95,8 @@ class TestFeatureSetCollection(FeatureSetCollection):
             for term in self.terms:
                 self[page][term].pr = pr
                 self[page][term].term_cnt, self[page][term].stem_cnt = get_count(term,clean_page)
-                self.p_cat = nb.classify(self[page][term].fs)
-                if self.p_cat == self[page][term].cat:
+                self[page][term].p_cat = nb.classify(self[page][term].fs)
+                if self[page][term].p_cat == self[page][term].cat:
                     self.correct += 1
                 self.total += 1
 
