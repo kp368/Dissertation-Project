@@ -31,7 +31,7 @@ def get_pages(folder):
             pages.append(page)
     return pages
 
-class LabeledFeatureSet:
+class LabeledFeatureSet(object):
 
     def __init__(self,term_cnt=None,stem_cnt=None,pr=None,cat=None):
        self.pr = pr
@@ -54,8 +54,8 @@ class TestFeatureSet(LabeledFeatureSet):
 
 class FeatureSetCollection(defaultdict):
 
-    def __init__(self,terms):
-        super(FeatureSetCollection,self).__init__(lambda:defaultdict(LabeledFeatureSet))
+    def __init__(self,terms,l=LabeledFeatureSet):
+        super(FeatureSetCollection,self).__init__(lambda:defaultdict(l))
         self.terms = terms
 
     def compute_fs(self,is_test):
@@ -81,7 +81,7 @@ class FeatureSetCollection(defaultdict):
 class TestFeatureSetCollection(FeatureSetCollection):
 
     def __init__(self,terms,nb):
-        super(TestFeatureSetCollection,self).__init__(terms)
+        super(TestFeatureSetCollection,self).__init__(terms,TestFeatureSet)
         self.pages = get_pages(test_dir)
         self.compute_cat(True)
         self.correct = 0
