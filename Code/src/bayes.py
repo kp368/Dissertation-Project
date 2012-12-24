@@ -1,7 +1,7 @@
 from nltk.classify.naivebayes import NaiveBayesClassifier as NBC
 import sys
 from features import LabeledFeatureSetCollection as LFSC, TestFeatureSetCollection as TFSC
-from assessment import Assessment as A
+from assessment import NB3Assessment as NB3A
 from nltk import PorterStemmer as PS
 import csv
 
@@ -14,7 +14,7 @@ def write_result(a,train_set):
 def predict(train_query):
     nb = NBC.train(LFSC(train_query).train_set)
     t = TFSC(train_query,nb)
-    a = A(t)
+    a = NB3A(t)
     write_result(a,train_query)
 
 if __name__ == "__main__":

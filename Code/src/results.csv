@@ -1,3 +1,5 @@
 |Type of Classifier|	|Training set|	|Query|	|Performance| |Total|	|Hit vector|	|Miss vector
 NaiveBayes 3	[u'building']	[u'building']	87.03	370.0	[276, 40, 6]	[0, 8, 40]
 NaiveBayes 3	[u'building', u'architecture', u'architect']	[u'building', u'architecture', u'architect']	94.95	1110.0	[1001, 46, 7]	[0, 10, 46]
+NaiveBayes 3	[u'architecture', u'building']	[u'architecture', u'building']	93.05	950.0	[816, 10, 58]	[0, 56, 10]
+NaiveBayes 3	[u'architecture', u'building', u'build', u'store', u'leicester']	[u'architecture', u'building', u'build', u'store', u'leicester']	95.62	2375.0	[2167, 22, 82]	[1, 80, 23]

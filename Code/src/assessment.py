@@ -8,8 +8,13 @@ class Assessment:
         self.correct = [0,0,0]
         self.incor = [0,0,0]
         self.tot_correct = float(sum(self.correct))
-        self.assess(self.t)
+        self.assess()
         self.value = 100*round(self.tot_correct/self.total,4)
+
+    def assess(self):
+        raise NotImplementedError("Subclasses should implement this.")
+
+class NB3Assessment(Assessment):
 
     def assess(self):
         for p in self.t:
