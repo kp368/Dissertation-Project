@@ -1,2 +1,5 @@
 Type of Classifier	Training set	Query	Performance	Hit vector	Miss vector
-NaiveBayes 3	[u'building']	[u'building']	0	322	[276, 40, 6]	[0, 8, 40]
+NaiveBayes 3	[u'bayes.py', u'building']	[u'bayes.py', u'building']	187.03	692.0	[646, 40, 6]	[0, 8, 40]
+NaiveBayes 3	[u'bayes.py', u'building']	[u'bayes.py', u'building']	181.35	671.0	[620, 45, 6]	[26, 3, 40]
+NaiveBayes 3	[u'building']	[u'building']	87.03	322.0	[276, 40, 6]	[0, 8, 40]
+NaiveBayes 3	[u'bayes.py', u'building']	[u'bayes.py', u'building']	181.35	671.0	[620, 45, 6]	[26, 3, 40]

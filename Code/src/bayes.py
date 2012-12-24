@@ -9,7 +9,7 @@ def write_result(a,train_set):
     with open('results.csv','a') as f:
         writer = csv.writer(f,delimiter='\t')
         writer.writerow(['NaiveBayes 3', train_set,
-            train_set, a.value, a.tot_correct, a.correct, a.incor])
+            train_set, a.value, a.total, a.correct, a.incor])
 
 def predict(train_query):
     nb = NBC.train(LFSC(train_query).train_set)
@@ -18,6 +18,7 @@ def predict(train_query):
     write_result(a,train_query)
 
 if __name__ == "__main__":
-    for term in sys.argv:
+    args = []
+    for term in sys.argv[1:len(sys.argv)]:
         args.append(unicode(term))
     predict(args)

@@ -6,9 +6,9 @@ class Assessment:
         self.total = float(len(t))
         self.correct = [0,0,0]
         self.incor = [0,0,0]
-        self.tot_correct = 100*round(float(sum(self.correct)),1)
+        self.tot_correct = float(sum(self.correct))
         self.assess(t)
-        self.value = self.tot_correct/self.total
+        self.value = 100*round(self.tot_correct/self.total,4)
 
     def assess(self,t):
         for p in t:
