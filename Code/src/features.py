@@ -84,8 +84,7 @@ class TestFeatureSetCollection(FeatureSetCollection):
         super(TestFeatureSetCollection,self).__init__(terms,TestFeatureSet)
         self.pages = get_pages(test_dir)
         self.compute_cat(True)
-        self.correct = 0
-        self.total = 0
+        self.terms = terms
         self.predict_cat(nb)
 
     def predict_cat(self,nb):
@@ -96,9 +95,6 @@ class TestFeatureSetCollection(FeatureSetCollection):
                 self[page][term].pr = pr
                 self[page][term].term_cnt, self[page][term].stem_cnt = get_count(term,clean_page)
                 self[page][term].p_cat = nb.classify(self[page][term].fs)
-                if self[page][term].p_cat == self[page][term].cat:
-                    self.correct += 1
-                self.total += 1
 
 class LabeledFeatureSetCollection(FeatureSetCollection):
 
