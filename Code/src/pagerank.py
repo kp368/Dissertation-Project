@@ -11,6 +11,8 @@ def get_pr_dir(test):
 
 class PageRank:
 
+    new = {}
+
     def __init__(self,crawler):
         #E models the teleportation step. Here it is a uniform distribution: all pages are equiprobable.
         self.E = Fraction(1,crawler.dim)*ones((crawler.dim,1))
@@ -38,7 +40,17 @@ class PageRank:
     @classmethod
     def load(cls,test=False):
         pagerank = get_pr_dir(test)
-        with open(pagerank,"r") as f:
-            new = cPickle.load(f)
-        return new
-
+        if test:
+            if 'test' in cls.new:
+                return cls.new['test']
+            else:
+                with open(pagerank,"r") as f:
+                    cls.new['test'] = cPickle.load(f)
+                return cls.new['test']
+        else:
+            if 'train' in cls.new:
+                return cls.new['train']
+            else:
+                with open(pagerank,"r") as f:
+                    cls.new['train'] = cPickle.load(f)
+                return cls.new['train']

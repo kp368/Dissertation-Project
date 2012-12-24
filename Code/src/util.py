@@ -9,6 +9,6 @@ def strip_punct(s):
 def clean(path):
     data = open(path,'r').read()
     soup = BS(data,"lxml")
-    #text = unicode(soup.get_text(u' '))
-    #clean = strip_punct(text).split()
-    return soup.get_text(u' ') #clean
+    text = unicode(soup.get_text(u' '))
+    clean = strip_punct(text).split()
+    return clean
