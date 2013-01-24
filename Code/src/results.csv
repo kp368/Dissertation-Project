@@ -1,5 +1,33 @@
+*************SECTION 1**************
 |Type of Classifier|	|Training set|	|Query|	|Performance| |Total|	|Hit vector|	|Miss vector
-NaiveBayes 3	[u'building']	[u'building']	87.03	370.0	[276, 40, 6]	[0, 8, 40]
-NaiveBayes 3	[u'building', u'architecture', u'architect']	[u'building', u'architecture', u'architect']	94.95	1110.0	[1001, 46, 7]	[0, 10, 46]
-NaiveBayes 3	[u'architecture', u'building']	[u'architecture', u'building']	93.05	950.0	[816, 10, 58]	[0, 56, 10]
-NaiveBayes 3	[u'architecture', u'building', u'build', u'store', u'leicester']	[u'architecture', u'building', u'build', u'store', u'leicester']	95.62	2375.0	[2167, 22, 82]	[1, 80, 23]
+NaiveBayes 3	[u'building']	87.03	370.0	[276, 40, 6]	[0, 8, 40]
+NaiveBayes 3	[u'building', u'architecture', u'architect']	94.95	1110.0	[1001, 46, 7]	[0, 10, 46]
+NaiveBayes 3	[u'architecture', u'building']	93.05	950.0	[816, 10, 58]	[0, 56, 10]
+NaiveBayes 3	[u'architecture', u'building', u'build', u'store', u'leicester']	95.62	2375.0	[2167, 22, 82]	[1, 80, 23]
+*************SECTION 2************** PageRank Quantized ******
+NaiveBayes 3	[u'building', u'architecture']	94.63000000000001	950.0	[816, 25, 58]	[0, 41, 10] pr rounded to 4
+NaiveBayes 3	[u'building', u'architecture']	95.37	950.0	[816, 29, 61]	[0, 37, 7] pr rounded to 3
+NaiveBayes 3	[u'building', u'architecture']	95.37	950.0	[816, 30, 60]	[0, 36, 8] pr rounded to 2
+NaiveBayes 3	[u'building', u'architecture', u'leicester']	97.05	1425.0	[1290, 27, 66]	[0, 39, 3] 2
+NaiveBayes 3	[u'building', u'architecture', u'leicester']	96.91	1425.0	[1290, 29, 62]	[0, 37, 7] 3
+NaiveBayes 3	[u'building', u'architecture', u'leicester']	96.49	1425.0	[1290, 25, 60]	[0, 41, 9] 4
+NaiveBayes 3	[u'building', u'architecture', u'leicester']	95.93	1425.0	[1290, 16, 61]	[0, 50, 8] 5
+************SECTION 3***************
+NaiveBayes 4  [u'building', u'architecture']	92.11	950.0	[816, 18, 10, 31]	[0, 26, 35, 14] 3
+NaiveBayes 4	[u'building', u'architecture']	93.26	950.0	[816, 9, 24, 37]	[0, 35, 21, 8] 4
+NaiveBayes 4	[u'building', u'architecture']	92.63	950.0	[816, 23, 3, 38]	[0, 21, 42, 7] 2
+NaiveBayes 4	[u'building', u'architecture']	91.36999999999999	950.0	[816, 4, 10, 38]	[0, 40, 35, 7] 5
+NaiveBayes 4	38.81	[816, 4, 10, 38]	[0, 40, 35, 7]	[u'building', u'architecture']	91.36999999999999	950.0 5
+NaiveBayes 4	52.24	93.26	[816, 9, 24, 37]	[0, 35, 21, 8]	950.0	[u'building', u'architecture'] 4
+NaiveBayes 4	44.03	92.11	[816, 18, 10, 31]	[0, 26, 35, 14]	950.0	[u'building', u'architecture'] 3
+NaiveBayes 4	47.76 92.63	[816, 23, 3, 38]	[0, 21, 42, 7]	950.0	[u'building', u'architecture'] 2
+NaiveBayes 4	32.84	90.53	[816, 4, 2, 38]	[0, 40, 43, 7]	950.0	[u'building', u'architecture'] 6
+NaiveBayes 4	33.96	74.0	[576, 97, 23, 7]	[0, 27, 101, 119]	950.0	[u'leicester', u'kitchen'] 4
+NaiveBayes 4	54.7	88.84	[358, 6, 24, 34]	[0, 33, 15, 5]	475.0	[u'building'] 4
+NaiveBayes 4	47.16	90.98	[2759, 99, 145, 22]	[2, 87, 42, 169]	3325.0	[u'building', u'architecture', u'leicester', u'build', u'project', u'construction', u'soup']
+NaiveBayes 4	55.39	91.54 [4627, 168, 236, 187]	[6, 185, 119, 172]	5700.0	[u'building', u'architecture', u'leicester', u'build', u'project', u'construction', u'soup', u'group', u'index', u'contact', u'priest', u'slave']
+************SECTION 4***************
+NaiveBayes 5	39.36	88.54	[4627, 11, 233, 29, 147]	[6, 254, 32, 236, 125]	5700.0	4 [u'building', u'architecture', u'leicester', u'build', u'project', u'construction', u'soup', u'group', u'index', u'contact', u'priest', u'slave'] 4
+NaiveBayes 5	28.12	86.44	[4627, 1, 115, 37, 147]	[6, 264, 150, 228, 125]	5700.0	  5 [u'building', u'architecture', u'leicester', u'build', u'project', u'construction', u'soup', u'group', u'index', u'contact', u'priest', u'slave']
+NaiveBayes 5	36.93	88.09	[4627, 75, 144, 116, 59]	[6, 190, 121, 149, 213]	5700.0  3	[u'building', u'architecture', u'leicester', u'build', u'project', u'construction', u'soup', u'group', u'index', u'contact', u'priest', u'slave']
+NaiveBayes 5	99.03999999999999	95.37	[40, 413, 0, 0, 0]	[18, 4, 0, 0, 0]	475.0	[u'building']

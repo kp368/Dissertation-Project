@@ -5,6 +5,7 @@ from pagerank import PageRank
 from sorter import sort
 from util import clean
 from nltk import PorterStemmer as PS
+import matplotlib.pyplot as plt
 
 train_dir = abspath('../Train')
 test_dir = abspath('../Test')
@@ -33,11 +34,12 @@ def get_pages(folder):
 
 class LabeledFeatureSet(object):
 
-    def __init__(self,term_cnt=None,stem_cnt=None,pr=None,cat=None):
+    def __init__(self,term_cnt=None,stem_cnt=None,pr=None,cat=None,ordinal=None):
        self.pr = pr
        self.stem_cnt = stem_cnt
        self.term_cnt = term_cnt
        self.cat = cat
+       self.ordinal = ordinal
 
     @property
     def fs(self):
@@ -66,17 +68,22 @@ class FeatureSetCollection(defaultdict):
                 self[page][term].pr = pr
                 self[page][term].term_cnt, self[page][term].stem_cnt = get_count(term,clean_page)
 
-    def compute_cat(self,is_test):
+    def compute_cat(self, is_test):
         for term in self.terms:
             res = sort(term,is_test)
             l = len(res)
             for page in self.pages:
                 if (page in res[0:l/2]):
-                    self[page][term].cat =1
-                elif (page in res[l/2:l]):
-                    self[page][term].cat =2
-                else:
                     self[page][term].cat =0
+                else:
+                    self[page][term].cat =1
+
+    def compute_ord(self, is_test):
+        for term in self.terms:
+            res = sort(term, is_test)
+            for i, r in enumerate(res):
+                self[page][term].ordinal = i
+
 
 class TestFeatureSetCollection(FeatureSetCollection):
 
@@ -111,4 +118,56 @@ class LabeledFeatureSetCollection(FeatureSetCollection):
             for t in self.terms:
                 train_set.append(self[p][t].tuple)
         return train_set
+
+
+    def plot(self,test):
+        if test:
+            self.pages = get_pages(test_dir)
+            self.compute_fs(test)
+        xs = []
+        ys = []
+        for term in self.terms:
+            res = sort(term,test)
+            for i, page in enumerate(res):
+                pr = get_page_rank(page,test)
+                xs.append(i)
+                ys.append(pr)
+        plt.scatter(xs,ys,s=3)
+        plt.xlabel('PageRank')
+        plt.ylabel('Returns order')
+        if test:
+            plt.title('PageRank and Rank correlation plot(Test data)')
+        else:
+            plt.title('PageRank and Rank correlation plot(Train data)')
+        plt.show()
+
+
+    def plot_3d(self,test):
+        if test:
+            self.pages = get_pages(test_dir)
+            self.compute_fs(test)
+        xs = []
+        ys = []
+        zs = []
+        for term in self.terms:
+            res = sort(term,test)
+            for i, page in enumerate(res):
+                pr = get_page_rank(page,test)
+                xs.append(i)
+                ys.append(pr)
+                zs.append(self[page][term].term_cnt)
+        print zs
+        #plt.scatter(xs,ys,s=2)
+        #plt.axis([0,250,0,0.03])
+        from mpl_toolkits.mplot3d import Axes3D
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.scatter(xs,ys,zs)
+        plt.ylabel('PageRank')
+        plt.xlabel('Returns order')
+        if test:
+            plt.title('PageRank and Rank correlation plot(Test data)')
+        else:
+            plt.title('PageRank and Rank correlation plot(Train data)')
+        plt.show()
 
