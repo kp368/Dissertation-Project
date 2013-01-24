@@ -34,7 +34,7 @@ def get_pages(folder):
 
 class LabeledFeatureSet(object):
 
-    def __init__(self,term_cnt=None,stem_cnt=None,pr=None,cat=None,ordinal=None):
+    def __init__(self,term_cnt=None,stem_cnt=None,pr=None,cat=None,ordinal=float("inf")):
        self.pr = pr
        self.stem_cnt = stem_cnt
        self.term_cnt = term_cnt
@@ -48,6 +48,10 @@ class LabeledFeatureSet(object):
     @property
     def tuple(self):
         return self.fs,self.cat
+
+    @property
+    def fv(self):
+        return self.pr, self.stem_cnt, self.term_cnt
 
 class TestFeatureSet(LabeledFeatureSet):
     def __init__(self):
@@ -81,7 +85,7 @@ class FeatureSetCollection(defaultdict):
     def compute_ord(self, is_test):
         for term in self.terms:
             res = sort(term, is_test)
-            for i, r in enumerate(res):
+            for i, page in enumerate(res):
                 self[page][term].ordinal = i
 
 
@@ -110,6 +114,7 @@ class LabeledFeatureSetCollection(FeatureSetCollection):
         self.pages = get_pages(train_dir)
         self.compute_cat(False)
         self.compute_fs(False)
+        self.compute_ord(False)
 
     @property
     def train_set(self):
@@ -118,6 +123,22 @@ class LabeledFeatureSetCollection(FeatureSetCollection):
             for t in self.terms:
                 train_set.append(self[p][t].tuple)
         return train_set
+
+    @property
+    def X(self):
+        X = []
+        for p in self.pages:
+            for t in self.terms:
+                X.append(self[p][t].fv)
+        return X
+
+    @property
+    def Y(self):
+        Y = []
+        for p in self.pages:
+            for t in self.terms:
+                Y.append(self[p][t].ordinal)
+        return Y
 
 
     def plot(self,test):
