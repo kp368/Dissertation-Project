@@ -34,7 +34,7 @@ def get_pages(folder):
 
 class LabeledFeatureSet(object):
 
-    def __init__(self,term_cnt=None,stem_cnt=None,pr=None,cat=None,ordinal=float("inf")):
+    def __init__(self,term_cnt=None,stem_cnt=None,pr=None,cat=None,ordinal=10000):
        self.pr = pr
        self.stem_cnt = stem_cnt
        self.term_cnt = term_cnt
@@ -51,7 +51,7 @@ class LabeledFeatureSet(object):
 
     @property
     def fv(self):
-        return self.pr, self.stem_cnt, self.term_cnt
+        return self.pr, self.term_cnt
 
 class TestFeatureSet(LabeledFeatureSet):
     def __init__(self):
