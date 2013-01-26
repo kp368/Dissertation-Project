@@ -17,6 +17,10 @@ class Assessment:
     def assess(self):
         raise NotImplementedError("Subclasses should implement this.")
 
+class SVMAssessment(Assessment):
+
+    def assess(self):
+
 class NB3Assessment(Assessment):
 
     def assess(self):

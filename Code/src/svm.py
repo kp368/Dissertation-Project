@@ -25,13 +25,14 @@ import numpy.linalg as linalg
 #    return R
 
 def solve(data):
-    #X = matrix([[1.0,3.0]
-    #         ,[2.0,2.0]
-    #         ,[3.0,1.0]])
-    #Y = matrix([2.0,4.0,6.0]).T
+   # X = matrix([[0.0008,3.0]
+   #          ,[2,20.0]
+   #          ,[0.0004,1]
+   #          ,[5,0]])
+   # Y = matrix([0.0,2.0,1.0,3.0]).T
     X = matrix(data.XY[0],dtype='float')
     Y = matrix(data.XY[1],dtype='float').T
-    e = 2
+    e = 0.1
     C = 1
     a = svm(X, Y, e, C)
     return a
@@ -41,7 +42,6 @@ def svm (X, Y, e, C):
     #N = len(data.X)
     E = ones((N,1))
     E2 = vstack((E, E))
-    #K = get_kernel(data,'linear')
     K = X*X.T
     P = vstack((hstack(( K,-K))
               , hstack((-K, K))))

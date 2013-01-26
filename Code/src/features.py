@@ -16,7 +16,7 @@ def get_page_rank(page,is_test):
         rank = pr.by_name[page]
     except KeyError:
         rank = 0
-    return rank
+    return 1000*rank
 
 def get_count(term,page):
     t_count = page.count(term)+page.count(term.title())
@@ -91,12 +91,14 @@ class FeatureSetCollection(defaultdict):
 
 class TestFeatureSetCollection(FeatureSetCollection):
 
-    def __init__(self,terms,nb):
+    def __init__(self,terms,nb=None):
         super(TestFeatureSetCollection,self).__init__(terms,TestFeatureSet)
         self.pages = get_pages(test_dir)
-        self.compute_cat(True)
         self.terms = terms
-        self.predict_cat(nb)
+        self.compute_ord(True)
+        if nb:
+            self.compute_cat(True)
+            self.predict_cat(nb)
 
     def predict_cat(self,nb):
         for page in self.pages:
