@@ -34,7 +34,7 @@ def get_pages(folder):
 
 class LabeledFeatureSet(object):
 
-    def __init__(self,term_cnt=None,stem_cnt=None,pr=None,cat=None,ordinal=10000):
+    def __init__(self,term_cnt=None,stem_cnt=None,pr=None,cat=None,ordinal=None):
        self.pr = pr
        self.stem_cnt = stem_cnt
        self.term_cnt = term_cnt
@@ -123,6 +123,17 @@ class LabeledFeatureSetCollection(FeatureSetCollection):
             for t in self.terms:
                 train_set.append(self[p][t].tuple)
         return train_set
+
+    #return only relevant pages, e.g. those that have been actually ranked
+    @property
+    def XY(self):
+        X, Y = [], []
+        for p in self.pages:
+            for t in self.terms:
+                if self[p][t].ordinal != None:
+                    X.append(self[p][t].fv)
+                    Y.append(self[p][t].ordinal)
+        return X, Y
 
     @property
     def X(self):
