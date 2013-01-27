@@ -54,17 +54,45 @@ This constraint problem can be transformed into its dual form  by introducing La
   -\epsilon\sum_{n=1}^{N}(a_n+a_n^*) + \sum_{n=1}^{N}t_n(a_n-a_n^*)
  \end{gather}
 
+where \( Q_{ij}=K(x_i,x_j) \) is the kernel,
+
+subject to constraints:
+
+\begin{gather}
+  \sum_{n=1}^{N}(a_n-a_n^*)=0,\\
+  0\leq a_i, a_i^*\leq C,    i=1,...,l 
+\end{gather}
+
+Solving a constrained optimization problem requires a quadratic programming solver. Cvxopt is one of the few python
+libraries that implements a QP solver. The specification to the QP function is:
+
+\(cvxopt.solvers.qp(P,q,G,h,A,b)\) solves a pair of primal and dual convex quadraic programs
+\begin{gather}
+  \min \frac{1}{2} x^T P x + q^T x
+\end{gather}
+
+ subject to:
+
+\begin{gather}
+ G x \leq h\\
+  Ax = b
+\end{gather}
+
+Some transformations had to be made to make our problem fit with the existing library specification:
+
+\[M =
+\begin{bmatrix}
+       \frac{5}{6} & \frac{1}{6} & 0           \\
+       \frac{5}{6} & 0           & \frac{1}{6} \\
+       0           & \frac{5}{6} & \frac{1}{6}
+     \end{bmatrix}
+\]
+
 \begin{gather}
  min_{\alpha,\alpha^*} \frac{1}{2}(\alpha-\alpha^*)^T Q (\mathbf{\alpha - \alpha^*})+\epsilon 
 \sum_{i=1}^{l}(\alpha_i-\alpha_i^*)+\sum_{i=1}^{l}z_i(\alpha_i-\alpha_i^*)
 \end{gather}
 
-subject to constraints:
-
-\begin{gather}
-\exp^T(\alpha-\alpha^*)=0, 0\leq\alpha_i,\alpha_i^*\leq C, i=1,...,l ,
-\end{gather}
-where \( Q_{ij}=K(x_i,x_j) \) is the kernel.
 
 
 \end{document}
