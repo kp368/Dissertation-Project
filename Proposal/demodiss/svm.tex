@@ -1,0 +1,70 @@
+\documentclass[12pt]{article}
+\usepackage{parskip}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\begin{document}
+
+\section*{\(\epsilon\)-Support Vector Regression Theory and Implementation}
+
+We are given a set of training points \(D = \{ (\mathbf{x_1},t_1), (\mathbf{x_2},t_2), ... , (\mathbf{x_l},t_l) \}\) where
+\( \mathbf{x_i} \in R^n \) is a feature vector holding features of pages and \( \mathbf{t_i} \in R \) is the corresponding
+ranking of each page.
+
+While the binary classification problem has as its goal the maximization of the margin between the classes, regression is concerned 
+with fitting a hyperplane through the given training sequence.
+In simple linear regression the aim is to minimize a regularized error function. We will be using an \(\epsilon\)-insensitive error function:
+
+\(E_\phi(y(\mathbf(x)-t)) = \left\{
+  \begin{array}{l l}
+    0 & \quad \text{if \(|y(\mathbf{x})-t)|<\epsilon\)}\\
+    |y(\mathbf{x})-t)|-\epsilon & \quad \text{otherwise}
+  \end{array} \right.\)
+
+where \(y(\mathbf(x) = \mathbf{w^T}\phi(\mathbf{x})+b\) is the hyperplane equation (and so \(y(\mathbf{x}) \) is the predicted output) and \(t_n\) is the target (true) output.
+
+The regression tube then contains all the points for which \( y(\mathbf{x_n})-\epsilon \leq t_n \leq y(\mathbf{x_n})+\epsilon \):
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=120mm]{epsilon.jpg}
+\caption{TODO: plot these yourself!}
+\label{overflow}
+\end{figure}
+
+To allow variables to lie outside of the tube, slack variables \(\xi_n \geq 0\)and \(\xi_n^* \geq 0\) are introduced.
+The standard formulation of the error function for support vector regression (ref Vapnik 1998) can be written as follows:
+
+\begin{gather}
+E= C\sum_{n=1}^{N}(\xi_n+\xi_n^*)+\frac{1}{2}\|\mathbf{w}\|^2
+\end{gather}
+
+\(E\) must be minimized subject to four constraints:
+
+\begin{gather}
+  \xi_n\geq 0,\\
+  \xi_n^*\geq 0,\\
+  t_n \leq y(\mathbf{x_n})+\epsilon+\xi_n,\\
+  t_n \geq y(\mathbf{x_n})-\epsilon-\xi_n^*,
+\end{gather}
+
+This constraint problem can be transformed into its dual form  by introducing Lagrange multipliers \(a_n \geq 0, a_n^* \geq 0\):
+
+\begin{gather}
+  L(\mathbf{a},\mathbf{a^*}) = -\frac{1}{2}\sum_{n=1}^{N}\sum_{m=1}^{N}(a_n-a_n^*)(a_m-a_m^*)K(\mathbf{x_n},\mathbf{x_m})
+  -\epsilon\sum_{n=1}^{N}(a_n+a_n^*) + \sum_{n=1}^{N}t_n(a_n-a_n^*)
+ \end{gather}
+
+\begin{gather}
+ min_{\alpha,\alpha^*} \frac{1}{2}(\alpha-\alpha^*)^T Q (\mathbf{\alpha - \alpha^*})+\epsilon 
+\sum_{i=1}^{l}(\alpha_i-\alpha_i^*)+\sum_{i=1}^{l}z_i(\alpha_i-\alpha_i^*)
+\end{gather}
+
+subject to constraints:
+
+\begin{gather}
+\exp^T(\alpha-\alpha^*)=0, 0\leq\alpha_i,\alpha_i^*\leq C, i=1,...,l ,
+\end{gather}
+where \( Q_{ij}=K(x_i,x_j) \) is the kernel.
+
+
+\end{document}

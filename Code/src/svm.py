@@ -1,30 +1,26 @@
 from cvxopt.solvers import coneqp as QP
 from cvxopt import matrix as m
-from numpy import mean, vstack, hstack, ones, zeros, matrix, random, linalg, arange, eye
+from numpy import exp, mean, vstack, hstack, ones, zeros, matrix, random, linalg, arange, eye
 import numpy.linalg as linalg
 
-#def K_lin(x1,x2):
-#    return (np.dot(x1,x2)+1)**2
-#
-#def get_kernel(data,tok='linear'):
-#
-#    X = data.X
-#    
-#    #N = number of training samples
-#    N = len(X)
-#
-#    # init an NxN matrix to hold the kernel matrix
-#    Q = np.zeros([N,N])
-#
-#    if tok == 'linear':
-#        for i in np.arange(N):
-#            for j in np.arange(N):
-#                Q[i,j] = K_lin(X[i],X[j])+1
-#
-#    R = np.random.rand(N,N)
-#    return R
+def lin(x,y):
+    return (x*y.T)[0,0]
 
-def solve(data):
+def gauss(x,y):
+    sigma = 0.05
+    return exp(-sigma*linalg.norm(x-y)**2)
+
+def comb_sum(x,y):
+    return lin(x,y) + gauss(x,y)
+
+def comb_wsum(x,y):
+    a = 0.2
+    return (a**2)*lin(x,y)+(1-a)**2*gauss(x,y)
+
+def comb_prod(x,y):
+    return lin(x,y)*gauss(x,y)
+
+def solve(data, kern=lin):
    # X = matrix([[0.0008,3.0]
    #          ,[2,20.0]
    #          ,[0.0004,1]
@@ -32,17 +28,17 @@ def solve(data):
    # Y = matrix([0.0,2.0,1.0,3.0]).T
     X = matrix(data.XY[0],dtype='float')
     Y = matrix(data.XY[1],dtype='float').T
-    e = 0.1
+    e = 0.05
     C = 1
-    a = svm(X, Y, e, C)
+    a = svm(X, Y, e, C, kern)
     return a
 
-def svm (X, Y, e, C):
+def svm (X, Y, e, C, kern):
     N = len(X)
-    #N = len(data.X)
     E = ones((N,1))
     E2 = vstack((E, E))
-    K = X*X.T
+    K = matrix([[kern(x,y) for x in X] for y in X])
+    #K = X*X.T
     P = vstack((hstack(( K,-K))
               , hstack((-K, K))))
     #a trick to increase the rank of P without perturbing data too much
@@ -57,10 +53,10 @@ def svm (X, Y, e, C):
 
     a = matrix(QP(m(P), m(q), G=m(G), h=m(h))['x'])
 
-    #x is a matrix of form
     def predict (x):
-        b = mean(Y - e - a.T * hstack((X*X.T,-X*X.T)).T)
-        return a.T * hstack((x*X.T,-x*X.T)).T + b
+        b = mean(Y - e - a.T * hstack((K,-K)).T)
+        k = matrix([[kern(x,y)] for y in X])
+        return a.T * vstack((k,-k)) + b
 
     return predict
 

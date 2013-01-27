@@ -88,6 +88,15 @@ class FeatureSetCollection(defaultdict):
             for i, page in enumerate(res):
                 self[page][term].ordinal = i
 
+    @property
+    def XY(self):
+        X, Y = [], []
+        for p in self.pages:
+            for t in self.terms:
+                if self[p][t].ordinal != None:
+                    X.append(self[p][t].fv)
+                    Y.append(self[p][t].ordinal)
+        return X, Y
 
 class TestFeatureSetCollection(FeatureSetCollection):
 
@@ -95,6 +104,7 @@ class TestFeatureSetCollection(FeatureSetCollection):
         super(TestFeatureSetCollection,self).__init__(terms,TestFeatureSet)
         self.pages = get_pages(test_dir)
         self.terms = terms
+        self.compute_fs(True)
         self.compute_ord(True)
         if nb:
             self.compute_cat(True)
