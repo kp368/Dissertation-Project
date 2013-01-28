@@ -124,7 +124,7 @@ class LabeledFeatureSetCollection(FeatureSetCollection):
     def __init__(self,terms):
         super(LabeledFeatureSetCollection,self).__init__(terms)
         self.pages = get_pages(train_dir)
-        self.compute_cat(False)
+        #self.compute_cat(False)
         self.compute_fs(False)
         self.compute_ord(False)
 

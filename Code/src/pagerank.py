@@ -1,7 +1,7 @@
 from numpy import squeeze, asarray, argmax, mat, ones, eye
 from fractions import Fraction
 from os.path import abspath
-import cPickle
+import pickle
 
 def get_pr_dir(test):
     if (test):
@@ -35,7 +35,7 @@ class PageRank:
     def save(self,test=False):
         pagerank = get_pr_dir(test)
         with open(pagerank,"wb") as f:
-            cPickle.dump(self,f)
+            pickle.dump(self,f)
 
     @classmethod
     def load(cls,test=False):
@@ -45,12 +45,12 @@ class PageRank:
                 return cls.new['test']
             else:
                 with open(pagerank,"r") as f:
-                    cls.new['test'] = cPickle.load(f)
+                    cls.new['test'] = pickle.load(f)
                 return cls.new['test']
         else:
             if 'train' in cls.new:
                 return cls.new['train']
             else:
                 with open(pagerank,"r") as f:
-                    cls.new['train'] = cPickle.load(f)
+                    cls.new['train'] = pickle.load(f)
                 return cls.new['train']

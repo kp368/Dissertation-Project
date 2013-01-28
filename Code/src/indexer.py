@@ -43,10 +43,12 @@ def add_doc(writer,path):
     writer.add_document(title=title,content=content,path=path,time=mtime)
 
 def traverse(dir):
-    for root, dirs, files in os.walk(dir):
-        for f in files:
-            yield join(root,f)
-
+    try:
+        for root, dirs, files in os.walk(dir):
+            for f in files:
+                yield join(root,f)
+    except UnicodeDecodeError:
+        print root, f
 
 def index(dir,clean=False,test=False):
     if clean:
