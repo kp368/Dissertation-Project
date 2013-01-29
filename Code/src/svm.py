@@ -1,4 +1,5 @@
 from cvxopt.solvers import coneqp as QP
+from random import sample
 from cvxopt import matrix as m
 from numpy import exp, mean, vstack, hstack, ones, zeros, matrix, random, linalg, arange, eye
 import numpy.linalg as linalg
@@ -26,8 +27,14 @@ def solve(data, kern=lin):
    #          ,[0.0004,1]
    #          ,[5,0]])
    # Y = matrix([0.0,2.0,1.0,3.0]).T
-    X = matrix(data.XY[0],dtype='float')
-    Y = matrix(data.XY[1],dtype='float').T
+    #X = matrix(data.XY[0],dtype='float')
+    #Y = matrix(data.XY[1],dtype='float').T
+    XY = zip(data.X,data.Y)
+    #trim the datapoints before passing to svm
+    smpl = [XY[i] for i in sample(xrange(len(XY)),1000)]
+    X, Y = zip(*smpl)
+    X = matrix(X, dtype='float')
+    Y = matrix(Y, dtype='float').T
     e = 0.05
     C = 1
     a = svm(X, Y, e, C, kern)

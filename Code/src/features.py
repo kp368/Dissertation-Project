@@ -32,6 +32,15 @@ def get_pages(folder):
             pages.append(page)
     return pages
 
+def get_rpages(terms,test):
+    pages = []
+    for t in terms:
+        res = sort(t,test)
+        for page in res:
+            pages.append(page)
+    return pages
+
+
 class LabeledFeatureSet(object):
 
     def __init__(self,term_cnt=None,stem_cnt=None,pr=None,cat=None,ordinal=None):
@@ -102,7 +111,7 @@ class TestFeatureSetCollection(FeatureSetCollection):
 
     def __init__(self,terms,nb=None):
         super(TestFeatureSetCollection,self).__init__(terms,TestFeatureSet)
-        self.pages = get_pages(test_dir)
+        self.pages = get_rpages(terms,True)
         self.terms = terms
         self.compute_fs(True)
         self.compute_ord(True)
@@ -123,7 +132,7 @@ class LabeledFeatureSetCollection(FeatureSetCollection):
 
     def __init__(self,terms):
         super(LabeledFeatureSetCollection,self).__init__(terms)
-        self.pages = get_pages(train_dir)
+        self.pages = get_rpages(terms,False)
         #self.compute_cat(False)
         self.compute_fs(False)
         self.compute_ord(False)
@@ -160,7 +169,8 @@ class LabeledFeatureSetCollection(FeatureSetCollection):
         Y = []
         for p in self.pages:
             for t in self.terms:
-                Y.append(self[p][t].ordinal)
+                if self[p][t].ordinal != None:
+                    Y.append(self[p][t].ordinal)
         return Y
 
 
