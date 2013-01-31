@@ -4,8 +4,8 @@ Code/src/*.pyc
 Code/Data/*.p
 Code/Data/index/*
 Code/Data/test_index/*
-Code/Test/*
+Code/Test*
 Code/web/*
-Code/Train/*
+Code/Train*
 Proposal/*
 Papers/*

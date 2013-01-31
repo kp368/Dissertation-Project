@@ -6,7 +6,7 @@ from pagerank import PageRank
 import sys
 from os.path import dirname, abspath, normpath, join
 from page import Page
-from numpy import zeros, set_printoptions, nan
+from numpy import ones, zeros, set_printoptions, nan
 from fractions import Fraction
 
 #force full arrays to be printed
@@ -94,5 +94,4 @@ if __name__ == "__main__":
     isTest = (sys.argv[2]=='True')
     c = Crawler(page_name)
     pr = PageRank(c)
-    print pr.by_name
     pr.save(isTest)

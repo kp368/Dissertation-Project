@@ -2,8 +2,11 @@ from features import LabeledFeatureSetCollection as L, TestFeatureSetCollection 
 import svm
 import plot
 
-l = L([u'building',u'arcitecture',u'construction',u'materials'])
-t = T([u'building',u'arcitecture',u'construction',u'materials'])
+def data():
+    l = L([u'arcitecture',u'building'])
+    t = T([u'arcitecture',u'building'])
+    return l, t
 
-f = svm.solve(l)
-plot.plot(f,l.XY,t.XY)
+def plt(l,t):
+    f = svm.solve(l,svm.comb_prod)
+    plot.plot(f,l.XY,t.XY)

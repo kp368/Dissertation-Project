@@ -8,7 +8,7 @@ def lin(x,y):
     return (x*y.T)[0,0]
 
 def gauss(x,y):
-    sigma = 0.05
+    sigma = 0.25
     return exp(-sigma*linalg.norm(x-y)**2)
 
 def comb_sum(x,y):
@@ -22,20 +22,20 @@ def comb_prod(x,y):
     return lin(x,y)*gauss(x,y)
 
 def solve(data, kern=lin):
-   # X = matrix([[0.0008,3.0]
+   # OBX = matrix([[0.0008,3.0]
    #          ,[2,20.0]
    #          ,[0.0004,1]
    #          ,[5,0]])
    # Y = matrix([0.0,2.0,1.0,3.0]).T
-    #X = matrix(data.XY[0],dtype='float')
-    #Y = matrix(data.XY[1],dtype='float').T
-    XY = zip(data.X,data.Y)
+   # X = matrix(data.XY[0],dtype='float')
+   # Y = matrix(data.XY[1],dtype='float').T
+    XY = zip(data.XY[0],data.XY[1])
     #trim the datapoints before passing to svm
-    smpl = [XY[i] for i in sample(xrange(len(XY)),1000)]
+    smpl = [XY[i] for i in sample(xrange(len(XY)),200)]
     X, Y = zip(*smpl)
     X = matrix(X, dtype='float')
     Y = matrix(Y, dtype='float').T
-    e = 0.05
+    e = 0.0
     C = 1
     a = svm(X, Y, e, C, kern)
     return a

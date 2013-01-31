@@ -1,6 +1,7 @@
 from indexer import search
 from pagerank import PageRank
 import sys
+from random import random
 
 def sort(uquery,test=False):
     res = search(uquery,test)
@@ -9,7 +10,7 @@ def sort(uquery,test=False):
         try:
             return pr.by_name[r]
         except KeyError:
-            return 0
+            return random()/1000
     #print res
     # print '\n'
     return sorted(res,key=get_key,reverse=True)

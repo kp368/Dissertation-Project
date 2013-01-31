@@ -6,17 +6,20 @@ from sorter import sort
 from util import clean
 from nltk import PorterStemmer as PS
 import matplotlib.pyplot as plt
+from random import random
 
+max_pr = 10
+max_cnt = 12
 train_dir = abspath('../Train')
 test_dir = abspath('../Test')
 
 def get_page_rank(page,is_test):
     pr = PageRank.load(test=is_test)
     try:
-        rank = pr.by_name[page]
+        rank = 1000*pr.by_name[page]
     except KeyError:
-        rank = 0
-    return 1000*rank
+        rank = random()
+    return rank
 
 def get_count(term,page):
     t_count = page.count(term)+page.count(term.title())
@@ -95,14 +98,15 @@ class FeatureSetCollection(defaultdict):
         for term in self.terms:
             res = sort(term, is_test)
             for i, page in enumerate(res):
-                self[page][term].ordinal = i
+                self[page][term].ordinal = 1.0/(i+1)
 
     @property
     def XY(self):
         X, Y = [], []
         for p in self.pages:
             for t in self.terms:
-                if self[p][t].ordinal != None:
+                s = self[p][t]
+                if s.ordinal != None and s.pr<max_pr and s.term_cnt<max_cnt:
                     X.append(self[p][t].fv)
                     Y.append(self[p][t].ordinal)
         return X, Y
@@ -145,17 +149,6 @@ class LabeledFeatureSetCollection(FeatureSetCollection):
                 train_set.append(self[p][t].tuple)
         return train_set
 
-    #return only relevant pages, e.g. those that have been actually ranked
-    @property
-    def XY(self):
-        X, Y = [], []
-        for p in self.pages:
-            for t in self.terms:
-                if self[p][t].ordinal != None:
-                    X.append(self[p][t].fv)
-                    Y.append(self[p][t].ordinal)
-        return X, Y
-
     @property
     def X(self):
         X = []
@@ -169,8 +162,7 @@ class LabeledFeatureSetCollection(FeatureSetCollection):
         Y = []
         for p in self.pages:
             for t in self.terms:
-                if self[p][t].ordinal != None:
-                    Y.append(self[p][t].ordinal)
+                Y.append(self[p][t].ordinal)
         return Y
 
 
