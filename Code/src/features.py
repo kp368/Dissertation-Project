@@ -8,7 +8,7 @@ from nltk import PorterStemmer as PS
 import matplotlib.pyplot as plt
 from random import random
 
-max_pr = 10
+max_pr = 4
 max_cnt = 12
 train_dir = abspath('../Train')
 test_dir = abspath('../Test')
@@ -98,7 +98,7 @@ class FeatureSetCollection(defaultdict):
         for term in self.terms:
             res = sort(term, is_test)
             for i, page in enumerate(res):
-                self[page][term].ordinal = 1.0/(i+1)
+                self[page][term].ordinal = i
 
     @property
     def XY(self):
