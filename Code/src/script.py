@@ -1,10 +1,10 @@
-from features import LabeledFeatureSetCollection as L, TestFeatureSetCollection as T
+import features
 import svm
 import plot
 
 def data():
-    l = L([u'arcitecture',u'building'])
-    t = T([u'arcitecture',u'building'])
+    l = features.LabeledFeatureSetCollection([u'arcitecture',u'building'])
+    t = features.TestFeatureSetCollection([u'arcitecture',u'building'])
     return l, t
 
 def plt(l,t):
