@@ -1,0 +1,7 @@
+Kernel Type     Train MSE     Test MSE    Sigma
+
+Linear          59.16         46.11         x
+Gauss	          68.85	        69.38       0.25
+Gauss*Linear	  53.21	        47.95       0.25
+     -          51.87         51.92       0.85
+     -          53.44         54.72       0.5
