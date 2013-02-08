@@ -4,15 +4,40 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 import matplotlib.pyplot as plt
 import numpy as np
 
-def scatter(ax):
+def label(ax):
 
     ax.set_xlabel('PageRank')
     ax.set_ylabel('Occurence')
     ax.set_zlabel('Ranking')
 
-def plot(f,XY,XY2):
-    pr_max =10
-    occ_max =12
+
+def plot(f,train,test):
+
+    fig1, fig2 = plt.figure(1), plt.figure(2)
+    ax1, ax2 = fig1.add_subplot(111), fig2.add_subplot(111)
+    t = 'Performance Prediction with a Linear Kernel'
+
+    def p(ax,d,title,y_ax='Score'):
+
+        x = np.arange(len(d[0]))
+        y_act = d[1]
+        y_pred = [f(i)[0,0] for i in d[0] ]
+        ax.set_title(title)
+        ax.set_xlabel('Page Number')
+        ax.set_ylabel(y_ax)
+        ax.scatter(x,y_act,s=10,c='b',marker='x',label='Actual Rank')
+        ax.scatter(x,y_pred,s=10,c='r',marker='o',label='Predicted Rank')
+        ax.legend(('Actual Rank','Predicted Rank'),'lower right')
+
+    p(ax1,train,t+' (train)')
+    p(ax2,test,t+' (test)')
+
+    plt.show()
+
+
+def plot_hyper(f,XY,XY2):
+    pr_max =5
+    occ_max =6
     train = plt.figure(1)
     test = plt.figure(2)
     ax = train.gca(projection='3d')
@@ -34,8 +59,8 @@ def plot(f,XY,XY2):
     cset = ax2.contour(a, b, Z, zdir='z', offset = -0.1, cmap=cm.coolwarm)
     ax.plot_surface(a, b, Z, rstride=8, cstride=8, alpha=0.3, cmap=cm.coolwarm)
     cset = ax.contour(a, b, Z, zdir='z', offset = -0.1, cmap=cm.coolwarm)
-    scatter(ax)
-    scatter(ax2)
+    label(ax)
+    label(ax2)
     A = np.matrix(XY[0])
     #A, ind = zip(*[(XY[0][i],i) for i in np.arange(len(XY[0])) if (XY[0][i][0]<pr_max and XY[0][i][1]<occ_max)])
     #A = np.matrix(A)
