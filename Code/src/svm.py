@@ -1,15 +1,25 @@
 from cvxopt.solvers import coneqp as QP
 from random import sample
 from cvxopt import matrix as m
-from numpy import exp, mean, vstack, hstack, ones, zeros, matrix, random, linalg, arange, eye
+from numpy import tanh, exp, mean, vstack, hstack, ones, zeros, matrix, random, linalg, arange, eye
 import numpy.linalg as linalg
 
 def lin(x,y):
     return (x*y.T)[0,0]
 
 def gauss(x,y):
-    sigma = 0.25
+    sigma = 5
     return exp(-sigma*linalg.norm(x-y)**2)
+
+def poly(x,y):
+    a = 4.0
+    d = 3
+    return (a*(x*y.T)[0,0])**d
+
+def sigmoid(x,y):
+    a =1.0/300
+    c =0
+    return tanh(a*((x*y.T)[0,0])+c)
 
 def comb_sum(x,y):
     return lin(x,y) + gauss(x,y)

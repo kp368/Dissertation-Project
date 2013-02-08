@@ -8,7 +8,8 @@ from nltk import PorterStemmer as PS
 import matplotlib.pyplot as plt
 from random import random
 
-max_pr = 4
+MODE = 'score'
+max_pr = 10
 max_cnt = 12
 train_dir = abspath('../Train')
 test_dir = abspath('../Test')
@@ -47,23 +48,36 @@ def get_rpages(terms,test):
 class LabeledFeatureSet(object):
 
     def __init__(self,term_cnt=None,stem_cnt=None,pr=None,cat=None,ordinal=None):
-       self.pr = pr
-       self.stem_cnt = stem_cnt
-       self.term_cnt = term_cnt
-       self.cat = cat
-       self.ordinal = ordinal
+
+        #these are features of the page
+        self.pr = pr
+        self.stem_cnt = stem_cnt
+        self.term_cnt = term_cnt
+
+        #Now concerned with regression, no need to compute category
+        #self.cat = cat
+        #ordinal represents the rank of the page
+        self.ordinal = ordinal
+
+
+    @property
+    def score(self):
+        #return sum(self.fv)
+        return (self.pr)**2 +self.term_cnt
 
     @property
     def fs(self):
         return dict(pr=self.pr,stem_cnt=self.stem_cnt,term_cnt=self.term_cnt)
 
     @property
-    def tuple(self):
-        return self.fs,self.cat
+    def dict(self):
+        return dict(fs=self.fs,ord=self.ordinal)
 
     @property
     def fv(self):
-        return self.pr, self.term_cnt
+        return self.pr, self.term_cnt, self.stem_cnt
+
+
 
 class TestFeatureSet(LabeledFeatureSet):
     def __init__(self):
@@ -100,15 +114,20 @@ class FeatureSetCollection(defaultdict):
             for i, page in enumerate(res):
                 self[page][term].ordinal = i
 
+
     @property
     def XY(self):
         X, Y = [], []
         for p in self.pages:
             for t in self.terms:
                 s = self[p][t]
-                if s.ordinal != None and s.pr<max_pr and s.term_cnt<max_cnt:
+                if s.term_cnt>0:#s.ordinal != None and s.pr<max_pr and s.term_cnt<max_cnt:
                     X.append(self[p][t].fv)
-                    Y.append(self[p][t].ordinal)
+                    if MODE=='rank':
+                        Y.append(self[p][t].ordinal)
+                    if MODE=='score':
+                        Y.append(self[p][t].score)
+
         return X, Y
 
 class TestFeatureSetCollection(FeatureSetCollection):
@@ -118,7 +137,8 @@ class TestFeatureSetCollection(FeatureSetCollection):
         self.pages = get_rpages(terms,True)
         self.terms = terms
         self.compute_fs(True)
-        self.compute_ord(True)
+        if MODE=='rank':
+            self.compute_ord(True)
         if nb:
             self.compute_cat(True)
             self.predict_cat(nb)
@@ -139,7 +159,8 @@ class LabeledFeatureSetCollection(FeatureSetCollection):
         self.pages = get_rpages(terms,False)
         #self.compute_cat(False)
         self.compute_fs(False)
-        self.compute_ord(False)
+        if MODE=='rank':
+            self.compute_ord(False)
 
     @property
     def train_set(self):
@@ -148,22 +169,6 @@ class LabeledFeatureSetCollection(FeatureSetCollection):
             for t in self.terms:
                 train_set.append(self[p][t].tuple)
         return train_set
-
-    @property
-    def X(self):
-        X = []
-        for p in self.pages:
-            for t in self.terms:
-                X.append(self[p][t].fv)
-        return X
-
-    @property
-    def Y(self):
-        Y = []
-        for p in self.pages:
-            for t in self.terms:
-                Y.append(self[p][t].ordinal)
-        return Y
 
 
     def plot(self,test):
