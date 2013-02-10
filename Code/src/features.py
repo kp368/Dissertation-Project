@@ -47,12 +47,13 @@ def get_rpages(terms,test):
 
 class LabeledFeatureSet(object):
 
-    def __init__(self,term_cnt=None,stem_cnt=None,pr=None,cat=None,ordinal=None):
+    def __init__(self):
 
         #these are features of the page
-        self.pr = pr
-        self.stem_cnt = stem_cnt
-        self.term_cnt = term_cnt
+        self.pr = None
+        self.stem_cnt = None
+        self.term_cnt = None
+        self.pic = False
 
         #Now concerned with regression, no need to compute category
         #self.cat = cat

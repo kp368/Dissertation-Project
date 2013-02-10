@@ -7,7 +7,7 @@ import numpy.linalg as linalg
 def lin(x,y,args=None):
     return (x*y.T)[0,0]
 
-def gauss(x,y,sigma=0.5):
+def gauss(x,y,sigma):
     return exp(-sigma*linalg.norm(x-y)**2)
 
 def poly(x,y,d):
@@ -38,7 +38,7 @@ class SVM:
         Y = self.Y
         XY = zip(X,Y)
         smpl = [XY[i] for i in sample(xrange(len(XY)),200)]
-        return zip(*smpl)
+        self.X, self.Y =zip(*smpl)
 
     def solve(self, kern=lin, args=None):
         X = self.X
@@ -58,7 +58,7 @@ class SVM:
         N = len(X)
         E = ones((N,1))
         E2 = vstack((E, E))
-        K = matrix([[kern(x,y) for x in X] for y in X])
+        K = matrix([[kern(x,y,args) for x in X] for y in X])
         #K = X*X.T
         P = vstack((hstack(( K,-K))
                   , hstack((-K, K))))
