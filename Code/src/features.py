@@ -3,7 +3,7 @@ from os.path import join, abspath
 from os import walk
 from pagerank import PageRank
 from sorter import sort
-from util import clean
+from util import clean, has_image
 from nltk import PorterStemmer as PS
 import matplotlib.pyplot as plt
 from random import random
@@ -53,12 +53,12 @@ class LabeledFeatureSet(object):
         self.pr = None
         self.stem_cnt = None
         self.term_cnt = None
-        self.pic = False
+        self.pic = None
 
         #Now concerned with regression, no need to compute category
         #self.cat = cat
         #ordinal represents the rank of the page
-        self.ordinal = ordinal
+        self.ordinal = None
 
 
     @property
@@ -82,7 +82,7 @@ class LabeledFeatureSet(object):
 
     @property
     def fv(self):
-        return self.pr, self.term_cnt, self.stem_cnt
+        return self.pr, self.term_cnt, self.stem_cnt, self.pic
 
 
 
@@ -104,6 +104,7 @@ class FeatureSetCollection(defaultdict):
             for term in self.terms:
                 self[page][term].pr = pr
                 self[page][term].term_cnt, self[page][term].stem_cnt = get_count(term,clean_page)
+                self[page][term].pic = has_image(page)
 
     def compute_cat(self, is_test):
         for term in self.terms:
