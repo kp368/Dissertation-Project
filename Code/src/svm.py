@@ -55,12 +55,6 @@ class SVM:
         Y = matrix(Y, dtype='float').T
         e = 0.0
         C = 1
-        a = svm(X, Y, e, C, kern, args)
-        return a
-
-    def svm (self, e, C, kern, args):
-        X = self.X
-        Y = self.Y
         N = len(X)
         E = ones((N,1))
         E2 = vstack((E, E))
@@ -86,6 +80,7 @@ class SVM:
             return a.T * vstack((k,-k)) + b
 
         return predict
+
 
 if __name__ == "__main__":
     args = []
