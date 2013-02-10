@@ -62,8 +62,14 @@ class LabeledFeatureSet(object):
 
     @property
     def score(self):
+        return sum(self.fv)
+
+    def get_score(self,g):
         #return sum(self.fv)
-        return (self.pr)**2 +self.term_cnt
+        if g:
+            return g(self.pr, self.term_cnt, self.stem_cnt)
+        else:
+            return self.score
 
     @property
     def fs(self):
@@ -117,6 +123,9 @@ class FeatureSetCollection(defaultdict):
 
     @property
     def XY(self):
+        return self.get_XY()
+
+    def get_XY(self,g=None):
         X, Y = [], []
         for p in self.pages:
             for t in self.terms:
@@ -126,7 +135,7 @@ class FeatureSetCollection(defaultdict):
                     if MODE=='rank':
                         Y.append(self[p][t].ordinal)
                     if MODE=='score':
-                        Y.append(self[p][t].score)
+                        Y.append(self[p][t].get_score(g))
 
         return X, Y
 
