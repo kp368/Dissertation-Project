@@ -15,9 +15,11 @@ def evaluate(train,test):
 
     X_tr = train.XY[0]
     X_ts = test.XY[0]
+    error = 0.5
 
     with open('eval.csv','a') as f:
         writer = csv.writer(f,delimiter='\t')
+        writer.writerow(['-------------------------'])
         for h in h_names:
             for k in k_names:
 
@@ -28,17 +30,18 @@ def evaluate(train,test):
                 Y_ts = test.get_XY(heuristic)[1]
 
                 #compute a predict function with svm
-                S = SVM(X_tr,Y_tr)
+                S = SVM(X_tr,Y_tr,error)
                 S.sample()
                 kernel = k_funs[k] 
 
                 for a in arg:
-                    fun = S.solve(kernel,a)
+                    if S.solve(kernel,a)=='optimal':
 
-                    #compute error for both train and test data
-                    train_mse =  mse(X_tr,Y_tr,fun)
-                    test_mse =  mse(X_ts,Y_ts,fun)
+                        fun = S.predict
+                        #compute error for both train and test data
+                        train_mse =  mse(X_tr,Y_tr,fun)
+                        test_mse =  mse(X_ts,Y_ts,fun)
 
-                    #write to memory
-                    writer.writerow([h,k,a,train_mse,test_mse])
+                        #write to memory
+                        writer.writerow([h,k,a,train_mse,test_mse,error])
 

@@ -29,9 +29,12 @@ def comb_prod(x,y,args):
 
 class SVM:
 
-    def __init__(self,X,Y):
+    def __init__(self,X,Y,error):
         self.X = X
         self.Y = Y
+        self.a = None
+        self.e = error
+        self.predict = None
 
     def sample(self):
         X = self.X
@@ -43,6 +46,7 @@ class SVM:
     def solve(self, kern=lin, args=None):
         X = self.X
         Y = self.Y
+        e = self.e
        # OBX = matrix([[0.0008,3.0]
        #          ,[2,20.0]
        #          ,[0.0004,1]
@@ -53,7 +57,6 @@ class SVM:
         #trim the datapoints before passing to svm
         X = matrix(X, dtype='float')
         Y = matrix(Y, dtype='float').T
-        e = 0.0
         C = 1
         N = len(X)
         E = ones((N,1))
@@ -71,15 +74,18 @@ class SVM:
         G = vstack((A.T, -I, I))
         h = vstack(([[0]],0*E2,C*E2))
         #b = 0.0
+        sol = QP(m(P), m(q), G=m(G), h=m(h))
+        self.a = matrix(sol['x'])
+        st = sol['status']
 
-        a = matrix(QP(m(P), m(q), G=m(G), h=m(h))['x'])
 
         def predict (x):
-            b = mean(Y - e - a.T * hstack((K,-K)).T)
+            b = mean(Y - e - self.a.T * hstack((K,-K)).T)
             k = matrix([[kern(x,y,args)] for y in X])
-            return a.T * vstack((k,-k)) + b
+            return self.a.T * vstack((k,-k)) + b
 
-        return predict
+        self.predict = predict
+        return st
 
 
 if __name__ == "__main__":
