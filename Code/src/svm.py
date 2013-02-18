@@ -1,4 +1,4 @@
-from cvxopt.solvers import coneqp as QP
+from cvxopt.solvers import qp as QP
 from random import sample
 from cvxopt import matrix as m
 from numpy import tanh, exp, mean, vstack, hstack, ones, zeros, matrix, random, linalg, arange, eye
@@ -69,12 +69,12 @@ class SVM:
         #P = P + np.eye(2*N)*1e-10
         q = vstack((e*E-Y, e*E+Y))
 
-        A = vstack((E, -E))
+        A = vstack((E, -E)).T
         I = eye(2*N)
-        G = vstack((A.T, -I, I))
-        h = vstack(([[0]],0*E2,C*E2))
-        #b = 0.0
-        sol = QP(m(P), m(q), G=m(G), h=m(h))
+        G = vstack((A,-A,-I, I))
+        h = vstack(([[0]],[[0]],0*E2,C*E2))
+        b = 0.0
+        sol = QP(m(P), m(q), G=m(G), h=m(h))#, A=m(A), b =m(b))
         self.a = matrix(sol['x'])
         st = sol['status']
 
