@@ -1,0 +1,148 @@
+\documentclass[12pt,twoside,notitlepage]{report}
+
+\usepackage{a4}
+\usepackage{verbatim}
+\raggedbottom                           % try to avoid widows and orphans
+\sloppy
+\clubpenalty1000%
+\widowpenalty1000%
+
+\addtolength{\oddsidemargin}{6mm}       % adjust margins
+\addtolength{\evensidemargin}{-8mm}
+
+\renewcommand{\baselinestretch}{1.1}    % adjust line spacing to make
+
+\begin{document}
+
+\bibliographystyle{plain}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Title
+
+
+\pagestyle{empty}
+
+\hfill{\LARGE \bf Karina Palyutina}
+
+\vspace*{60mm}
+\begin{center}
+\Huge
+{\bf Machine learning inference of search engine heuristics} \\
+\vspace*{5mm}
+Part II Project \\
+\vspace*{5mm}
+St Catharine's College \\
+\vspace*{5mm}
+\today  % today's date
+\end{center}
+
+\cleardoublepage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Proforma, table of contents and list of figures
+
+\setcounter{page}{1}
+\pagenumbering{roman}
+\pagestyle{plain}
+
+\chapter*{Proforma}
+
+{\large
+\begin{tabular}{ll}
+Name:               & \bf Karina Palyutina                       \\
+College:            & \bf St Catharine's College                     \\
+Project Title:      & \bf Machine learning inference of search engine heuristics \\
+Examination:        & \bf Part II Project        \\
+Word Count:         & \bf \footnotemark[1]     \\
+Project Originator: & Dr Jon Crowcroft                    \\
+Supervisor:         & Dr Jon Crowcroft                  \\ 
+\end{tabular}
+}
+\footnotetext[1]{This word count was computed
+by {\tt detex diss.tex | tr -cd '0-9A-Za-z $\tt\backslash$n' | wc -w}
+}
+\stepcounter{footnote}
+
+\newpage
+\section*{Declaration of Originality}
+
+I, [Name] of [College], being a candidate for Part II of the Computer
+Science Tripos [or the Diploma in Computer Science], hereby declare
+that this dissertation and the work described in it are my own work,
+unaided except as may be specified below, and that the dissertation
+does not contain material that has already been used to any substantial
+extent for a comparable purpose.
+
+\bigskip
+\leftline{Signed [signature]}
+
+\medskip
+\leftline{Date [date]}
+
+\cleardoublepage
+
+\tableofcontents
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% now for the chapters
+
+\cleardoublepage        % just to make sure before the page numbering
+                        % is changed
+
+\setcounter{page}{1}
+\pagenumbering{arabic}
+\pagestyle{headings}
+
+\chapter*{Introduction}
+
+\cleardoublepage
+
+\chapter*{Preparation}
+
+\cleardoublepage
+
+\chapter*{Implementation}
+This section describes parts of the system that I have implemented.
+
+\section{Search Engine}
+Overview
+
+\subsection{PageRank}
+\subsection{Indexer}
+\subsection{Optimization}
+
+\section{Parser}
+
+\section{Machine Learning}
+Overview
+\subsection{Naive Bayes}
+
+\subsection{Support Vector Machine}
+
+\cleardoublepage
+\chapter*{Evaluation}
+
+
+\cleardoublepage
+\chapter*{Conclusion}
+
+\cleardoublepage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% the bibliography
+
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliography{refs}
+\cleardoublepage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% the appendices
+\appendix
+
+\chapter{Project Proposal}
+
+%\input{propbody}
+
+\end{document}
