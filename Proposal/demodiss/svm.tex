@@ -2,6 +2,7 @@
 \usepackage{parskip}
 \usepackage{graphicx}
 \usepackage{amsmath}
+\usepackage{bm}
 \begin{document}
 
 \section*{\(\epsilon\)-Support Vector Regression Theory and Implementation}
@@ -47,52 +48,144 @@ E= C\sum_{n=1}^{N}(\xi_n+\xi_n^*)+\frac{1}{2}\|\mathbf{w}\|^2
   t_n \geq y(\mathbf{x_n})-\epsilon-\xi_n^*,
 \end{gather}
 
-This constraint problem can be transformed into its dual form  by introducing Lagrange multipliers \(a_n \geq 0, a_n^* \geq 0\):
+This constraint problem can be transformed into its dual form  by introducing Lagrange multipliers 
+\(a_n \geq 0, a_n^* \geq 0\).
+The dual problem involves maximizing
 
 \begin{gather}
   L(\mathbf{a},\mathbf{a^*}) = -\frac{1}{2}\sum_{n=1}^{N}\sum_{m=1}^{N}(a_n-a_n^*)(a_m-a_m^*)K(\mathbf{x_n},\mathbf{x_m})
+\end{gather}
+\begin{gather*}
   -\epsilon\sum_{n=1}^{N}(a_n+a_n^*) + \sum_{n=1}^{N}t_n(a_n-a_n^*)
- \end{gather}
+ \end{gather*}
 
-where \( Q_{ij}=K(x_i,x_j) \) is the kernel,
+where \(K(x_n,x_m) \) is the kernel function, \(t_n\) is the target output,
 
-subject to constraints:
+subject to constraints
 
 \begin{gather}
   \sum_{n=1}^{N}(a_n-a_n^*)=0,\\
-  0\leq a_i, a_i^*\leq C,    i=1,...,l 
+  0\leq a_n,\; a_n^*\leq C,\;\;    n=1,...,l 
 \end{gather}
 
+
+The maximization problem (6) can be expressed as a minimization problem
+
+\begin{gather}
+  min_{\bm{\alpha},\bm{\alpha^*}} \frac{1}{2}(\bm{\alpha-\alpha^*})^T P (\bm{\alpha - \alpha^*})+\epsilon 
+\sum_{i=1}^{l}(\alpha_i+\alpha_i^*)-\sum_{i=1}^{l}t_i(\alpha_i-\alpha_i^*)
+\end{gather}
+subject to
+
+\begin{gather}
+  \mathbf{e(\bm{\alpha}}-\bm{\alpha^*})=0 \\
+  0\leq \alpha_i,\alpha_i^* \leq C, \;i=1,...,l
+ \end{gather}
+
+where
+\(\mathbf{e}=[1,...,1],\;P_{ij}=K(x_i,x_j),\;t_i\) is the target output, \(C > 0\) and \(\epsilon > 0.\)
+
 Solving a constrained optimization problem requires a quadratic programming solver. Cvxopt is one of the few python
-libraries that implements a QP solver. The specification to the QP function is:
+libraries that implements a QP solver. The specification to the QP function is given as follows:
 
 \(cvxopt.solvers.qp(P,q,G,h,A,b)\) solves a pair of primal and dual convex quadraic programs
 \begin{gather}
   \min \frac{1}{2} x^T P x + q^T x
 \end{gather}
 
- subject to:
+ subject to
 
 \begin{gather}
  G x \leq h\\
   Ax = b
 \end{gather}
 
-Some transformations had to be made to make our problem fit with the existing library specification:
+The goal was, therefore, to express (9) in terms of (12) and their respective constraints.
+Described below is the transformation I devised to solve equation (9) using existing implementation that requires (12).
+We take x to encode both \(\bm{\alpha}\) and \(\bm{\alpha^*}\) simultaneously, treating the upper half of x as 
+\(\bm{\alpha}\) and the lower half 
+as \(\bm{\alpha^*}\):
 
-\[M =
+
+\[x =
+  \begin{bmatrix}
+    \bm{ \alpha} \\
+    \bm{ \alpha^*}
+  \end{bmatrix}
+\]
+
+Take P in equation (12) as 
+
+\[P =
 \begin{bmatrix}
-       \frac{5}{6} & \frac{1}{6} & 0           \\
-       \frac{5}{6} & 0           & \frac{1}{6} \\
-       0           & \frac{5}{6} & \frac{1}{6}
+       K & -K           \\
+       -K & K            
      \end{bmatrix}
 \]
 
-\begin{gather}
- min_{\alpha,\alpha^*} \frac{1}{2}(\alpha-\alpha^*)^T Q (\mathbf{\alpha - \alpha^*})+\epsilon 
-\sum_{i=1}^{l}(\alpha_i-\alpha_i^*)+\sum_{i=1}^{l}z_i(\alpha_i-\alpha_i^*)
-\end{gather}
+where \(K_{ij} = K(x_i,x_j)\).
 
+Observe that now \(x^T P x\) is the same as 
+\(\sum_{n=1}^{N}\sum_{m=1}^{N}(a_n-a_n^*)(a_m-a_m^*)K(x_n,x_m)\) in (6) and 
+
+Take q to hold the rest of (9).
+\[q =
+\begin{bmatrix}
+  \epsilon*\mathbf{e}-t_0           \\
+  \vdots                                     \\
+  \epsilon*\mathbf{e}-t_{N-1}           \\
+   \epsilon*\mathbf{e}+t_0           \\
+   \vdots                           \\
+  \epsilon*\mathbf{e}+t_{N-1}           \\
+     \end{bmatrix}
+\]
+
+Now to encode constraint (11) consider the following pair of G and h
+
+\[G =
+\begin{matrix} %This is the super matrix
+    \begin{matrix}   %One-row matrix to hold the brace
+      \overbrace{\hphantom{\begin{matrix}-1 & \cdots & -1\end{matrix}}}^{\text{\footnotesize N}}
+                                  &
+      \overbrace{
+        \hphantom{\begin{matrix}-1 & \cdots & -1\end{matrix}}
+      }^{\text{\footnotesize N}}
+    \end{matrix}
+    &
+  \\
+\begin{bmatrix}
+ -1 & 0 & 0 & 0 & 0 & 0\\
+  0 & -1 & 0 & \cdots & \cdots & 0\\
+  0 & 0 & \ddots  & 0 & \cdots & 0\\
+  0 & \cdots & 0 & \ddots & 0 & 0\\
+  0 & \cdots & \cdots & 0 & -1 & 0\\
+  0 & 0 & 0 & 0 & 0 & -1 \\
+  1 & 0 & 0 & 0 & 0 & 0\\
+  0 & 1 & 0 & \cdots & \cdots & 0\\
+  0 & 0 & \ddots  & 0 & \cdots & 0\\
+  0 & \cdots & 0 & \ddots & 0 & 0\\
+  0 & \cdots & \cdots & 0 & 1 & 0\\
+  0 & 0 & 0 & 0 & 0 & 1 \\
+\end{bmatrix}
+  &
+    %(2,2) cell: Actual matrix
+    \begin{matrix}    %One-column matrix to hold a brace
+      \vphantom{0} \\ %Blank space to skip first row
+        \left.\vphantom{\begin{matrix} 0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 0 \\\end{matrix}}\right\}
+      \text{\footnotesize 2N} \\
+        \left.\vphantom{\begin{matrix} 0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 0 \end{matrix}}\right\}
+      \text{\footnotesize 2N} 
+    \end{matrix}
+    %The inter-column spacing of the super matrix looks too big by default
+    \mspace{-33mu}
+\end{matrix}
+\]
+
+
+\[h = [\overbrace{0 \dots 0}^N|\overbrace{C \dots C}^N]^T\]
+
+The final constraint (10) is trivial to addapt to (14) by taking 
+\( A=[\overbrace{1,\dots,1}^N,\overbrace{-1,\dots,-1}^N]\) and \(b=0\).
 
 
 \end{document}
