@@ -2,6 +2,9 @@
 
 \usepackage{a4}
 \usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage[font={small,it}]{caption}
+\usepackage{pdfpages}
 \raggedbottom                           % try to avoid widows and orphans
 \sloppy
 \clubpenalty1000%
@@ -65,20 +68,30 @@ by {\tt detex diss.tex | tr -cd '0-9A-Za-z $\tt\backslash$n' | wc -w}
 \stepcounter{footnote}
 
 \newpage
+
+
+\section*{Original Aims of the Project}
+
+
+\section*{Work Completed}
+
+
+\section*{Special Difficulties}
+
 \section*{Declaration of Originality}
 
-I, [Name] of [College], being a candidate for Part II of the Computer
-Science Tripos [or the Diploma in Computer Science], hereby declare
+I, Karina Palyutina of St Catharine's College, being a candidate for Part II of the Computer
+Science Tripos , hereby declare
 that this dissertation and the work described in it are my own work,
 unaided except as may be specified below, and that the dissertation
 does not contain material that has already been used to any substantial
 extent for a comparable purpose.
 
 \bigskip
-\leftline{Signed [signature]}
+\leftline{Signed }
 
 \medskip
-\leftline{Date [date]}
+\leftline{Date }
 
 \cleardoublepage
 
@@ -96,13 +109,55 @@ extent for a comparable purpose.
 \pagestyle{headings}
 
 \chapter*{Introduction}
+This project is inspired by increasing importance of search engine rankings.
+Today major search engines given a query return web pages in an order
+determined by secret algorithms. Such algorithms are believed 
+to incorporate multiple unknown factors.
+For instance, Google claims to have over 200 unique factors that influence a
+position of a webpage in the search results relative to a query
+\footnote{http://www.google.com/competition/howgooglesearchworks.html}. Only
+a handful of these factors are disclosed to the webmasters  in the form of very
+general guidelines. Moreover, the Google algorithm in particular is updated
+frequently. However, most of the knowledge around the area amounts to
+speculation. Despite the fact that it is possible to pass a vast number of
+queries through the black box of any existing search engine,the immensity of
+the search space, and instability of such algorithms make them impossible to
+reverse engineer.
+
+Machine learning is a natural approach to inferring the true algorithm from a
+subset of all possible observations. However, applying machine learning
+techniques to real search engines would be hardly effective, as the dynamic
+nature of the algorithms and the web as well as lack of meaningful feedback
+would prevent incremental improvement: when there are as many as 200 features
+in question, false assumptions made by a learner may have an unpredictable
+effect on its performace.
+
+More generally, there are certain ambiguities associated with machine learning,
+which are 'problem-specific'. For example, it proves difficult to decide how
+much training data is necessary, as well as and selecting it to avoid
+over/under-fitting\cite{DOMINGOS}. Similarly, it is not straightforward which
+machine learning technique is best for a particular problem.
+
+This project is concerned with application of machine learning techniques to
+search engines. The aim of the project, in particular,  is to explore how
+machine learning techniques can be used effectively to infer algorithms from
+search engines. To address the limitations imposed by existing search engines,
+part of the task is to develop a toy search engine that allows me to comtrol
+the nature and complexity of used heuristics. Such transparency addresses the
+problems stated above and, more importantly,  allows for useful evaluation of
+machine learning techniques by providing meaningful feedback.
+
+Even though this study does not attempt to reverse engineer any existing
+heuristics, the results can be applied to such an ambitious task.
+Moreover, such a framework is potentially more general and can be used for a
+range of problems. 
+
 
 \cleardoublepage
-
 \chapter*{Preparation}
 
-\cleardoublepage
 
+\cleardoublepage
 \chapter*{Implementation}
 This section describes parts of the system that I have implemented.
 
