@@ -4,7 +4,7 @@
 # Note that continuation lines require '\'
 # and that TAB is used after ':' and before unix commands.
 
-DISS = disser.tex refs.bib propbody.tex figs/diagram.eps makefile.txt
+DISS = disser.tex refs.bib propbody.tex
 
 PROP = proposal.tex propbody.tex
 
@@ -37,8 +37,8 @@ disser.ps:	$(DISS)
 	bibtex disser
 	dvips -Ppdf -G0 -t a4 -pp 0-200 -o disser.ps disser.dvi
 
-disser.pdf:	disser.ps
-	ps2pdf disser.ps
+disser.pdf: $(DISS)	
+	pdflatex disser.tex	
 
 makefile.txt:	Makefile
 	expand Makefile >makefile.txt

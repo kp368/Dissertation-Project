@@ -1,5 +1,4 @@
 \documentclass[12pt,twoside,notitlepage]{report}
-
 \usepackage{a4}
 \usepackage{verbatim}
 \usepackage{graphicx}
@@ -109,6 +108,7 @@ extent for a comparable purpose.
 \pagestyle{headings}
 
 \chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
 This project is inspired by increasing importance of search engine rankings.
 Today major search engines given a query return web pages in an order
 determined by secret algorithms. Such algorithms are believed 
@@ -150,15 +150,87 @@ machine learning techniques by providing meaningful feedback.
 Even though this study does not attempt to reverse engineer any existing
 heuristics, the results can be applied to such an ambitious task.
 Moreover, such a framework is potentially more general and can be used for a
-range of problems. 
+range of problems.
 
-
-\cleardoublepage
-\chapter*{Preparation}
-
+\newcommand\todo[1]{\textcolor{red}{#1}}
+\todo{overview of the chapters here.}
 
 \cleardoublepage
-\chapter*{Implementation}
+\chapter{Preparation}
+
+This chapter describes work that has been done before coding was started.  In
+particular, it focuses on the reasoning behind the design of the system to be
+implemented. The first section is devoted to research undertaken to determine
+what can be done and how best to do it. The second section formulates the
+system requirements, namely formalizes everything that is developed in this
+project. The last section outlines the particulars of the software engineering
+approach to be adopted by this project.
+
+\section{Formulating the Goals}
+A particular difficulty in this project has been in planning what has to be
+done. Due to the exploratory nature of the project the course of action had to
+be predominantly determined by the outcome of a current tactic. Moreover, the
+unknowns originating from the machine learning further complicated matters. 
+
+To achieve the goal of the project, a machine learning techniques comparison
+framework was necessary. In the Introduction I mentioned the benefit of having
+a transparent system as an object of learning. To further justify this
+decision, it is worth mentioning that  generalisation using machine learning is
+different from most optimization problems in that the function that is being
+optimized is out of our reach, and all that is visible to the machine learner
+is the training error. Because our goal is not the correct classification of
+real data, but identifying the means to correct classification, it is important
+that informed choices are made towards improvement of the learner. Taking this
+into account, knowing the function that we want to learn and having direct
+control over it  will guide the improvement of the search engine. 
+
+This argument motivates a system in three parts: a search engine, a machine
+learner and a parser to mediate between the two.
+Figure \ref{overview} illustrates the proposed learning system. Training data
+is a set of web pages set aside specifically for training purposes. Such web
+pages are not required to have any special properties, but diversity and
+typicality are seen as advantageous. As for the size of the training data, 
+Domingos \ref{domingos} suggests that a primitive learner given more data
+performs better than a more complex one with less data. This, of course, is
+under certain assumptions of data quality, namely the assumption that the
+training data is a representative subset of all the possible data. Intuitively,
+provided there is no bias in data gathering, more data implies better
+generality. I have started with a training set spanning an order of a few
+thousands of pages, however, in practice, it was found that there is no
+particular improvement beyond a thousand pages. \todo{Link to relevant part or
+example data here.}
+
+Search engine : pagerank, simplicity, control
+
+Python - framework, libraries?
+Machine learning techniques: naive bayes very effective, why SVM
+\section{Requirements Analysis}
+Search engine: efficiency!
+Machine learner: simplicity (domingos) occam's razor
+Interface between: hiding, encapsulating
+Evaluability
+\begin{figure}
+\centering
+\includegraphics[scale=0.5]{figs/overview.pdf}
+\caption{Overview of the system. Three major parts from left to right are search engine,
+parser and machine learner.}
+\label{overview}
+\end{figure}
+
+Figure \ref{eval} shows the evaluation strategy. The Test Data is the data
+carefully set aside at the beginning that is never exposed to the learner. 
+
+Ranking vs scoring 
+\begin{figure}
+\centering
+\includegraphics[scale=0.5]{figs/eval.pdf}
+\caption{Evaluation system. }
+\label{eval}
+\end{figure}
+\section{Development Strategy}
+
+\cleardoublepage
+\chapter{Implementation}
 This section describes parts of the system that I have implemented.
 
 \section{Search Engine}
@@ -177,12 +249,10 @@ Overview
 \subsection{Support Vector Machine}
 
 \cleardoublepage
-\chapter*{Evaluation}
-
+\chapter{Evaluation}
 
 \cleardoublepage
-\chapter*{Conclusion}
-
+\chapter{Conclusion}
 \cleardoublepage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
