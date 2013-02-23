@@ -135,7 +135,7 @@ effect on its performace.
 More generally, there are certain ambiguities associated with machine learning,
 which are 'problem-specific'. For example, it proves difficult to decide how
 much training data is necessary, as well as and selecting it to avoid
-over/under-fitting\cite{DOMINGOS}. Similarly, it is not straightforward which
+over/under-fitting\cite{domingos}. Similarly, it is not straightforward which
 machine learning technique is best for a particular problem.
 
 This project is concerned with application of machine learning techniques to
@@ -172,6 +172,8 @@ done. Due to the exploratory nature of the project the course of action had to
 be predominantly determined by the outcome of a current tactic. Moreover, the
 unknowns originating from the machine learning further complicated matters. 
 
+\paragraph{System Overview.}
+
 To achieve the goal of the project, a machine learning techniques comparison
 framework was necessary. In the Introduction I mentioned the benefit of having
 a transparent system as an object of learning. To further justify this
@@ -190,20 +192,81 @@ Figure \ref{overview} illustrates the proposed learning system. Training data
 is a set of web pages set aside specifically for training purposes. Such web
 pages are not required to have any special properties, but diversity and
 typicality are seen as advantageous. As for the size of the training data, 
-Domingos \ref{domingos} suggests that a primitive learner given more data
+Domingos \cite{domingos} suggests that a primitive learner given more data
 performs better than a more complex one with less data. This, of course, is
 under certain assumptions of data quality, namely the assumption that the
 training data is a representative subset of all the possible data. Intuitively,
 provided there is no bias in data gathering, more data implies better
 generality. I have started with a training set spanning an order of a few
-thousands of pages, however, in practice, it was found that there is no
+thousands of pages, however, in practice, I found that there is no
 particular improvement beyond a thousand pages. \todo{Link to relevant part or
-example data here.}
+example data here?}
 
-Search engine : pagerank, simplicity, control
+\paragraph{Data.}
 
-Python - framework, libraries?
-Machine learning techniques: naive bayes very effective, why SVM
+\paragraph{Search Engine.}
+
+Next important decision regarded the search engine.  Originally, I considered
+using open source existing engines, in particular, Lucene. Even though I could
+freely modify it for the purposes of the project, the complexity of it was
+superfulous. I saw writing a simple search engine as a more beneficial
+exercise, as developing it in the first place potentially gives an insight into
+the problem.
+
+Functionally our search engine is a black box that takes a set of webpages and
+a set of queries and outputs an order. Or a score!
+
+\paragraph{Language.}
+
+When choosing a programming language, main considerations reduced to library
+availibility and simplicity. The project imposes no special  requirements on the
+language, apart from, perhaps, library infrastructure for parsing web pages.
+Python is simple language with extensive library support. As
+for efficiency, all the mathematical operations in this project rely on python
+math libraris, which are implemented in C. I have not programmed in Python
+before the project, so a slight overhead was caused by having to learn a new
+language.
+
+\paragraph{Machine Learning.}
+
+I have now covered main peripheral decisions, but it is machine learning that
+constitutes the central part of the project. The field was completely new to me
+to start with, so research of different techniques was a big part of the
+preparation.
+
+It is generally recommended that the simplest learners are tried
+first\cite{domingos}. Of all learners Naive Bayesian is one of the most
+comprehensible.This in itself is a major advantage according to the Occam's
+razor principle, which finds ample application in machine learning.
+
+Naive Bayes is a probabilistic classifier based on the Bayes Theorem. The
+posterior probability \(P(C|\vec{F})\) denotes the probability that a sample
+page with a feature vector \(\vec{F}=(F_1,F_2,\dots,F_n)\) belongs to class C.
+The posteriior probability is computed from the observable in the training data: the prior
+probability \(P(C)\) -- the unconditional probability of a page belonging to
+the class C, the likelihood \(P(\vec{F}|C)\) and the evidence \(P(\vec{F})\):
+\begin{equation}
+P(C|\vec{F}) = \frac{P(C)P(\vec{F}|C)}{P(\vec{F})}
+\end{equation}
+
+The simplicity of Bayesian approach owes to the conditional independence
+assumption: each \(F_i\) in \(\vec{F}\) is assumed to be independent of one
+another to get \(P(\vec{F}|C)=P(F_1|C)*P(F_2|C)*\dots*P(F_n|C)\). This leads to a concise classifier definition:
+\begin{equation}
+\hat{C}= argmax_C P(C)\prod_{i=1}^{n}P(F_i|C)
+\end{equation}
+where \(C\) is the result of classification of a page with feature vector
+\(F_1,F_2,\dots,F_n\).
+
+In practice, the crude assumption rarely  holds and is likely to
+be violated by our data, as we expect features of pages to be interdependent.
+However, it has been shown that Naive Bayes performs well under zero-one loss
+function in presence of dependencies\cite{domingos96}. This has a few
+implications for this project, particularly, on evaluation methods. 
+
+
+\paragraph{Evaluation methodology.}
+Baseline:Bayes and ceiling
 \section{Requirements Analysis}
 Search engine: efficiency!
 Machine learner: simplicity (domingos) occam's razor
