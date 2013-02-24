@@ -4,6 +4,8 @@
 \usepackage{graphicx}
 \usepackage[font={small,it}]{caption}
 \usepackage{pdfpages}
+\usepackage{amsmath}
+\usepackage{bm}
 \raggedbottom                           % try to avoid widows and orphans
 \sloppy
 \clubpenalty1000%
@@ -187,22 +189,31 @@ into account, knowing the function that we want to learn and having direct
 control over it  will guide the improvement of the search engine. 
 
 This argument motivates a system in three parts: a search engine, a machine
-learner and a parser to mediate between the two.
-Figure \ref{overview} illustrates the proposed learning system. Training data
-is a set of web pages set aside specifically for training purposes. Such web
-pages are not required to have any special properties, but diversity and
-typicality are seen as advantageous. As for the size of the training data, 
-Domingos \cite{domingos} suggests that a primitive learner given more data
-performs better than a more complex one with less data. This, of course, is
-under certain assumptions of data quality, namely the assumption that the
-training data is a representative subset of all the possible data. Intuitively,
-provided there is no bias in data gathering, more data implies better
-generality. I have started with a training set spanning an order of a few
-thousands of pages, however, in practice, I found that there is no
-particular improvement beyond a thousand pages. \todo{Link to relevant part or
-example data here?}
+learner and a parser to mediate between the two.  Figure \ref{overview}
+illustrates the proposed learning system. Training data is a set of web pages
+set aside specifically for training purposes.  
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.5]{figs/overview.pdf}
+\caption{Overview of the system. Three major parts from left to right are search engine,
+parser and machine learner.}
+\label{overview}
+\end{figure}
 
 \paragraph{Data.}
+
+Web pages used as Training and Test data are not required to have any special
+properties, but diversity and typicality are seen as advantageous. As for the
+size of the training data, Domingos \cite{domingos} suggests that a primitive
+learner given more data performs better than a more complex one with less data.
+This, of course, is under certain assumptions of data quality, namely the
+assumption that the training data is a representative subset of all the
+possible data. Intuitively, provided there is no bias in data gathering, more
+data implies better generality. I have started with a training set spanning an
+order of a few thousands of pages, however, in practice, I found that there is
+no particular improvement beyond a thousand pages. \todo{Link to relevant part
+or example data here?}
 
 \paragraph{Search Engine.}
 
@@ -214,7 +225,12 @@ exercise, as developing it in the first place potentially gives an insight into
 the problem.
 
 Functionally our search engine is a black box that takes a set of webpages and
-a set of queries and outputs an order. Or a score!
+a set of queries and outputs an order. The order is determined by the features
+of the page, which together make up a score. The score is the
+function we want to infer using the ranking assigned by the search engine,
+however, we are only given the order as evidence. Machine learning paragraph
+below will address this issue in more details.
+
 
 \paragraph{Language.}
 
@@ -239,7 +255,7 @@ first\cite{domingos}. Of all learners Naive Bayesian is one of the most
 comprehensible.This in itself is a major advantage according to the Occam's
 razor principle, which finds ample application in machine learning.
 
-Naive Bayes is a probabilistic classifier based on the Bayes Theorem. The
+\paragraph{Naive Bayes.}Naive Bayes is a probabilistic classifier based on the Bayes Theorem. The
 posterior probability \(P(C|\vec{F})\) denotes the probability that a sample
 page with a feature vector \(\vec{F}=(F_1,F_2,\dots,F_n)\) belongs to class C.
 The posteriior probability is computed from the observable in the training data: the prior
@@ -261,37 +277,164 @@ where \(C\) is the result of classification of a page with feature vector
 In practice, the crude assumption rarely  holds and is likely to
 be violated by our data, as we expect features of pages to be interdependent.
 However, it has been shown that Naive Bayes performs well under zero-one loss
-function in presence of dependencies\cite{domingos96}. This has a few
-implications for this project, particularly, on evaluation methods. 
+function in presence of dependencies\cite{OPTIM}. This has a few
+implications for this project, particularly, on evaluation methods 
+
+As we have seen, Naive Bayes assigns probabilities to possible classifications
+in the process of classifying. Even though it generally performs well in
+classification tasks, these probability estimates are poor \cite{domingos96}.
+However, despite poor probability estimates, there exist several frameworks,
+which make use of Bayesian classification and achieve decent performance in
+ranking. For example, Zhang \cite{zhang04} experimentally found that Naive
+Bayes is locally optimal in ranking. The paper defines a classifier as locally
+optimal in ranking a positive example E if there is no negative example ranked
+after E and vice versa for a negative exaple. A classifier is global in ranking
+if it is locally optimal for all examples in the example set: in other words,
+it is optimal in pairwise ranking.  It is particularly interesting that the
+paper discovered that Naive Bayes is globally optimal in ranking on linear
+functions that have been shown as not learnable by Naive Bayes\footnote{m-of-n
+concepts and conjunctive concepts can't be learnt by Naive Bayes classifier but
+can be optimally ranked by it according to Zhang \cite{zhang04}.}.
+Another framework for ranking \cite{bayesrank} is based on Placket-Luce model, which reconciles
+the concepts of score and rank. This framework is based on minimizing the Bayes
+risk over possible permutations.
+
+Existence of such frameworks suggest that Naive Bayes is an adequate choice
+for this project. Classification is frequently opposed to regression, so
+another approach covered by this project is Support Vector Regression. In
+particular, \(\epsilon\)-Support Vector Regression.
+
+\paragraph{\(\epsilon\)-Support Vector Regression.}
+While the binary classification problem has as its goal the maximization of the
+margin between the classes, regression is concerned with fitting a hyperplane
+through the given training sequence.  A training sequence is a set of training
+points \(D = \{ (\mathbf{x_1},t_1), (\mathbf{x_2},t_2), ... ,
+(\mathbf{x_l},t_l) \}\) where \( \mathbf{x_i} \in R^n \) is a feature vector
+holding features of pages and \( \mathbf{t_i} \in R \) is the corresponding
+ranking of each page.
+
+\begin{figure}
+  \centering 
+  \includegraphics[width=120mm]{epsilon.jpg}
+  \caption{TODO: plot these yourself!} 
+  \label{eps} 
+\end{figure}
+
+In simple linear regression the aim is to minimize a regularized error
+function. We will be using an \(\epsilon\)-insensitive error function(see
+Figure \ref{eps} (a)).
+
+\(E_\phi(y(\mathbf(x)-t)) = \left\{ \begin{array}{l l} 0 & \quad \text{if
+\(|y(\mathbf{x})-t)|<\epsilon\)}\\ |y(\mathbf{x})-t)|-\epsilon & \quad
+\text{otherwise} \end{array} \right.\)
+
+where \(y(\mathbf(x) = \mathbf{w^T}\phi(\mathbf{x})+b\) is the hyperplane
+equation (and so \(y(\mathbf{x}) \) is the predicted output) and \(t_n\) is the
+target (true) output.
+
+The regression tube then contains all the points for which \(
+y(\mathbf{x_n})-\epsilon \leq t_n \leq y(\mathbf{x_n})+\epsilon \) as shown in
+Figure \ref{eps}(b).
+
+To allow variables to lie outside of the tube, slack variables \(\xi_n \geq
+0\)and \(\xi_n^* \geq 0\) are introduced.  The standard formulation of the
+error function for support vector regression (ref Vapnik 1998) can be written
+as follows:
+
+\begin{gather} E= C\sum_{n=1}^{N}(\xi_n+\xi_n^*)+\frac{1}{2}\|\mathbf{w}\|^2
+\end{gather}
+
+\(E\) must be minimized subject to four constraints:
+
+\begin{gather} \xi_n\geq 0,\\ \xi_n^*\geq 0,\\ t_n \leq
+  y(\mathbf{x_n})+\epsilon+\xi_n,\\ t_n \geq y(\mathbf{x_n})-\epsilon-\xi_n^*,
+\end{gather}
+
+This constraint problem can be transformed into its dual form  by introducing
+Lagrange multipliers \(a_n \geq 0, a_n^* \geq 0\).  The dual problem involves
+maximizing
+
+\begin{gather} L(\mathbf{a},\mathbf{a^*}) =
+  -\frac{1}{2}\sum_{n=1}^{N}\sum_{m=1}^{N}(a_n-a_n^*)(a_m-a_m^*)K(\mathbf{x_n},\mathbf{x_m})
+\end{gather} \begin{gather*} -\epsilon\sum_{n=1}^{N}(a_n+a_n^*) +
+  \sum_{n=1}^{N}t_n(a_n-a_n^*) \end{gather*}
+
+where \(K(x_n,x_m) \) is the kernel function, \(t_n\) is the target output,
+
+subject to constraints
+
+\begin{gather}
+  \sum_{n=1}^{N}(a_n-a_n^*)=0,\\
+  0\leq a_n,\; a_n^*\leq C,\;\;    n=1,...,l 
+\end{gather}
 
 
 \paragraph{Evaluation methodology.}
-Baseline:Bayes and ceiling
-\section{Requirements Analysis}
-Search engine: efficiency!
-Machine learner: simplicity (domingos) occam's razor
-Interface between: hiding, encapsulating
-Evaluability
-\begin{figure}
-\centering
-\includegraphics[scale=0.5]{figs/overview.pdf}
-\caption{Overview of the system. Three major parts from left to right are search engine,
-parser and machine learner.}
-\label{overview}
-\end{figure}
+Two proposed techniques Naive Bayes and SVM regression are quite different, so
+comparing them is potentially erroneous. However, comparisons can be done
+within each method, as there is a lot of scope for variety of implementations
+in each.
+As a baseline for the Bayesian approach, a very primitive ranking model will be
+used. We will simply disregard the scoring function behind the rank and
+directly infer the ranking funciton instead. More sophisticated ranking models
+can then be compared to this basic performance.
 
-Figure \ref{eval} shows the evaluation strategy. The Test Data is the data
-carefully set aside at the beginning that is never exposed to the learner. 
-
-Ranking vs scoring 
 \begin{figure}
 \centering
 \includegraphics[scale=0.5]{figs/eval.pdf}
 \caption{Evaluation system. }
 \label{eval}
 \end{figure}
-\section{Development Strategy}
 
+Figure \ref{eval} shows an evaluation framework for Naive Bayes.  The Test Data
+is the data carefully set aside at the beginning that is never exposed to the
+learner. 
+
+For an SVM learner the baseline can be set to the performance using a linear
+kernel below.
+
+\begin{gather}
+K(x,y) = x . y
+\end{gather}
+where `.' is the dot product.
+
+This is expected to be very high for linear heuristics but a lot lower for
+non-linear ones.
+
+\section{Requirements Analysis}
+The resulting system must comply with the requirements stated below. 
+\begin{itemize}
+  \item{A search engine, which given a query must return a relevant subset of
+      pages within 10 seconds in an order corresponding to a given heuristic, which can also be
+  supplied to the search engine.}
+  \item{Search engine must base ranking decisions on both dynamic
+      (query dependent) and static (query independent)
+    page features.}
+  \item{A machine learner must be sufficiently isolated from the search engine
+    through an encapsulating interface to avoid the possibility of undesirable interaction.}
+  \item{Machine learners must be able to process thousands of pages in a
+    reasonable time.}
+  \item{The evaluation module must write results to persistent storage.}
+\end{itemize}
+\section{Development Strategy}
+While the set up of Part II projects encourages waterfall-like development
+model, this project takes an iterative aproach. The first iteration renders a
+prototype: a primitive search engine with a Naive Bayesian baseline classifier.
+The next iteration modifies each part of the system towards a more complex
+solution. Evaluation is performed at each iteration. Within each  iteration the
+development follows the evolved waterfall model -- the inremental build model.
+Each increment represents a functionally separate unit of the system: a search
+engine, a learner, a parser and an assessment module. Increments are developed
+sequentially and regression testing is performed separately before integration.
+
+The backup of the code is twofold: every time a substantial change is made a remote
+version control repository is updated to hold the newest version. Regularly both the code and
+the data used and obtained during evaluation are also backed up onto an
+external hard drive. 
+
+During the development of the learners a developent pool of pages will
+be used, which must be disjoint with the Training or Test data. This ensures
+that no optimization is tailored to the data used for evaluation. 
 \cleardoublepage
 \chapter{Implementation}
 This section describes parts of the system that I have implemented.
@@ -310,6 +453,124 @@ Overview
 \subsection{Naive Bayes}
 
 \subsection{Support Vector Machine}
+
+The maximization problem (1.8) can be expressed as a minimization problem
+
+\begin{gather}
+  min_{\bm{\alpha},\bm{\alpha^*}} \frac{1}{2}(\bm{\alpha-\alpha^*})^T P (\bm{\alpha - \alpha^*})+\epsilon 
+\sum_{i=1}^{l}(\alpha_i+\alpha_i^*)-\sum_{i=1}^{l}t_i(\alpha_i-\alpha_i^*)
+\end{gather}
+subject to
+
+\begin{gather}
+  \mathbf{e(\bm{\alpha}}-\bm{\alpha^*})=0 \\
+  0\leq \alpha_i,\alpha_i^* \leq C, \;i=1,...,l
+ \end{gather}
+
+where
+\(\mathbf{e}=[1,...,1],\;P_{ij}=K(x_i,x_j),\;t_i\) is the target output, \(C > 0\) and \(\epsilon > 0.\)
+
+Solving a constrained optimization problem requires a quadratic programming solver. Cvxopt is one of the few python
+libraries that implements a QP solver. The specification to the QP function is given as follows:
+
+\(cvxopt.solvers.qp(P,q,G,h,A,b)\) solves a pair of primal and dual convex quadraic programs
+\begin{gather}
+  \min \frac{1}{2} x^T P x + q^T x
+\end{gather}
+
+ subject to
+
+\begin{gather}
+ G x \leq h\\
+  Ax = b
+\end{gather}
+
+The goal was, therefore, to express (9) in terms of (12) and their respective constraints.
+Described below is the transformation I devised to solve equation (9) using existing implementation that requires (12).
+We take x to encode both \(\bm{\alpha}\) and \(\bm{\alpha^*}\) simultaneously, treating the upper half of x as 
+\(\bm{\alpha}\) and the lower half 
+as \(\bm{\alpha^*}\):
+
+
+\[x =
+  \begin{bmatrix}
+    \bm{ \alpha} \\
+    \bm{ \alpha^*}
+  \end{bmatrix}
+\]
+
+Take P in equation (12) as 
+
+\[P =
+\begin{bmatrix}
+       K & -K           \\
+       -K & K            
+     \end{bmatrix}
+\]
+
+where \(K_{ij} = K(x_i,x_j)\).
+
+Observe that now \(x^T P x\) is the same as 
+\(\sum_{n=1}^{N}\sum_{m=1}^{N}(a_n-a_n^*)(a_m-a_m^*)K(x_n,x_m)\) in (6) and 
+
+Take q to hold the rest of (9).
+\[q =
+\begin{bmatrix}
+  \epsilon*\mathbf{e}-t_0           \\
+  \vdots                                     \\
+  \epsilon*\mathbf{e}-t_{N-1}           \\
+   \epsilon*\mathbf{e}+t_0           \\
+   \vdots                           \\
+  \epsilon*\mathbf{e}+t_{N-1}           \\
+     \end{bmatrix}
+\]
+
+Now to encode constraint (11) consider the following pair of G and h
+
+\[G =
+\begin{matrix} %This is the super matrix
+    \begin{matrix}   %One-row matrix to hold the brace
+      \overbrace{\hphantom{\begin{matrix}-1 & \cdots & -1\end{matrix}}}^{\text{\footnotesize N}}
+                                  &
+      \overbrace{
+        \hphantom{\begin{matrix}-1 & \cdots & -1\end{matrix}}
+      }^{\text{\footnotesize N}}
+    \end{matrix}
+    &
+  \\
+\begin{bmatrix}
+ -1 & 0 & 0 & 0 & 0 & 0\\
+  0 & -1 & 0 & \cdots & \cdots & 0\\
+  0 & 0 & \ddots  & 0 & \cdots & 0\\
+  0 & \cdots & 0 & \ddots & 0 & 0\\
+  0 & \cdots & \cdots & 0 & -1 & 0\\
+  0 & 0 & 0 & 0 & 0 & -1 \\
+  1 & 0 & 0 & 0 & 0 & 0\\
+  0 & 1 & 0 & \cdots & \cdots & 0\\
+  0 & 0 & \ddots  & 0 & \cdots & 0\\
+  0 & \cdots & 0 & \ddots & 0 & 0\\
+  0 & \cdots & \cdots & 0 & 1 & 0\\
+  0 & 0 & 0 & 0 & 0 & 1 \\
+\end{bmatrix}
+  &
+    %(2,2) cell: Actual matrix
+    \begin{matrix}    %One-column matrix to hold a brace
+      \vphantom{0} \\ %Blank space to skip first row
+        \left.\vphantom{\begin{matrix} 0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 0 \\\end{matrix}}\right\}
+      \text{\footnotesize 2N} \\
+        \left.\vphantom{\begin{matrix} 0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 0 \end{matrix}}\right\}
+      \text{\footnotesize 2N} 
+    \end{matrix}
+    %The inter-column spacing of the super matrix looks too big by default
+    \mspace{-33mu}
+\end{matrix}
+\]
+
+
+\[h = [\overbrace{0 \dots 0}^N|\overbrace{C \dots C}^N]^T\]
+
+The final constraint (10) is trivial to addapt to (14) by taking 
+\( A=[\overbrace{1,\dots,1}^N,\overbrace{-1,\dots,-1}^N]\) and \(b=0\).
 
 \cleardoublepage
 \chapter{Evaluation}
