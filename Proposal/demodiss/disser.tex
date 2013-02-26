@@ -231,6 +231,19 @@ function we want to infer using the ranking assigned by the search engine,
 however, we are only given the order as evidence. Machine learning paragraph
 below will address this issue in more details.
 
+In general there are two aspects of information retrieval that have to be
+accounted for: precision and recall. Precision is the fraction of retrieved pages that
+are relevant to the query, whereas recall is the fraction of relevant
+documents that are retrieved. Even though both are important for a good search
+engine, but in practice, the web is very large, and so precision, or even
+precision at n\footnote{Precision at n only evaluates precision with respect to
+  n topmost returned pages.) has become
+more prominent in defining a good search engine: very rarely the user actually
+browses returns that are not in the top few tens of returned pages. Therefore, 
+modern search engines tend to focus on high precision at the expense of recall
+\cite{GOOGLE}. Therefore, we will concentrate primarily on precision, when
+designing a search engine.
+
 
 \paragraph{Language.}
 
@@ -438,13 +451,53 @@ that no optimization is tailored to the data used for evaluation.
 \cleardoublepage
 \chapter{Implementation}
 This section describes parts of the system that I have implemented.
+\todo{overview}
+
+\section{Data}
+Development, Test and Training data for this project was implemented
+Separate disrectories..
 
 \section{Search Engine}
-Overview
 
-\subsection{PageRank}
-\subsection{Indexer}
-\subsection{Optimization}
+The first basic block of the system -- the search engine -- can be logically
+split into two main parts: an indexer and a sorter. Because we concentrate on
+precision, as discussed in the Preparation chapter, we will assume for
+simplicity that all relevant documents are returned. This allowed me to an use
+existing library implementation of the indexer and focus on the sorter.
+
+\paragraph{Indexer}
+
+The requirements on the indexer included flexibility, speed of indexing and
+retrieval, simplicity and usability.  The `Whoosh' python library provides all
+of these, so I used it to build an indexer. `Whoosh' is an open source indexing
+library, so I had the option of modifying any part of it. It is  built in pure
+Python, so it has a clean pythonic API. Its primary advantage is fast indexing
+and retireval, although we are mostly concerned with retrieval speed, as
+indexing is done rarely. The predecessors of `Whoosh' have served as the basis
+of well-known browsers such as Lucene, so it is also a powerful indexing tool,
+should I have needed more sophistication.
+
+I have defined a very simple schema for indexing. Perhaps, one notable detail
+is that `Whoosh' can store timestamps with the index, which enabled me to
+provide both clean and incremental index methods. The incremental indexing
+relies on the timestamp stored with the index and compares it to the
+last-modified time provided by the file system. The user can specify whether
+indexing has to be done from scratch or updated to acommodate some document
+changes or document addition/deletion. I haven't originally expected to need an
+incremental indexing capability, but throughout the projecct it has permitted
+for a significant speedup.
+
+\paragraph{Sorter}
+I have defined the sorter as a logical unit that provides ranking to the
+retrieved documents. For the first prototype, the sorter returned the pages in
+the order of decreasing pagerank.
+
+\paragraph{PageRank}
+I implemented the PageRank algorithm as described in the original paper
+by Page and Brin\cite{pagerank}.
+
+\paragraph{Optimization}
+
 
 \section{Parser}
 
