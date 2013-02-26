@@ -237,7 +237,7 @@ are relevant to the query, whereas recall is the fraction of relevant
 documents that are retrieved. Even though both are important for a good search
 engine, but in practice, the web is very large, and so precision, or even
 precision at n\footnote{Precision at n only evaluates precision with respect to
-  n topmost returned pages.) has become
+n topmost returned pages.}) has become
 more prominent in defining a good search engine: very rarely the user actually
 browses returns that are not in the top few tens of returned pages. Therefore, 
 modern search engines tend to focus on high precision at the expense of recall
@@ -245,6 +245,9 @@ modern search engines tend to focus on high precision at the expense of recall
 designing a search engine.
 
 
+\paragraph{Pagerank} 
+The PageRank algorithm was implemented as described in the original paper
+by Page and Brin\cite{pagerank}.
 \paragraph{Language.}
 
 When choosing a programming language, main considerations reduced to library
@@ -488,15 +491,64 @@ incremental indexing capability, but throughout the projecct it has permitted
 for a significant speedup.
 
 \paragraph{Sorter}
-I have defined the sorter as a logical unit that provides ranking to the
+Previously, I have defined the sorter as a logical unit that provides ranking to the
 retrieved documents. For the first prototype, the sorter returned the pages in
 the order of decreasing pagerank.
 
-\paragraph{PageRank}
-I implemented the PageRank algorithm as described in the original paper
-by Page and Brin\cite{pagerank}.
+\paragraph{PageRank} is computed using matrix inversion. All matrix operations
+were performed with the help of the python numerical library `numpy'.  Take t
+to be the teleportation probability, s=1-t is the probability of following a
+random link, E is the teleportation probability: equiprobable transitions, as
+using non-personalized pagerank (see Preparation), \(E_i,j = 1/N\) for all i,
+j. G is a stochastic matrix holding the link structure of the data, such that 
+\begin{equation*}
+  G_i,j = \begin{cases}
+    1/L & \text{there is a link from i to j and L = number of links from i}\\
+    0   & \text{there is no link from i to j}
+  \end{cases}
+\end{equation*}
+Then M is a stochastic matrix representing the web surfer activity, such
+that \(M_i,j\) is the probability of going from page i to page j, 
+\begin{equation} \label{1}
+  M = s*G +t*E
+\end{equation}
+In one step the new location of the surfer is described by the distribution Mp.
+We want to find a stationary distribution p, so must have
+\begin{equation}\label{2}
+  p = M*p
+\end{equation}
+Substituting \ref{1} into \ref{2}
+\begin{equation} \label{a}
+  p = (s*G+t*E)*p = s*G*p + t*E*p
+\end{equation}
+Rearranging equation \ref{a} gives
+\begin{equation}
+  p*(I-s*G) = t*E*p
+\end{equation}
+where I is the identity matrix
 
-\paragraph{Optimization}
+We can express E*p as P where P is a vector
+\([\overbrace{1/N,1/N,\dots,1/N}^N].T\),as members of p must sum to one.
+So computing pagerank amounts to
+\begin{equation}
+p  = t*(I-s*G)^{-1}*P
+\end{equation}
+where \((I-s*G)^{-1}\) denotes a matrix inverse operation.
+
+This solution is simple at the expense of being slow. Although computing
+inverse of a matrix is computationally expensive, we don't need to scale beyond
+a few thousands of pages.  To avoid recomputation, I used python object
+serialization module - Pickle to store the pagerank vector for each directory.
+The resultant performance was actually very reasonable, the time spent
+computing pagerank was insignificantly small in comparison to the time spent
+crawling the directory.
+
+\paragraph{Crawler}
+The matrix G, used for the pagerank computation, represents random link
+following activity. To obtain such a link structure each page had to be parsed,
+and all links recorded. Because our data is obtained from a single source page
+by a Wget spider, every page in a directory is guaranteed to be discovered by a
+spider, so no dangling pages are present. 
 
 
 \section{Parser}
