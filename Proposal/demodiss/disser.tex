@@ -494,6 +494,8 @@ for a significant speedup.
 Previously, I have defined the sorter as a logical unit that provides ranking to the
 retrieved documents. For the first prototype, the sorter returned the pages in
 the order of decreasing pagerank.
+Subsequently, the sorting has been decoupled from retrieval and is described in
+more detail in the Parser section.
 
 \paragraph{PageRank} is computed using matrix inversion. All matrix operations
 were performed with the help of the python numerical library `numpy'.  Take t
@@ -545,14 +547,72 @@ crawling the directory.
 
 \paragraph{Crawler}
 The matrix G, used for the pagerank computation, represents random link
-following activity. To obtain such a link structure each page had to be parsed,
+following activity. To obtain such a link structure each page has to be parsed,
 and all links recorded. Because our data is obtained from a single source page
 by a Wget spider, every page in a directory is guaranteed to be discovered by a
-spider, so no dangling pages are present. 
+spider.
 
+The Crawler class recursively traverses the pages depth first starting with the seed page,
+the same as the seed page used for recursively downloading the pages from the
+web. To make sure each page is only explored once, a dictionary is used to
+hold pairs of absolute path, which uniquely identifies the page, and a
+numerical value corresponding to the timestamp when the page has been first
+discovered.
+
+Although every page has a unique path, the links to other pages are relative.
+Such links need to be normalized to maintain consistency.
+A page object is used to encapsulate path complexity: all link paths are
+converted to absolute paths before addition to the dictionary.
+All outbound links are stored with the page in a Set datastrcture,
+such that no link is added more than once. 
+
+To produce the stochastic matrix G, we start with an empty NxN matrix, where N
+is the total number of pages. We assume that whenever a surfer encounters a dangling page -- a page that has no
+outbound links -- a teleportation step occurs. Therefore, every dangling page
+links to every page in the pool including itself with equal probability 1/N. For non-dangling
+pages, all links are assumed equiprobable and all pages that are not linked to
+have probability of 0. So if page A links to pages B and C, but not itself or
+D, its row in G is described by the Table \ref{tab}.
+
+\begin{table}
+    \begin{center}
+      \begin{tabular}{|l|r|}
+        \hline
+        Page & A \\ \hline
+         A &  0  \\ \hline
+         B & 1/2 \\ \hline
+         C & 1/2 \\ \hline
+         D & 0   \\ \hline
+      \end{tabular}
+      \caption{Illustration of non-dangling pages: B and C share A's `importance' equally.\label{tab}}
+  \end{center}
+\end{table}
 
 \section{Parser}
 
+So far we have looked at the search engine. As a functional unit the search
+engine only retrieves the relevant pages. The Parser is an abstraction for a
+few classes which together perform a series of tasks involving page parsing. 
+Search engine heuristics are also handled by the parsing module.
+
+The primary function of the parser is to compute feature vectors for pages.
+At this point we abstract away from the web pages and html parsing:
+as far as machine learner is concerned, a feature vector is a complete
+representation of a page.
+The infrastructure for feature vector computation is easily extensible to
+accommodate other related tasks, namely, training set and test set generation.
+To fulfil the specification, I have taken an object oriented approach to the
+design of the module. Figure \ref{uml} summarizes the design of the module in a
+UML class diagram.
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.5]{figs/uml.png}
+\caption{A UML class diagram describing operation of the Parser.}
+\label{uml}
+\end{figure}
+
+\section{Optimization}
 \section{Machine Learning}
 Overview
 \subsection{Naive Bayes}
