@@ -727,7 +727,10 @@ html5lib is the slowest.\label{parsers}}
 
 Another useful limitation was discovered due to profiling. The pagerank vector
 was loaded into memory every time a page was parsed: once for each page. This
-clearly is undesirable. The way to fix this was to 
+clearly is undesirable. I used caching to ensure that each of the two possible
+pagerank vectors (corresponding to the test and train directories) is loaded
+from memory exactly once. This is achieved via a double singleton class, which
+loads the vectors lazily.
 \section{Machine Learning}
 Overview
 \subsection{Naive Bayes}
