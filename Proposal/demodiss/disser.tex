@@ -545,6 +545,8 @@ The resultant performance was actually very reasonable, the time spent
 computing pagerank was insignificantly small in comparison to the time spent
 crawling the directory.
 
+\todo{Load class method}
+\todo{byname array}
 \paragraph{Crawler}
 The matrix G, used for the pagerank computation, represents random link
 following activity. To obtain such a link structure each page has to be parsed,
@@ -558,7 +560,7 @@ web. To make sure each page is only explored once, a dictionary is used to
 hold pairs of absolute path, which uniquely identifies the page, and a
 numerical value corresponding to the timestamp when the page has been first
 discovered.
-
+\todo{link conversion and parsing}
 Although every page has a unique path, the links to other pages are relative.
 Such links need to be normalized to maintain consistency.
 A page object is used to encapsulate path complexity: all link paths are
@@ -597,13 +599,29 @@ Search engine heuristics are also handled by the parsing module.
 
 The primary function of the parser is to compute feature vectors for pages.
 At this point we abstract away from the web pages and html parsing:
-as far as machine learner is concerned, a feature vector is a complete
+as far as the machine learner is concerned, a feature vector is a complete
 representation of a page.
 The infrastructure for feature vector computation is easily extensible to
 accommodate other related tasks, namely, training set and test set generation.
-To fulfil the specification, I have taken an object oriented approach to the
-design of the module. Figure \ref{uml} summarizes the design of the module in a
-UML class diagram.
+To allow for multifunctionality, I have taken an object oriented approach to the
+design of the module.
+
+The module operates in two modes: rank and score and handles both
+classification and regression. The high level specification is that we create
+two objects: a TestFeatureSetCollection and a LabelFeatureSetCollection
+objects and they encapsulate all the data, so can be passed around to the
+machine learners, as well as evaluation and plotting modules. These objects
+each operate within their own directories, to keep training and testing
+sufficiently separate. 
+
+Both category and rank are treated as page features and hence are part of the
+LabeledFeatureSet class state.  The LabeledFeatureSetCollection class generates
+training sets from queries, whereas the TestFeatureSetCollection class computes
+predicted category given an instance of a classifier. Both, however, need to generate
+feature sets, one for the Training data and the other for the Test data. This
+common functionality is embodied in their abstract base class, FeatureSetCollection.
+Figure \ref{uml} shows a UML class diagram illustrating the main structure
+of the module.
 
 \begin{figure}
 \centering
@@ -612,7 +630,104 @@ UML class diagram.
 \label{uml}
 \end{figure}
 
+The rest of this section talks about the specifics of the implementation, in
+particular, the features used and how html parsing is done.
+
+\paragraph{Rank mode.}
+Conceptually a FeatureSetCollection is a dictionary of LabeledFeatureSet
+objects indexed by both path to page and  query term. After initialisation, all
+the features are computed and `filled up' per query term per page.
+
+\paragraph{Score mode.}
+\paragraph{Features.}
+
+
+The requirements analysis does not prescribe the use of any particular
+features. However, it states that both dynamic (query dependent) and
+static(query independent) features must be used. PageRank is a dynamic feature
+that has quite special place among others: it takes into account all the pages
+in the pool and reflects on the structural hierarchy of the web pages. 
+The parser loads the pre-computed PageRank vector indexed by page name to
+extract the pagerank of any particular page.
+
+An example of a dynamic feature used in the project is query term count: the
+number of times the query term occurs on the page. This is obtained directly
+from the html files using the BeautifulSoup library, just like for the link
+parsing in the crawler. The html is parsed into clean text and the count is
+computed on the string.
+A related but different feature -- stem count -- is the number of times the
+stem of the word occurs in the text. This is obtained using the PorterStemmer
+module in Natural Language Tool Kit (nltk) library.
+
+Boolean features are a sligtly different variety of feature, so was worth
+putting in. An example of this is a presence of an image on the page.
+
+The fetures have been added incrementally as the project progressed. All other
+features are similar to the ones described above and are obtained using the
+same methods.\todo{enumerate features here}
+
+
 \section{Optimization}
+
+One characteristic peripheral requirement for the system implemented in this
+project is speed.  Even though it is not our direct goal to produce efficient
+implementations, optimization could not be overlooked, because significant amount of
+time is spent processing large quantities of data: indexing, pagerank
+and feature set computations all must complete in `feasible' time, i.e. in the
+final implementation the longest computation takes order of minutes and
+processes a few thousand pages. Various optimizations have been used to achieve
+this.
+
+Both pagerank vector and the index are precomputed and kept in persistent
+storage. Incremental indexing feature allows us to edit parts of the index as
+opposed to recomputing the whole index from scratch. These precomputations
+provide certain speedups, but were not enough.
+
+Because the system is fairly complex and a lot of library code is used in
+places, it was hard to determine which code most affects the speed. `Blind'
+attempts at optimization did not work well, which motivated the use of a
+profiling tool.
+
+Profiling the first prototype of the complete system revealed a surprising
+fact: most time was spent in the library code parsing pages. To mitigate this
+issue I have tried using custom parsers instead. Apart from speed, robustness
+was another important consideration, as a failure of a parser increases compute
+time. Two of the most renowned python parsers are html5lib and lxml. 
+Figure \ref{parsers} below shows visual representation of time profiling
+of 3 different runs ofobtained using the RunSnakeRun, each exploiting a
+different parser. 
+Despite html5lib being quoted as the most robust/lenient, lxml was sufficiently
+faster to be preferable.
+
+\begin{figure}
+\centering
+\begin{minipage}{.3\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figs/prof.png}
+  \label{fig:test1}
+\end{minipage}
+\begin{minipage}{.3\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figs/html5.png}
+  \label{fig:test2}
+\end{minipage}
+\begin{minipage}{.3\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figs/lxml.png}
+  \label{fig:test2}
+\end{minipage}
+\caption{Visual profiles of three parsers from left to right: default python
+html parser, html5lib and lxml. The internal boxes are sized in proportion to
+the time spent in each function. In all profiles three distinct major
+compartments can be seen, the leftmost being the compartment of interest: 
+time spent in parsing. Taking into consideration that the other modules are unaffected by changing the parser
+implementation, it can be observed that lxml (rightmost) is the fastest and
+html5lib is the slowest.\label{parsers}}
+\end{figure}
+
+Another useful limitation was discovered due to profiling. The pagerank vector
+was loaded into memory every time a page was parsed: once for each page. This
+clearly is undesirable. The way to fix this was to 
 \section{Machine Learning}
 Overview
 \subsection{Naive Bayes}
