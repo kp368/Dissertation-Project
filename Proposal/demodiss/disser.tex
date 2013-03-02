@@ -609,7 +609,7 @@ design of the module.
 
 The module operates in two modes: rank and score and handles both
 classification and regression. The high level specification is that we create
-two objects: a TestFeatureSetCollection and a LabelFeatureSetCollection
+two objects: a \texttt{TestFeatureSetCollection} and a LabelFeatureSetCollection
 objects and they encapsulate all the data, so can be passed around to the
 machine learners, as well as evaluation and plotting modules. These objects
 each operate within their own directories, to keep training and testing
@@ -617,7 +617,7 @@ sufficiently separate.
 
 Both category and rank are treated as page features and hence are part of the
 LabeledFeatureSet class state.  The LabeledFeatureSetCollection class generates
-training sets from queries, whereas the TestFeatureSetCollection class computes
+training sets from queries, whereas the \texttt{TestFeatureSetCollection} class computes
 predicted category given an instance of a classifier. Both, however, need to generate
 feature sets, one for the Training data and the other for the Test data. This
 common functionality is embodied in their abstract base class, FeatureSetCollection.
@@ -757,9 +757,35 @@ libraries. Because the implementation of this module is straightforward, not
 central to the project, I decided to use one of many existing python
 implementations. 
 
-The nltk library implementation was particularly appealing as it offers a very
+The \textit{nltk} library implementation was particularly appealing as it offers a very
 concise interface. A classifier object is initialised by the \texttt{train}
-method on the \verb{NaiveBayesClassifier} class.
+method on the \texttt{NaiveBayesClassifier} class. The format of the training
+set is defined as a list of tuples of featuresets and labels, e.g.
+\\ \textit{[(\(featureset_1, label_1\)),\( \cdots\), (\(featureset_N,
+label_N\))]}. 
+The \texttt{train} method simply computes the prior -- the probability distribution over
+labels P(label) and the likelihood -- the conditional probability
+P(\(featureset=f|label\)) by simply counting and recording the relevant instances. The method
+outputs a \texttt{NaiveBayesClassifier} instance parametrized by the two
+probability distributions.
+
+P(features) is not computed explicitly, instead, a normalizing denominator
+\ref{normal} is used.
+
+\begin{equation}
+  \sum_{l \in labels}(P(l)P(featureset_1|l)\cdots P(featureset_N|l))
+\end{equation}
+
+The \texttt{classify} method on the \texttt{NaiveBayesClassifier} object takes
+exactly one featureset and returns a label which maximizes the posterior
+probability P(label|featureset) over all labels.
+Previously unseen features are ignored by the classifier, so that to avoid
+assigning zero probability to everything.
+
+To batch classify everything in the test directory, the classifier object is
+passed to the constructor of the \texttt{TestFeatureSetCollection} class. Here
+the featuresets for the test directories are computed, classified and recorded
+for the evaluation stage later.
 
 \subsection{Support Vector Machine}
 
