@@ -3,6 +3,7 @@
 \usepackage{verbatim}
 \usepackage{graphicx}
 \usepackage[font={small,it}]{caption}
+\usepackage{subcaption}
 \usepackage{pdfpages}
 \usepackage{amsmath}
 \usepackage{bm}
@@ -132,7 +133,7 @@ techniques to real search engines would be hardly effective, as the dynamic
 nature of the algorithms and the web as well as lack of meaningful feedback
 would prevent incremental improvement: when there are as many as 200 features
 in question, false assumptions made by a learner may have an unpredictable
-effect on its performace.
+effect on its performance.
 
 More generally, there are certain ambiguities associated with machine learning,
 which are 'problem-specific'. For example, it proves difficult to decide how
@@ -159,7 +160,6 @@ range of problems.
 
 \cleardoublepage
 \chapter{Preparation}
-
 This chapter describes work that has been done before coding was started.  In
 particular, it focuses on the reasoning behind the design of the system to be
 implemented. The first section is devoted to research undertaken to determine
@@ -169,6 +169,7 @@ project. The last section outlines the particulars of the software engineering
 approach to be adopted by this project.
 
 \section{Formulating the Goals}
+\label{prep}
 A particular difficulty in this project has been in planning what has to be
 done. Due to the exploratory nature of the project the course of action had to
 be predominantly determined by the outcome of a current tactic. Moreover, the
@@ -220,7 +221,7 @@ or example data here?}
 Next important decision regarded the search engine.  Originally, I considered
 using open source existing engines, in particular, Lucene. Even though I could
 freely modify it for the purposes of the project, the complexity of it was
-superfulous. I saw writing a simple search engine as a more beneficial
+superfluous. I saw writing a simple search engine as a more beneficial
 exercise, as developing it in the first place potentially gives an insight into
 the problem.
 
@@ -251,11 +252,11 @@ by Page and Brin\cite{pagerank}.
 \paragraph{Language.}
 
 When choosing a programming language, main considerations reduced to library
-availibility and simplicity. The project imposes no special  requirements on the
+availability and simplicity. The project imposes no special  requirements on the
 language, apart from, perhaps, library infrastructure for parsing web pages.
 Python is simple language with extensive library support. As
 for efficiency, all the mathematical operations in this project rely on python
-math libraris, which are implemented in C. I have not programmed in Python
+math libraries, which are implemented in C. I have not programmed in Python
 before the project, so a slight overhead was caused by having to learn a new
 language.
 
@@ -274,7 +275,7 @@ razor principle, which finds ample application in machine learning.
 \paragraph{Naive Bayes.}Naive Bayes is a probabilistic classifier based on the Bayes Theorem. The
 posterior probability \(P(C|\vec{F})\) denotes the probability that a sample
 page with a feature vector \(\vec{F}=(F_1,F_2,\dots,F_n)\) belongs to class C.
-The posteriior probability is computed from the observable in the training data: the prior
+The posterior probability is computed from the observable in the training data: the prior
 probability \(P(C)\) -- the unconditional probability of a page belonging to
 the class C, the likelihood \(P(\vec{F}|C)\) and the evidence \(P(\vec{F})\):
 \begin{equation}
@@ -392,7 +393,7 @@ within each method, as there is a lot of scope for variety of implementations
 in each.
 As a baseline for the Bayesian approach, a very primitive ranking model will be
 used. We will simply disregard the scoring function behind the rank and
-directly infer the ranking funciton instead. More sophisticated ranking models
+directly infer the ranking function instead. More sophisticated ranking models
 can then be compared to this basic performance.
 
 \begin{figure}
@@ -434,11 +435,11 @@ The resulting system must comply with the requirements stated below.
 \end{itemize}
 \section{Development Strategy}
 While the set up of Part II projects encourages waterfall-like development
-model, this project takes an iterative aproach. The first iteration renders a
+model, this project takes an iterative approach. The first iteration renders a
 prototype: a primitive search engine with a Naive Bayesian baseline classifier.
 The next iteration modifies each part of the system towards a more complex
 solution. Evaluation is performed at each iteration. Within each  iteration the
-development follows the evolved waterfall model -- the inremental build model.
+development follows the evolved waterfall model -- the incremental build model.
 Each increment represents a functionally separate unit of the system: a search
 engine, a learner, a parser and an assessment module. Increments are developed
 sequentially and regression testing is performed separately before integration.
@@ -448,7 +449,7 @@ version control repository is updated to hold the newest version. Regularly both
 the data used and obtained during evaluation are also backed up onto an
 external hard drive. 
 
-During the development of the learners a developent pool of pages will
+During the development of the learners a development pool of pages will
 be used, which must be disjoint with the Training or Test data. This ensures
 that no optimization is tailored to the data used for evaluation. 
 \cleardoublepage
@@ -458,7 +459,7 @@ This section describes parts of the system that I have implemented.
 
 \section{Data}
 Development, Test and Training data for this project was implemented
-Separate disrectories..
+Separate directories..
 
 \section{Search Engine}
 
@@ -475,7 +476,7 @@ retrieval, simplicity and usability.  The `Whoosh' python library provides all
 of these, so I used it to build an indexer. `Whoosh' is an open source indexing
 library, so I had the option of modifying any part of it. It is  built in pure
 Python, so it has a clean pythonic API. Its primary advantage is fast indexing
-and retireval, although we are mostly concerned with retrieval speed, as
+and retrieval, although we are mostly concerned with retrieval speed, as
 indexing is done rarely. The predecessors of `Whoosh' have served as the basis
 of well-known browsers such as Lucene, so it is also a powerful indexing tool,
 should I have needed more sophistication.
@@ -485,9 +486,9 @@ is that `Whoosh' can store timestamps with the index, which enabled me to
 provide both clean and incremental index methods. The incremental indexing
 relies on the timestamp stored with the index and compares it to the
 last-modified time provided by the file system. The user can specify whether
-indexing has to be done from scratch or updated to acommodate some document
+indexing has to be done from scratch or updated to accommodate some document
 changes or document addition/deletion. I haven't originally expected to need an
-incremental indexing capability, but throughout the projecct it has permitted
+incremental indexing capability, but throughout the project it has permitted
 for a significant speedup.
 
 \paragraph{Sorter}
@@ -565,7 +566,7 @@ Although every page has a unique path, the links to other pages are relative.
 Such links need to be normalized to maintain consistency.
 A page object is used to encapsulate path complexity: all link paths are
 converted to absolute paths before addition to the dictionary.
-All outbound links are stored with the page in a Set datastrcture,
+All outbound links are stored with the page in a Set datastructure,
 such that no link is added more than once. 
 
 To produce the stochastic matrix G, we start with an empty NxN matrix, where N
@@ -659,10 +660,10 @@ A related but different feature -- stem count -- is the number of times the
 stem of the word occurs in the text. This is obtained using the PorterStemmer
 module in Natural Language Tool Kit (nltk) library.
 
-Boolean features are a sligtly different variety of feature, so was worth
+Boolean features are a slightly different variety of feature, so was worth
 putting in. An example of this is a presence of an image on the page.
 
-The fetures have been added incrementally as the project progressed. All other
+The features have been added incrementally as the project progressed. All other
 features are similar to the ones described above and are obtained using the
 same methods.\todo{enumerate features here}
 
@@ -694,28 +695,33 @@ issue I have tried using custom parsers instead. Apart from speed, robustness
 was another important consideration, as a failure of a parser increases compute
 time. Two of the most renowned python parsers are html5lib and lxml. 
 Figure \ref{parsers} below shows visual representation of time profiling
-of 3 different runs ofobtained using the RunSnakeRun, each exploiting a
+of 3 different runs obtained using the RunSnakeRun, each exploiting a
 different parser. 
 Despite html5lib being quoted as the most robust/lenient, lxml was sufficiently
 faster to be preferable.
 
 \begin{figure}
 \centering
-\begin{minipage}{.3\textwidth}
+\begin{subfigure}[b]{.3\textwidth}
   \centering
   \includegraphics[width=\linewidth]{figs/prof.png}
-  \label{fig:test1}
-\end{minipage}
-\begin{minipage}{.3\textwidth}
+  \caption{Default}
+  \label{def}
+\end{subfigure}
+\quad
+\begin{subfigure}[b]{.3\textwidth}
   \centering
   \includegraphics[width=\linewidth]{figs/html5.png}
-  \label{fig:test2}
-\end{minipage}
-\begin{minipage}{.3\textwidth}
+  \caption{html5lib}
+  \label{html}
+\end{subfigure}
+\quad
+\begin{subfigure}[b]{.3\textwidth}
   \centering
   \includegraphics[width=\linewidth]{figs/lxml.png}
-  \label{fig:test2}
-\end{minipage}
+  \caption{lxml}
+  \label{lxml}
+\end{subfigure}
 \caption{Visual profiles of three parsers from left to right: default python
 html parser, html5lib and lxml. The internal boxes are sized in proportion to
 the time spent in each function. In all profiles three distinct major
@@ -732,8 +738,27 @@ pagerank vectors (corresponding to the test and train directories) is loaded
 from memory exactly once. This is achieved via a double singleton class, which
 loads the vectors lazily.
 \section{Machine Learning}
-Overview
+In the course of this project two distinct machine learning algorithms have
+been used. The design goals for the implementations were as usual: speed and
+correctness. Another important aspect of the design is that the system and the
+machine learning modules must be sufficiently decoupled. This is an issue of
+scalability and code reuse. The implication on the machine learner
+implementations is that both must communicate with the system via the same
+interface.
+The rest of the section describes in detail how the machine learners have been
+implemented.
+
 \subsection{Naive Bayes}
+In Section \ref{prep} it has been shown that Naive Bayesian is a good learner
+to implement for the first prototype, so a very quick implementation was
+preferable to make sure the system can potentially function as intended. Due to
+its simplicity and popularity, Naive Bayesian is widely available in the
+libraries. Because the implementation of this module is straightforward, not
+central to the project, I decided to use one of many existing python
+implementations. 
+
+The nltk library implementation was particularly appealing as it offers a very
+concise interface.
 
 \subsection{Support Vector Machine}
 
