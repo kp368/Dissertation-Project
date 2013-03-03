@@ -303,12 +303,29 @@ obtain the labels simply by querying. Secondly, supervised learning is widely
 used and offers a variety of flexible techniques.
 
 An interesting known problem with machine learning in general is referred to as
-the Curse of Dimensionality.
+the Curse of Dimensionality. In the real world scenario -- suppose if we were
+inferring an existing search engine from the observed query responses -- we
+could not be sure about which features are and which are not relevant to the
+hidden algorithm. Potentially, some features we might choose to use will
+increase the dimensionality, but would not actually be used by the real
+algorithm. Gathering more features can hurt, as it makes the learner infer
+nonexistent dependencies. Clearly within the scope of this project we will know
+at each point which features are or are not used. So observations can be made
+as to how using more features than the search engine will affect the
+classifier.
+
+Another major issue that is common to all machine learning methods is
+over/under-fitting. These refer to the problem of finding balance between the
+generalized model and the training data at hand. This is yet another source of
+interest to this project, as we can observe the behaviour of the learner when
+certain control parameters are changed.
 
 It is generally recommended that the simplest learners are tried
 first\cite{domingos}. Of all learners Naive Bayesian is one of the most
 comprehensible.This in itself is a major advantage according to the Occam's
 razor principle, which finds ample application in machine learning.
+Hence, we start with describing the principles of the two machine learning
+techniques used - Naive Bayes and Support Vector Machines.
 
 \subsubsection*{Naive Bayes}
 
@@ -349,23 +366,30 @@ after E and vice versa for a negative exaple. A classifier is global in ranking
 if it is locally optimal for all examples in the example set: in other words,
 it is optimal in pairwise ranking.  It is particularly interesting that the
 paper discovered that Naive Bayes is globally optimal in ranking on linear
-functions that have been shown as not learnable by Naive Bayes\footnote{m-of-n
-concepts and conjunctive concepts can't be learnt by Naive Bayes classifier but
+functions that have been shown as not learnable by Naive
+Bayes\footnote{\textit{M-of-N
+  Concepts} and \textit{Conjunctive Concepts} can't be learnt by Naive Bayes classifier but
 can be optimally ranked by it according to Zhang \cite{zhang04}.}.
 Another framework for ranking \cite{bayesrank} is based on Placket-Luce model, which reconciles
 the concepts of score and rank. This framework is based on minimizing the Bayes
-risk over possible permutations.
-
-Existence of such frameworks suggest that Naive Bayes is an adequate choice
-for this project. Classification is frequently opposed to regression, so
-another approach covered by this project is Support Vector Regression. In
-particular, \(\epsilon\)-Support Vector Regression.
+risk over possible permutations.Existence of such frameworks suggest that Naive Bayes is an adequate choice
+for a prototype learner.\\
+Although classification is a useful technique to try, it feels more natural to
+represent our score or rank as real numbers rather than classes. Regression is
+another approach to machine learning and the next learning technique we explore
+-- Support Vector Regression -- is non-probabilistic, to try something as distant
+from Naive Bayes as possible.
 
 \subsubsection*{\(\epsilon\)-Support Vector Regression}
-\todo{Justify why SVM: shortcomings of NB, many dimensions, kernel functions}
 While the binary classification problem has as its goal the maximization of the
 margin between the classes, regression is concerned with fitting a hyperplane
-through the given training sequence.  A training sequence is a set of training
+through the given training sequence. \\
+A great advantage of Support Vector machines is that they can perform
+non-linear classification or regression by an implicit mapping of features into
+a higher dimensional space, so that the data is linearly separable. This
+mapping is referred to as the \textit{Kernel Trick}.
+\todo{something missing here}
+A training sequence is a set of training
 points \(D = \{ (\mathbf{x_1},t_1), (\mathbf{x_2},t_2), ... ,
 (\mathbf{x_l},t_l) \}\) where \( \mathbf{x_i} \in R^n \) is a feature vector
 holding features of pages and \( \mathbf{t_i} \in R \) is the corresponding
@@ -425,7 +449,6 @@ subject to constraints
   \sum_{n=1}^{N}(a_n-a_n^*)=0,\\
   0\leq a_n,\; a_n^*\leq C,\;\;    n=1,...,l 
 \end{gather}
-
 
 \subsubsection*{Evaluation methodology}
 Two proposed techniques Naive Bayes and SVM regression are quite different, so
@@ -1008,6 +1031,12 @@ from memory exactly once. This is achieved via a double singleton class, which
 loads the vectors lazily.
 \cleardoublepage
 \chapter{Evaluation}
+\section{The prototype}
+\section{Bayes ranking: one to one comparison}
+\section{SVR}
+\section{Kernel function generality}
+\section{Experiments with number of features}
+\section{Score vs Rank}
 
 \cleardoublepage
 \chapter{Conclusion}
