@@ -289,10 +289,21 @@ simplifies things a little.
 
 \subsection{Machine Learning}
 
-I have now covered main peripheral decisions, but it is machine learning that
+I have now covered the main peripheral decisions, but it is machine learning that
 constitutes the central part of the project. The field was completely new to me
 to start with, so research of different techniques was a big part of the
 preparation.
+
+Machine learning is a vast field and very little is prescribed.
+The supervised learning approach, where the hidden function is
+inferred from the labelled training data, best fits our purposes for a number
+of reasons. Firstly, it applies well to the real-world problem of inferring the
+heuristics of the real search engines, as we can select training data and
+obtain the labels simply by querying. Secondly, supervised learning is widely
+used and offers a variety of flexible techniques.
+
+An interesting known problem with machine learning in general is referred to as
+the Curse of Dimensionality.
 
 It is generally recommended that the simplest learners are tried
 first\cite{domingos}. Of all learners Naive Bayesian is one of the most
