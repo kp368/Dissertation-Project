@@ -247,7 +247,7 @@ accounted for: precision and recall. Precision is the fraction of retrieved page
 are relevant to the query, whereas recall is the fraction of relevant
 documents that are retrieved. Even though both are important for a good search
 engine, but in practice, the web is very large, and so precision, or even
-precision at n\footnote{Precision at n only evaluates precision with respect to
+\textit{precision at n}\footnote{`Precision at n' only evaluates precision with respect to
 n topmost returned pages.}) has become
 more prominent in defining a good search engine: very rarely the user actually
 browses returns that are not in the top few tens of returned pages. Therefore, 
@@ -255,10 +255,37 @@ modern search engines tend to focus on high precision at the expense of recall
 \cite{GOOGLE}. Therefore, we will concentrate primarily on precision, when
 designing a search engine.
 
-\todo{Why pagerank?}
-The PageRank algorithm was implemented as described in the original paper
-by Page and Brin\cite{pagerank}.
+\subsubsection*{PageRank}
+The PageRank algorithm was originally described in a research paper
+by Page and Brin\cite{pagerank}. It was first introduced as a way `to measure
+the relative importance of web pages'. PageRank is interesting to include in
+this project not only because it is a defining feature of the Google search
+engine, but because it is a unique feature of its type, as it depends on the link
+structure of the whole web as opposed to other  web features such as word count
+and alike.
 
+The basic idea is to capture the link structure of the web and provide a
+ranking of pages that is robust against manipulation. To achieve this, the
+importance `flows' forward: the backlinks share their importance with the pages
+they link to. Such a simplified ranking of a set of pages can be expressed as an assignment
+\begin{gather}
+  R(u)=c\sum_{v\in B_u}\frac{R(v)}{N_v}
+\end{gather}
+An intuitive justification for such ranking is by analogy with a citation
+network, we are likely to find highly cited pages more important.
+The equation is recursive, so iterating until convergence results in a steady
+state distribution, which corresponds to the PageRank vector.
+Together with this intuition the paper introduces the \textit{Random Surfer
+Model}: we are interested in a steady state distribution of a random walk on
+the Web graph. At each step the surfer either follows a random link or
+`teleports' to a random page. The paper justifies the approach of ignoring the
+dangling links, as it doesn't have a significant affect on the ranking. \\
+The teleportation vector determines whether the PageRank is personalized. For
+the non-personalized version the teleportation vector holds equal probabilities
+for all pages in the Web, whereas in a personalized approach the probabilities
+are distributed according the knowledge of the surfer's previous activity. In
+this project we are only concerned with nonpersonalized ranking, which
+simplifies things a little.
 
 \subsection{Machine Learning}
 
