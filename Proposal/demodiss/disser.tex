@@ -953,8 +953,14 @@ and
 b=0
 \end{gather*}
 Having worked out all the matrices, the rest of the implementation dealt simply
-with coding the matrices up.
-The python library 
+with coding the matrices up. The Cvxopt library has its own matrix constructor,
+however, has generally limited functionality when it comes to matrix
+operations, so numpy was used a lot for matrix manipulations. The solver gave
+mostly unintelligible error messages, so for the prototype svm I actually used
+Matlab. Matlab's \texttt{quadprog} function had an identical specification to
+the Python solver I intended to use. Matrices in Matlab are a lot more
+straightforward to manipulate, which was also a good reason to first check the
+correctness of my matrices in Matlab.
 
 \paragraph{Kernel functions.}
 \cleardoublepage
