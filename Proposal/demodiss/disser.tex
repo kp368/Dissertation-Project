@@ -155,7 +155,7 @@ heuristics, the results can be applied to such an ambitious task.
 Moreover, such a framework is potentially more general and can be used for a
 range of problems.
 
-\newcommand\todo[1]{\textcolor{red}{#1}}
+\newcommand\todo[1]{\textcolor{red}{\textbf{TODO: #1}}}
 \todo{overview of the chapters here.}
 
 \cleardoublepage
@@ -322,6 +322,7 @@ another approach covered by this project is Support Vector Regression. In
 particular, \(\epsilon\)-Support Vector Regression.
 
 \paragraph{\(\epsilon\)-Support Vector Regression.}
+\todo{Justify why SVM: shortcomings of NB, many dimensions, kernel functions}
 While the binary classification problem has as its goal the maximization of the
 margin between the classes, regression is concerned with fitting a hyperplane
 through the given training sequence.  A training sequence is a set of training
@@ -371,7 +372,7 @@ This constraint problem can be transformed into its dual form  by introducing
 Lagrange multipliers \(a_n \geq 0, a_n^* \geq 0\).  The dual problem involves
 maximizing
 
-\begin{gather} L(\mathbf{a},\mathbf{a^*}) =
+\begin{gather} \label{eq:maxim}  L(\mathbf{a},\mathbf{a^*}) =
   -\frac{1}{2}\sum_{n=1}^{N}\sum_{m=1}^{N}(a_n-a_n^*)(a_m-a_m^*)K(\mathbf{x_n},\mathbf{x_m})
 \end{gather} \begin{gather*} -\epsilon\sum_{n=1}^{N}(a_n+a_n^*) +
   \sum_{n=1}^{N}t_n(a_n-a_n^*) \end{gather*}
@@ -395,18 +396,16 @@ As a baseline for the Bayesian approach, a very primitive ranking model will be
 used. We will simply disregard the scoring function behind the rank and
 directly infer the ranking function instead. More sophisticated ranking models
 can then be compared to this basic performance.
+Figure \ref{eval} shows an evaluation framework for Naive Bayes.  The Test Data
+is the data carefully set aside at the beginning that is never exposed to the
+learner. 
 
-\begin{figure}
+\begin{figure}[h]
 \centering
 \includegraphics[scale=0.5]{figs/eval.pdf}
 \caption{Evaluation system. }
 \label{eval}
 \end{figure}
-
-Figure \ref{eval} shows an evaluation framework for Naive Bayes.  The Test Data
-is the data carefully set aside at the beginning that is never exposed to the
-learner. 
-
 For an SVM learner the baseline can be set to the performance using a linear
 kernel below.
 
@@ -782,34 +781,49 @@ probability P(label|featureset) over all labels.
 Previously unseen features are ignored by the classifier, so that to avoid
 assigning zero probability to everything.
 
+The only tangible difficulty with the implementation was the framework in which
+classification is done. The Parser was `written around' the interface of the
+classifier.
 To batch classify everything in the test directory, the classifier object is
 passed to the constructor of the \texttt{TestFeatureSetCollection} class. Here
 the featuresets for the test directories are computed, classified and recorded
 for the evaluation stage later.
 
 \subsection{Support Vector Machine}
+In the Preparaion chapter we have looked at the theory of support vector
+machines as found in textbooks. This section continues from the theory and explains further
+transformations that were an essential part of the implementation as opposed to
+bookwork.\todo{rephrase}\\
+To implement a support vector machine one must solve a problem of optimizing a
+quadratic function ssubject to tlinear constraints -- usually referred to as
+the \textit{Quadratic Programming} (QP) problem. Therefore, the first
+implementation task was to convert our existing optimization problem into a
+generic QP form to make use of the available solvers.\\
+The maximization problem \ref{eq:maxim} can be trivially expressed as a
+minimization problem (equation \ref{eq:minim}).
 
-The maximization problem (1.8) can be expressed as a minimization problem
-
-\begin{gather}
+\begin{gather}\label{eq:minim}
   min_{\bm{\alpha},\bm{\alpha^*}} \frac{1}{2}(\bm{\alpha-\alpha^*})^T P (\bm{\alpha - \alpha^*})+\epsilon 
 \sum_{i=1}^{l}(\alpha_i+\alpha_i^*)-\sum_{i=1}^{l}t_i(\alpha_i-\alpha_i^*)
 \end{gather}
-subject to
+
+subject to constraints \ref{cns:a} and \ref{cns:b} below.
 
 \begin{gather}
-  \mathbf{e(\bm{\alpha}}-\bm{\alpha^*})=0 \\
-  0\leq \alpha_i,\alpha_i^* \leq C, \;i=1,...,l
+  \mathbf{e(\bm{\alpha}}-\bm{\alpha^*})=0 \label{cns:a}\\
+  0\leq \alpha_i,\alpha_i^* \leq C, \;i=1,...,l \label{cns:b}
  \end{gather}
 
 where
-\(\mathbf{e}=[1,...,1],\;P_{ij}=K(x_i,x_j),\;t_i\) is the target output, \(C > 0\) and \(\epsilon > 0.\)
-
-Solving a constrained optimization problem requires a quadratic programming solver. Cvxopt is one of the few python
-libraries that implements a QP solver. The specification to the QP function is given as follows:
-
-\(cvxopt.solvers.qp(P,q,G,h,A,b)\) solves a pair of primal and dual convex quadraic programs
-\begin{gather}
+\(\mathbf{e}=[1,...,1],\;P_{ij}=K(x_i,x_j),\;t_i\) is the target output, \(C >
+0\) and \(\epsilon > 0.\)
+\paragraph*{}
+At this point in the implementation, for the first time, python did not seem
+like an ideal choice.  \textit{Cvxopt} is one of the few python libraries that
+implements a QP solver. The specification to the QP function is as follows:
+\texttt{cvxopt.solvers.qp(P,q,G,h,A,b)} solves a pair of primal and dual convex
+quadratic programs
+\begin{gather} \label{spec}
   \min \frac{1}{2} x^T P x + q^T x
 \end{gather}
 
@@ -819,12 +833,12 @@ libraries that implements a QP solver. The specification to the QP function is g
  G x \leq h\\
   Ax = b
 \end{gather}
-
-The goal was, therefore, to express (9) in terms of (12) and their respective constraints.
-Described below is the transformation I devised to solve equation (9) using existing implementation that requires (12).
-We take x to encode both \(\bm{\alpha}\) and \(\bm{\alpha^*}\) simultaneously, treating the upper half of x as 
-\(\bm{\alpha}\) and the lower half 
-as \(\bm{\alpha^*}\):
+Described in the next few pages are the transformations I devised to reconcile
+the minimization problem \ref{eq:minim} and the library specification
+\ref{spec} and their respective constraints.\\
+We take \(x\) to encode both \(\bm{\alpha}\) and \(\bm{\alpha^*}\)
+simultaneously, treating the upper half of \(x\) as \(\bm{\alpha}\) and the
+lower half as \(\bm{\alpha^*}\):
 
 
 \[x =
@@ -833,22 +847,42 @@ as \(\bm{\alpha^*}\):
     \bm{ \alpha^*}
   \end{bmatrix}
 \]
-
-Take P in equation (12) as 
-
+We will see later how this representation allows for elegant representation of
+the problem (\ref{eq:minim}).
+\paragraph*{}
+First, we express the first term in \ref{spec} to hold \((\bm{\alpha-\alpha^*})^T
+P (\bm{\alpha - \alpha^*})\).
+Take matrix P in equation \ref{spec} as 
 \[P =
 \begin{bmatrix}
        K & -K           \\
        -K & K            
      \end{bmatrix}
 \]
+where \(K_{ij} = K(x_i,x_j)\) is the kernel.
+\\
+Observe that now
+\begin{gather*}
+x^T P x =
+  \begin{bmatrix}
+    \bm{ \alpha} \\
+    \bm{ \alpha^*}
+  \end{bmatrix}
+\begin{bmatrix}
+       K & -K           \\
+       -K & K            
+     \end{bmatrix}
+  \begin{bmatrix}
+    \bm{ \alpha} \\
+    \bm{ \alpha^*}
+  \end{bmatrix}
+\end{gather*}
+is equivalent to the first term of equation (\ref{eq:maxim})
+\begin{gather*}
+\sum_{n=1}^{N}\sum_{m=1}^{N}(a_n-a_n^*)(a_m-a_m^*)K(x_n,x_m)
+\end{gather*}
 
-where \(K_{ij} = K(x_i,x_j)\).
-
-Observe that now \(x^T P x\) is the same as 
-\(\sum_{n=1}^{N}\sum_{m=1}^{N}(a_n-a_n^*)(a_m-a_m^*)K(x_n,x_m)\) in (6) and 
-
-Take q to hold the rest of (9).
+Now expressing the remaining two terms of \ref{eq:minim} by taking 
 \[q =
 \begin{bmatrix}
   \epsilon*\mathbf{e}-t_0           \\
@@ -860,7 +894,13 @@ Take q to hold the rest of (9).
      \end{bmatrix}
 \]
 
-Now to encode constraint (11) consider the following pair of G and h
+to achieve 
+\begin{gather*}
+  q^T x =
+\epsilon \sum_{i=1}^{l}(\alpha_i+\alpha_i^*)-\sum_{i=1}^{l}t_i(\alpha_i-\alpha_i^*)
+\end{gather*}
+\paragraph*{}
+To encode constraint \ref{cns:b} consider the following pair of G and h.
 
 \[G =
 \begin{matrix} %This is the super matrix
@@ -902,11 +942,21 @@ Now to encode constraint (11) consider the following pair of G and h
 \]
 
 
-\[h = [\overbrace{0 \dots 0}^N|\overbrace{C \dots C}^N]^T\]
+\[h = [\overbrace{0 \dots 0}^{2N}|\overbrace{C \dots C}^{2N}]^T\]
 
-The final constraint (10) is trivial to addapt to (14) by taking 
-\( A=[\overbrace{1,\dots,1}^N,\overbrace{-1,\dots,-1}^N]\) and \(b=0\).
+The final constraint \ref{cns:a} is trivial to adapt by simply taking 
+\begin{gather*}
+A=[\overbrace{1,\dots,1}^N,\overbrace{-1,\dots,-1}^N]
+\end{gather*}
+and
+\begin{gather*}
+b=0
+\end{gather*}
+Having worked out all the matrices, the rest of the implementation dealt simply
+with coding the matrices up.
+The python library 
 
+\paragraph{Kernel functions.}
 \cleardoublepage
 \chapter{Evaluation}
 
