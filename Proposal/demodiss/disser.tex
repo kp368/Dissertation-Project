@@ -450,6 +450,9 @@ subject to constraints
   0\leq a_n,\; a_n^*\leq C,\;\;    n=1,...,l 
 \end{gather}
 
+This is the theoretical foundations of SVMs. We will come back to more theory
+in the next chapter, as the implementation is inseparable from the math.
+
 \subsubsection*{Evaluation methodology}
 Two proposed techniques Naive Bayes and SVM regression are quite different, so
 comparing them is potentially erroneous. However, comparisons can be done
@@ -479,7 +482,7 @@ where `\(\cdot\)' denotes the dot product.
 
 This is expected to be very high for linear heuristics but a lot lower for
 non-linear ones.
-
+\todo{More things go here}
 \section{Development Strategy}
 While the set up of Part II projects encourages waterfall-like development
 model, this project takes an iterative approach. The first iteration renders a
@@ -521,8 +524,31 @@ This section describes parts of the system that I have implemented.
 \todo{overview}
 
 \section{Data}
-Development, Test and Training data for this project was implemented
-Separate directories..
+Data gathering is of major importance, as data decisions have tremendous impact
+on the rest of the implementation and the success of the project. The rest of
+the system assumes the existence of a pool of web pages available offline for
+fast indexing and parsing. Ideally the corpus of web pages would be
+`representative' of the whole web, to make generalisations more accurate.
+Originally I was hoping to get such collection from a resource, like, for
+example the web corpus of th \textit{Text Retrieval Conference} (TREC). However,
+such data is not easily available, so I had to retrieve pages using
+\textit{Wget}. To approach the similarity to the web, I restricted the corpus
+to one semantic area by only downloading websites related to construction
+materials\footnote{There is no particular reason to have chosen this particular
+topic, except it has been used by the external project originator in his
+experiment trying to infer Google's ranking factors. This is described in the
+Proposal in more detail.}. This limitation of topic has certain advantages:
+relatively few pages need to be  downloaded before the pages appear
+sufficiently interlinked, so the corpus has a distinct structure (as web pages
+similar in the field link to each other).\\ To conform with machine learning
+guidelines I have originally separated data for Test and Training. Different
+seed pages were used, as well as each resides in their own directory. Each
+directory is estimated at around 3000 pages. In addition to this, I have
+taken the further precaution of setting aside a small Development corpus to be
+used only while development to ensure no bias towards training data at the
+implementation stage. Also, its comparatively small size meant faster
+testing. All the links are converted, so that the link structure is
+preserved.
 
 \section{Search Engine}
 
