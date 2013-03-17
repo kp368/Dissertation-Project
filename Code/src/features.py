@@ -7,6 +7,7 @@ from util import clean, has_image
 from nltk import PorterStemmer as PS
 import matplotlib.pyplot as plt
 from random import random
+from numpy import median
 
 MODE = 'score'
 CLASS = True
@@ -60,6 +61,7 @@ class LabeledFeatureSet(object):
         #self.cat = cat
         #ordinal represents the rank of the page
         self.ordinal = None
+        self.cat = None
 
 
     @property
@@ -72,10 +74,6 @@ class LabeledFeatureSet(object):
             return g(self.pr, self.term_cnt, self.stem_cnt)
         else:
             return self.score
-
-    @property
-    def cat(self):
-        return self.score
 
     @property
     def fs(self):
@@ -114,6 +112,27 @@ class FeatureSetCollection(defaultdict):
                 self[page][term].term_cnt, self[page][term].stem_cnt = get_count(term,clean_page)
                 self[page][term].pic = has_image(page)
 
+    def compute_cat(self,is_test):
+        nums = []
+        for page in self.pages:
+            for term in self.terms:
+                nums.append(self[page][term].score)
+        mn = min(nums)
+        mx = max(nums)
+        t = int(round(median(nums),0))
+        #t = int(round((mn+mx)/2,0))
+        zero = 0
+        one = 0
+        for page in self.pages:
+            for term in self.terms:
+                if (int(round(self[page][term].score,0)))>t:
+                    self[page][term].cat = 1
+                    one += 1
+                else:
+                    self[page][term].cat = 0
+                    zero += 1
+                print self[page][term].score, '-->', self[page][term].cat
+
     def compute_ord(self, is_test):
         for term in self.terms:
             res = sort(term, is_test)
@@ -151,6 +170,7 @@ class TestFeatureSetCollection(FeatureSetCollection):
         if MODE=='rank':
             self.compute_ord(True)
         if nb:
+            self.compute_cat(True)
             self.predict_cat(nb)
 
     def predict_cat(self,nb):
@@ -179,6 +199,8 @@ class LabeledFeatureSetCollection(FeatureSetCollection):
         super(LabeledFeatureSetCollection,self).__init__(terms)
         self.pages = get_rpages(terms,False)
         self.compute_fs(False)
+        if CLASS:
+            self.compute_cat(False)
         if MODE=='rank':
             self.compute_ord(False)
 
