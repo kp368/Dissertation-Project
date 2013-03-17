@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from random import random
 
 MODE = 'score'
+CLASS = True
 max_pr = 10
 max_cnt = 12
 train_dir = abspath('../Train')
@@ -73,12 +74,19 @@ class LabeledFeatureSet(object):
             return self.score
 
     @property
+    def cat(self):
+        return self.score
+
+    @property
     def fs(self):
         return dict(pr=self.pr,stem_cnt=self.stem_cnt,term_cnt=self.term_cnt)
 
     @property
     def dict(self):
-        return dict(fs=self.fs,ord=self.ordinal)
+        if CLASS:
+            return dict(fs=self.fs,cat=self.cat)
+        else:
+            return dict(fs=self.fs,ord=self.ordinal)
 
     @property
     def fv(self):
@@ -106,16 +114,6 @@ class FeatureSetCollection(defaultdict):
                 self[page][term].term_cnt, self[page][term].stem_cnt = get_count(term,clean_page)
                 self[page][term].pic = has_image(page)
 
-    def compute_cat(self, is_test):
-        for term in self.terms:
-            res = sort(term,is_test)
-            l = len(res)
-            for page in self.pages:
-                if (page in res[0:l/2]):
-                    self[page][term].cat =0
-                else:
-                    self[page][term].cat =1
-
     def compute_ord(self, is_test):
         for term in self.terms:
             res = sort(term, is_test)
@@ -133,10 +131,12 @@ class FeatureSetCollection(defaultdict):
             for t in self.terms:
                 s = self[p][t]
                 if s.term_cnt>0:#s.ordinal != None and s.pr<max_pr and s.term_cnt<max_cnt:
-                    X.append(self[p][t].fv)
-                    if MODE=='rank':
+                    X.append(self[p][t].fs)
+                    if CLASS:
+                        Y.append(self[p][t].cat)
+                    elif MODE=='rank':
                         Y.append(self[p][t].ordinal)
-                    if MODE=='score':
+                    elif MODE=='score':
                         Y.append(self[p][t].get_score(g))
 
         return X, Y
@@ -151,7 +151,6 @@ class TestFeatureSetCollection(FeatureSetCollection):
         if MODE=='rank':
             self.compute_ord(True)
         if nb:
-            self.compute_cat(True)
             self.predict_cat(nb)
 
     def predict_cat(self,nb):
@@ -161,14 +160,24 @@ class TestFeatureSetCollection(FeatureSetCollection):
             for term in self.terms:
                 self[page][term].pr = pr
                 self[page][term].term_cnt, self[page][term].stem_cnt = get_count(term,clean_page)
-                self[page][term].p_cat = nb.classify(self[page][term].fs)
+                self[page][term].p_cat = nb.predict(self[page][term].fs)
+
+    def get_results(self,g=None):
+        act, pred = [], []
+        for p in self.pages:
+            for t in self.terms:
+                s = self[p][t]
+                if s.term_cnt>0:#s.ordinal != None and s.pr<max_pr and s.term_cnt<max_cnt:
+                    act.append(s.cat)
+                    pred.append(s.p_cat)
+
+        return act, pred
 
 class LabeledFeatureSetCollection(FeatureSetCollection):
 
     def __init__(self,terms):
         super(LabeledFeatureSetCollection,self).__init__(terms)
         self.pages = get_rpages(terms,False)
-        #self.compute_cat(False)
         self.compute_fs(False)
         if MODE=='rank':
             self.compute_ord(False)

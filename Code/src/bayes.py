@@ -29,5 +29,5 @@ if __name__ == "__main__":
     args = []
     for term in sys.argv[1:len(sys.argv)]:
         args.append(unicode(term))
-#    predict(args)
-    plot(args)
+    predict(args)
+#    plot(args)

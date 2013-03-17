@@ -7,6 +7,7 @@
 \usepackage{pdfpages}
 \usepackage{amsmath}
 \usepackage{bm}
+\setlength{\parindent}{0cm}
 \setlength{\parskip}{10pt plus 1pt minus 1pt}
 \raggedbottom                           % try to avoid widows and orphans
 \sloppy
@@ -280,7 +281,8 @@ Together with this intuition the paper introduces the \textit{Random Surfer
 Model}: we are interested in a steady state distribution of a random walk on
 the Web graph. At each step the surfer either follows a random link or
 `teleports' to a random page. The paper justifies the approach of ignoring the
-dangling links, as it doesn't have a significant affect on the ranking. \\
+dangling links, as it doesn't have a significant affect on the ranking. 
+
 The teleportation vector determines whether the PageRank is personalized. For
 the non-personalized version the teleportation vector holds equal probabilities
 for all pages in the Web, whereas in a personalized approach the probabilities
@@ -374,7 +376,8 @@ can be optimally ranked by it according to Zhang \cite{zhang04}.}.
 Another framework for ranking \cite{bayesrank} is based on Placket-Luce model, which reconciles
 the concepts of score and rank. This framework is based on minimizing the Bayes
 risk over possible permutations.Existence of such frameworks suggest that Naive Bayes is an adequate choice
-for a prototype learner.\\
+for a prototype learner.
+
 Although classification is a useful technique to try, it feels more natural to
 represent our score or rank as real numbers rather than classes. Regression is
 another approach to machine learning and the next learning technique we explore
@@ -384,17 +387,21 @@ from Naive Bayes as possible.
 \subsubsection*{\(\epsilon\)-Support Vector Regression}
 While the binary classification problem has as its goal the maximization of the
 margin between the classes, regression is concerned with fitting a hyperplane
-through the given training sequence. \\ A great advantage of Support Vector
-machines is that they can perform non-linear classification or regression by
-using what is referred to as the \textit{Kernel Trick} - an implicit mapping of
-features into a higher dimensional space, in which the data is linearly
-separable. The choice of a kernel function is problem specific and the best one
-is usually decided by experiment. \\ We begin with the theoretical foundations
-of Support Vector Regression, which were first proposed by Vapnik
-\ref{vapnik}.\\ Define a training sequence as a set of training points \(D = \{
-(\mathbf{x_1},t_1), (\mathbf{x_2},t_2), ... , (\mathbf{x_l},t_l) \}\) where \(
-\mathbf{x_i} \in R^n \) is a feature vector holding features of pages and \(
-\mathbf{t_i} \in R \) is the corresponding ranking of each page.
+through the given training sequence. 
+
+A great advantage of Support Vector machines is that they can perform
+non-linear classification or regression by using what is referred to as the
+\textit{Kernel Trick} - an implicit mapping of features into a higher
+dimensional space, in which the data is linearly separable. The choice of a
+kernel function is problem specific and the best one is usually decided by
+experiment. 
+
+We begin with the theoretical foundations of Support Vector
+Regression, which were first proposed by Vapnik \ref{vapnik}.\\ Define a
+training sequence as a set of training points \(D = \{ (\mathbf{x_1},t_1),
+(\mathbf{x_2},t_2), ... , (\mathbf{x_l},t_l) \}\) where \( \mathbf{x_i} \in R^n
+\) is a feature vector holding features of pages and \( \mathbf{t_i} \in R \)
+is the corresponding ranking of each page.
 
 \begin{figure}
   \centering 
@@ -452,24 +459,36 @@ subject to constraints
 \end{gather}
 
 \subsubsection*{Evaluation methodology}
-Two proposed techniques Naive Bayes and SVM regression are quite different, so
+Measuring performance of machine learners accurately is a major challenge
+primarily because both training and testing are dependent both on the quantity
+and quality of data used. This fact motivates repeating experiments with a
+variety of data (\todo{n fold sampling}). Another difficulty arises from the
+degrees of freedom that are internal to the learners: the hyperparameters.
+Especially SVM kernels are vulnerable to mis-evaluation due to the number of
+parameters which need to be set. The issues of hyperparameter tuning and data
+sampling will be addressed in the Evaluation chapter later. This section
+briefly touches upon evaluation models exploited.\\
+Two proposed techniques -- Naive Bayes and SVM regression -- are quite different, so
 comparing them is potentially erroneous. However, comparisons can be done
 within each method, as there is a lot of scope for variety of implementations
-in each.
+in each.\\
 As a baseline for the Bayesian approach, a very primitive ranking model will be
 used. We will simply disregard the scoring function behind the rank and
-directly infer the ranking function instead. More sophisticated ranking models
-can then be compared to this basic performance.
-Figure \ref{eval} shows an evaluation framework for Naive Bayes.  The Test Data
+directly infer the ranking function instead. Precision and Recall metric is
+used to quantify performance. More sophisticated ranking models
+can then be compared to this basic performance. In particular, weak ranking
+property can be evaluated.\todo{explain}
+Figure \ref{eval} shows a simplified evaluation framework for Naive Bayes.  The Test Data
 is the data carefully set aside at the beginning that is never exposed to the
 learner. 
-
+\todo{bayes and heuristics?!}
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.5]{figs/eval.pdf}
-\caption{Evaluation system. }
+\caption{Evaluation process. }
 \label{eval}
 \end{figure}
+
 For an SVM learner the baseline can be set to the performance using a linear
 kernel below.
 
@@ -477,10 +496,15 @@ kernel below.
 K(x,y) = x \cdot y
 \end{gather*}
 where `\(\cdot\)' denotes the dot product.
-
 This is expected to be very high for linear heuristics but a lot lower for
 non-linear ones.
-\todo{More things go here}
+Mean Squared Error will be used as the risk function to minimize.
+\begin{gather*}
+  MSE = \frac{1}{|Actual|}\sqrt{\sum_{i=1}^{N}(Actual_i - Predicted_i)^2}
+\end{gather*}
+where \(Actual\) is an array of true values of size \(|Actual|\) and
+\(Predicted\) is the corresponding array of predictions made by the classifier.
+
 \section{Development Strategy}
 While the set up of Part II projects encourages waterfall-like development
 model, this project takes an iterative approach. The first iteration renders a
@@ -491,11 +515,13 @@ development follows the evolved waterfall model -- the incremental build model.
 Each increment represents a functionally separate unit of the system: a search
 engine, a learner, a parser and an assessment module. Increments are developed
 sequentially and regression testing is performed separately before
-integration.\\
+integration.
+
 The backup of the code is twofold: every time a substantial change is made a remote
 version control repository is updated to hold the newest version. Regularly both the code and
 the data used and obtained during evaluation are also backed up onto an
-external hard drive. \\
+external hard drive.
+
 During the development of the learners a development pool of pages will
 be used, which must be disjoint with the Training or Test data. This ensures
 that no optimization is tailored to the data used for evaluation. 
@@ -537,15 +563,16 @@ experiment trying to infer Google's ranking factors. This is described in the
 Proposal in more detail.}. This limitation of topic has certain advantages:
 relatively few pages need to be  downloaded before the pages appear
 sufficiently interlinked, so the corpus has a distinct structure (as web pages
-similar in the field link to each other).\\ To conform with machine learning
-guidelines I have originally separated data for Test and Training. Different
-seed pages were used, as well as each resides in their own directory. Each
-directory is estimated at around 3000 pages. In addition to this, I have
-taken the further precaution of setting aside a small Development corpus to be
-used only while development to ensure no bias towards training data at the
-implementation stage. Also, its comparatively small size meant faster
-testing. All the links are converted, so that the link structure is
-preserved.
+similar in the field link to each other).
+
+To conform with machine learning guidelines I have originally separated data
+for Test and Training. Different seed pages were used, as well as each resides
+in their own directory. Each directory is estimated at around 3000 pages. In
+addition to this, I have taken the further precaution of setting aside a small
+Development corpus to be used only while development to ensure no bias towards
+training data at the implementation stage. Also, its comparatively small size
+meant faster testing. All the links are converted, so that the link structure
+is preserved.
 
 \section{Search Engine}
 
@@ -570,20 +597,23 @@ It is  built in pure Python, so it has a clean pythonic API. Its primary
 advantage is fast indexing and retrieval, although we are mostly concerned with
 retrieval speed, as indexing is done rarely. The predecessors of Whoosh have
 served as the basis of well-known browsers such as \textit{Lucene}, so it is
-also a powerful indexing tool, should I have needed more sophistication.\\ I
-have defined a very simple schema for indexing. Perhaps, one notable detail is
-that Whoosh can store timestamps with the index, which enabled me to provide
+also a powerful indexing tool, should I have needed more sophistication.
+
+I have defined a very simple schema for indexing. Perhaps, one notable detail
+is that Whoosh can store timestamps with the index, which enabled me to provide
 both clean and incremental index methods. The incremental indexing relies on
 the time stamp stored with the index and compares it to the last-modified time
 provided by the file system. The user can specify whether indexing has to be
 done from scratch or updated to accommodate some document changes or document
 addition/deletion. I haven't originally expected to need an incremental
 indexing capability, but throughout the project it has permitted for a
-significant speedup.\\ Previously, I have defined the sorter as a logical unit
-that provides ranking to the retrieved documents. For the first prototype, the
-sorter returned the pages in the order of decreasing PageRank.  Subsequently,
-the sorting has been decoupled from retrieval and incorporated into the Parser
-module, which is described later in detail.
+significant speedup.
+
+Previously, I have defined the sorter as a logical unit that provides ranking
+to the retrieved documents. For the first prototype, the sorter returned the
+pages in the order of decreasing PageRank.  Subsequently, the sorting has been
+decoupled from retrieval and incorporated into the Parser module, which is
+described later in detail.
 
 \subsubsection*{PageRank} 
 The PageRank vector is computed using matrix inversion. All matrix operations
@@ -625,14 +655,16 @@ So computing PageRank amounts to
 \begin{equation}
 p  = t*(I-s*G)^{-1}*P
 \end{equation}
-where \((I-s*G)^{-1}\) denotes a matrix inverse operation.\\
+where \((I-s*G)^{-1}\) denotes a matrix inverse operation.
+
 This solution is simple at the expense of being slow. Although computing
 inverse of a matrix is computationally expensive, we don't need to scale beyond
 a few thousands of pages.  To avoid recomputation, I used python object
 serialization module - Pickle to store the PageRank vector for each directory.
 The resultant performance was actually very reasonable, the time spent
 computing PageRank was insignificantly small in comparison to the time spent
-crawling the directory.\\
+crawling the directory.
+
 The PageRank vector computation happens within the \texttt{Pagerank} class. The
 whole \texttt{Pagerank} object is written to memory using the python object
 serialization module \texttt{Pickle}. A \texttt{load} class method is defined
@@ -641,31 +673,37 @@ directory. The class is instantiated with an instance of the \texttt{Crawler}
 class, which embodies the link structure of a directory and is described in the
 next section.
 
-\subsubsection*{Crawler} The \texttt{Crawler} abstracts away the underlying
-data directories and computes their link structures as matrices.  The matrix G,
-used for the PageRank computation, represents random link following activity.
-To obtain such a link structure each page has to be parsed, and all links
-recorded. Because our data is obtained from a single source page by recursive
-link following, every page in a directory is guaranteed to be discovered by a
-spider.\\ The Crawler class recursively traverses the pages depth first
-starting with the seed page, the same as the seed page used for recursively
-downloading the pages from the web. To make sure each page is only explored
-once, a dictionary is used to hold pairs of absolute path, which uniquely
-identifies the page, and a numerical value corresponding to the time stamp when
-the page has been first discovered.\\ Although every page has a unique path,
-the links to other pages are relative.  Such links need to be normalized to
-maintain consistency.  A page object is used to encapsulate path complexity:
-all link paths are converted to absolute paths before addition to the
-dictionary.  All outbound links are stored with the page in a Set
-datastructure, such that no link is added more than once. \\ To produce the
-stochastic matrix G, we start with an empty NxN matrix, where N is the total
-number of pages. We assume that whenever a surfer encounters a dangling page --
-a page that has no outbound links -- a teleportation step occurs. Therefore,
-every dangling page links to every page in the pool including itself with equal
-probability 1/N. For non-dangling pages, all links are assumed equiprobable and
-all pages that are not linked to have probability of 0. So if page A links to
-pages B and C, but not itself or D, its row in G is described by the Table
-\ref{tab}.
+\subsubsection*{Crawler} 
+
+The \texttt{Crawler} abstracts away the underlying data directories and
+computes their link structures as matrices.  The matrix G, used for the
+PageRank computation, represents random link following activity.  To obtain
+such a link structure each page has to be parsed, and all links recorded.
+Because our data is obtained from a single source page by recursive link
+following, every page in a directory is guaranteed to be discovered by a
+spider.
+
+The Crawler class recursively traverses the pages depth first starting with the
+seed page, the same as the seed page used for recursively downloading the pages
+from the web. To make sure each page is only explored once, a dictionary is
+used to hold pairs of absolute path, which uniquely identifies the page, and a
+numerical value corresponding to the time stamp when the page has been first
+discovered.
+
+Although every page has a unique path, the links to other pages are relative.
+Such links need to be normalized to maintain consistency.  A page object is
+used to encapsulate path complexity: all link paths are converted to absolute
+paths before addition to the dictionary.  All outbound links are stored with
+the page in a Set data structure, such that no link is added more than once. 
+
+To produce the stochastic matrix G, we start with an empty NxN matrix, where N
+is the total number of pages. We assume that whenever a surfer encounters a
+dangling page -- a page that has no outbound links -- a teleportation step
+occurs. Therefore, every dangling page links to every page in the pool
+including itself with equal probability 1/N. For non-dangling pages, all links
+are assumed equiprobable and all pages that are not linked to have probability
+of 0. So if page A links to pages B and C, but not itself or D, its row in G is
+described by the Table \ref{tab}.
 
 \begin{table}
     \begin{center}
@@ -698,18 +736,20 @@ preferable to make sure the system can potentially function as intended. Due to
 its simplicity and popularity, Naive Bayesian is widely available in the
 libraries. Because the implementation of this module is straightforward, not
 central to the project, I decided to use one of many existing python
-implementations. \\
+implementations. 
+
 The \textit{nltk} library implementation was particularly appealing as it offers a very
 concise interface. A classifier object is initialised by the \texttt{train}
 method on the \texttt{NaiveBayesClassifier} class. The format of the training
 set is defined as a list of tuples of featuresets and labels, e.g.
 \\ \textit{[(\(featureset_1, label_1\)),\( \cdots\), (\(featureset_N,
 label_N\))]}. 
+
 The \texttt{train} method simply computes the prior -- the probability
 distribution over labels P(label) and the likelihood -- the conditional
 probability P(\(featureset=f|label\)) by simply counting and recording the
 relevant instances. The method outputs a \texttt{NaiveBayesClassifier} instance
-parametrized by the two probability distributions.\\ P(features) is not
+parametrized by the two probability distributions. P(features) is not
 computed explicitly, instead, a normalizing denominator \ref{normal} is used.
 
 \begin{equation} \sum_{l \in labels}(P(l)P(featureset_1|l)\cdots
@@ -719,7 +759,9 @@ The \texttt{classify} method on the \texttt{NaiveBayesClassifier} object takes
 exactly one featureset and returns a label which maximizes the posterior
 probability P(label|featureset) over all labels.  Previously unseen features
 are ignored by the classifier, so that to avoid assigning zero probability to
-everything.\\ The only tangible difficulty with the implementation was the
+everything.
+
+The only tangible difficulty with the implementation was the
 framework in which classification is done. This task is, however, achieved by
 the Parser.  To batch classify everything in the test directory, the classifier
 object is passed to the Parser, where the featuresets for the test directories
@@ -729,12 +771,16 @@ particulars of this process is described in section \ref{parser}.
 \subsection{Support Vector Machine} In the Preparaion chapter we have looked at
 the theory of support vector machines as found in textbooks. This section
 builds on the theory described and explains further transformations that were
-an essential part of the implementation.\\ To implement a support vector
+an essential part of the implementation.
+
+To implement a support vector
 machine one must solve a problem of optimizing a quadratic function ssubject to
 linear constraints -- usually referred to as the \textit{Quadratic
 Programming} (QP) problem. Therefore, the first implementation task was to
 convert our existing optimization problem into a generic QP form to make use of
-the available solvers.\\ The maximization problem \ref{eq:maxim} can be
+the available solvers.
+
+The maximization problem \ref{eq:maxim} can be
 trivially expressed as a minimization problem (equation \ref{eq:minim}).
 
 \begin{gather}\label{eq:minim} min_{\bm{\alpha},\bm{\alpha^*}}
@@ -898,17 +944,17 @@ performance differs. Table \ref{kfun} shows the kernel functions I have used.
   \hline
   \textbf{Name} &\( \bm{K(\vec{x},\vec{y})}\)\\
   \hline\hline
-  Linear  & \(ax\cdot y^T + c\)  \\
+  Linear  & \(ax\cdot y^T + c\)\\  
 \hline
-Gaussian  & \(\exp^{-\sigma ||x-y||^2}\)\\
+Radial Basis Function(RBF)  & \(\exp^{-\gamma ||x-y||^2}\)\\
 \hline
 Sigmoid   &   \(\tanh(ax \cdot y^T + c)\)\\
 \hline
 Polynomial& \(a(x\cdot y^T)^d\)  \\
 \hline
-Weighted Sum&  \texttt{a*Gaussian(x,y)+(1-a)*Linear(x,y)}\\
+Weighted Sum&  \texttt{a*RBF(x,y)+(1-a)*Linear(x,y)}\\
 \hline
-Product     & \texttt{Linear(x,y)*Gaussian(x,y)}\\
+Product     & \texttt{RBF(x,y)*RBF(x,y)}\\
 \hline
 \end{tabular}
 \end{center}
@@ -918,47 +964,52 @@ The simplest kernel function is the linear kernel. It is simply a dot product
 of two vectors. Its generalized version is the polynomial kernel, which takes
 degree as a parameter. Intuitively, the polynomial kernel is a lot more
 flexible than linear, but the larger the degree, the less `smooth' it becomes,
-so it might overfit the training data.
-The Gaussian kernel (or the Radial Basis Function kernel) is most popular
-in Support Vector Machines. We take \(||x-y||\) to denote the Euclidean
-distance of the two feature vectors. The \(\sigma\) parameter is equivalent to
-\(\frac{1}{2\chi^2}\). The choice of \(\sigma\) has a major effect on the
-performance of the kernel and represents a tradeoff between over- and
-underfitting. To find the best parameter, cross validation is used.
-In the Evaluation chapter we will discuss the relative performance of
-these kernels.
+so it might overfit the training data.  The Radial Basis Function kernel is
+most popular in Support Vector Machines. We take \(||x-y||\) to denote the
+Euclidean distance of the two feature vectors. The \(\gamma\) parameter is
+equivalent to \(\frac{1}{2\sigma^2}\). The choice of \(\gamma\) has a major
+effect on the performance of the kernel and represents a tradeoff between over-
+and underfitting. To find the best parameter, cross validation is used.
+\todo{CROSS VALIDATION} The sigmoid kernel is commonly used in neural networks
+and in combination with an SVM classifier forms a two layer perceptron network,
+where the scale parameter \(a\) is usually set to 1/N, where N is the number of
+dimensions (features)\cite{sigmoid}. The Sum and Product kernels are both a
+combination of the linear and RBF kernels. In the Evaluation chapter we will discuss
+the relative performance of each of the kernels.
+
 \section{Parser}
 
-So far we have looked at the search engine. As a functional unit the search
-engine only retrieves the relevant pages. The Parser is an abstraction for a
-few classes which together perform a series of tasks involving page parsing. 
-Search engine heuristics are also handled by the parsing module.
+So far we have looked at the two separate blocks -- the search engine and the
+machine learners. As a functional unit the parser must provide an interface
+between the two. The search engine simply retrieves pages in response to a
+query and the machine learner expects as its input a set of labelled features
+for training and unlabelled features for classification/regression.  The
+Parser, therefore, must hide the nature of the data we are dealing with by
+translating it into the universal language of machine learners. Hence, the
+primary function of the Parser is to compute feature vectors for pages.
+However, it is easy to outsource search engine heuristics into the Parser, too,
+as they require page parsing. 
 
-The primary function of the parser is to compute feature vectors for pages.
-At this point we abstract away from the web pages and html parsing:
-as far as the machine learner is concerned, a feature vector is a complete
-representation of a page.
-The infrastructure for feature vector computation is easily extensible to
-accommodate other related tasks, namely, training set and test set generation.
-To allow for multifunctionality, I have taken an object oriented approach to the
-design of the module.
+To accomplish these multiple goals, I have
+taken an object oriented approach to the design of the module. What I refer to
+as the Parser is a few classes, which together perform a series of tasks
+related to page parsing.  The module operates in two modes: rank and score and
+handles both classification and regression. The high level specification is
+that we create two objects: a \texttt{TestFeatureSetCollection} and a
+\texttt{LabelFeatureSetCollection} objects and they encapsulate all the data,
+so can be passed around to the machine learners, as well as evaluation and
+plotting modules. These objects each operate within their own directories, to
+keep training and testing sufficiently separate.
 
-The module operates in two modes: rank and score and handles both
-classification and regression. The high level specification is that we create
-two objects: a \texttt{TestFeatureSetCollection} and a \texttt{LabelFeatureSetCollection}
-objects and they encapsulate all the data, so can be passed around to the
-machine learners, as well as evaluation and plotting modules. These objects
-each operate within their own directories, to keep training and testing
-sufficiently separate. 
-
-Both category and rank are treated as page features and hence are part of the
-LabeledFeatureSet class state.  The LabeledFeatureSetCollection class generates
-training sets from queries, whereas the \texttt{TestFeatureSetCollection} class computes
-predicted category given an instance of a classifier. Both, however, need to generate
-feature sets, one for the Training data and the other for the Test data. This
-common functionality is embodied in their abstract base class, FeatureSetCollection.
-Figure \ref{uml} shows a UML class diagram illustrating the main structure
-of the module.
+Both category and rank are
+treated as page features and hence are part of the \texttt{LabeledFeatureSet}
+class state.  The \texttt{LabeledFeatureSetCollection} class generates training
+sets from queries, whereas the \texttt{TestFeatureSetCollection} class computes
+predicted category given an instance of a classifier. Both, however, need to
+generate feature sets, one for the Training data and the other for the Test
+data. This common functionality is embodied in their abstract base class,
+\texttt{FeatureSetCollection}.  Figure \ref{uml} shows a UML class diagram
+illustrating the main structure of the module.
 
 \begin{figure}
 \centering
@@ -992,6 +1043,7 @@ number of times the query term occurs on the page. This is obtained directly
 from the html files using the BeautifulSoup library, just like for the link
 parsing in the crawler. The html is parsed into clean text and the count is
 computed on the string.
+
 A related but different feature -- stem count -- is the number of times the
 stem of the word occurs in the text. This is obtained using the \texttt{PorterStemmer}
 module in Nltk library.
@@ -1008,35 +1060,33 @@ same methods.\todo{enumerate features here}
 
 One characteristic peripheral requirement for the system implemented in this
 project is speed.  Even though it is not our direct goal to produce efficient
-implementations, optimization could not be overlooked, because significant amount of
-time is spent processing large quantities of data: indexing, PageRank
+implementations, optimization could not be overlooked, because significant
+amount of time is spent processing large quantities of data: indexing, PageRank
 and feature set computations all must complete in `feasible' time, i.e. in the
 final implementation the longest computation takes order of minutes and
 processes a few thousand pages. Various optimizations have been used to achieve
-this.
+this. 
 
-Both PageRank vector and the index are precomputed and kept in persistent
-storage. Incremental indexing feature allows us to edit parts of the index as
-opposed to recomputing the whole index from scratch. These precomputations
-provide certain speedups, but were not enough.
-
-Because the system is fairly complex and a lot of library code is used in
-places, it was hard to determine which code most affects the speed. `Blind'
-attempts at optimization did not work well, which motivated the use of a
-profiling tool.
+Both PageRank vector and the index are precomputed and kept in
+persistent storage. Incremental indexing feature allows us to edit parts of the
+index as opposed to recomputing the whole index from scratch. These
+precomputations provide certain speedups, but were not enough.  Because the
+system is fairly complex and a lot of library code is used in places, it was
+hard to determine which code most affects the speed. `Blind' attempts at
+optimization did not work well, which motivated the use of a profiling tool.
 
 Profiling the first prototype of the complete system revealed a surprising
 fact: most time was spent in the library code parsing pages. To mitigate this
 issue I have tried using custom parsers instead. Apart from speed, robustness
 was another important consideration, as a failure of a parser increases compute
-time. Two of the most renowned python parsers are html5lib and lxml. 
-Figure \ref{parsers} below shows visual representation of time profiling
-of 3 different runs obtained using the \textit{RunSnakeRun}, each exploiting a
-different parser. 
-Despite \textit{html5lib} being quoted as the most robust/lenient, \textit{lxml} was sufficiently
-faster to be preferable.
+time. Two of the most renowned python parsers are\textit{html5lib} and
+\textit{lxml}.  Figure
+\ref{parsers} below shows visual representation of time profiling of 3
+different runs obtained using the \textit{RunSnakeRun}, each exploiting a
+different parser.  Despite \textit{html5lib} being quoted as the most
+robust/lenient, \textit{lxml} was sufficiently faster to be preferable.
 
-\begin{figure}
+\begin{figure}[h]
 \centering
 \begin{subfigure}[b]{.3\textwidth}
   \centering
@@ -1075,14 +1125,21 @@ from memory exactly once. This is achieved via a double singleton class, which
 loads the vectors lazily.
 \cleardoublepage
 \chapter{Evaluation}
-\section{The prototype}
-\section{Bayes ranking: one to one comparison}
-\section{SVR}
-How does error parameter affect overfitting?
-\section{Kernel function generality}
-A structured comparison framework?
-\section{Experiments with number of features}
-\section{Score vs Rank}
+Due to the incremental development measurements were taken at various stages as
+the implementations evolved. To avoid biased results Development corpus was
+used during development, which is disjoint from the real Test corpus and is of
+smaller size. The development corpus is further subdivided into the Training
+corpus and the Validation corpus to mirror the Training and the Test corpus
+which are used to obtain all the results presented in this chapter.
+The evaluation was performed after the development of a complete system was
+performed and validated on the Development corpus.
+\section{Bayes Baseline}
+
+\section{Ranking with Bayes}
+\section{SVM Baseline}
+\section{SVM Hyperparameter Tuning}
+Grid Search + Cross validation
+Graphs.
 
 \cleardoublepage
 \chapter{Conclusion}
