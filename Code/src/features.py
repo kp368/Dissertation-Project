@@ -6,15 +6,24 @@ from sorter import sort
 from util import clean, has_image
 from nltk import PorterStemmer as PS
 import matplotlib.pyplot as plt
-from random import random
+from random import random, choice
 from numpy import median
 
+QUANT = 2
 MODE = 'score'
 CLASS = True
 max_pr = 10
 max_cnt = 12
 train_dir = abspath('../Train')
 test_dir = abspath('../Test')
+mn = 0
+mx = 0
+t = 0
+hpht = [0,0,0,0]
+
+def get_mean(cat):
+    return abs(t-cat*mx)/2.0
+
 
 def get_page_rank(page,is_test):
     pr = PageRank.load(test=is_test)
@@ -30,8 +39,12 @@ def get_count(term,page):
     s_count = page.count(stem)+page.count(stem.title())
     return t_count, s_count
 
-def get_pages(folder):
+def get_pages(test):
     pages = []
+    if test:
+        folder = test_dir
+    else:
+        folder = train_dir
     for root, dirs, files in walk(folder):
         for f in files:
             page = join(root,f)
@@ -55,7 +68,7 @@ class LabeledFeatureSet(object):
         self.pr = None
         self.stem_cnt = None
         self.term_cnt = None
-        self.pic = None
+        #self.pic = None
 
         #Now concerned with regression, no need to compute category
         #self.cat = cat
@@ -63,10 +76,17 @@ class LabeledFeatureSet(object):
         self.ordinal = None
         self.cat = None
 
-
     @property
     def score(self):
-        return sum(self.fv)
+        if self.pr > 1.1:
+            if self.term_cnt > 3:
+                return 50.0
+            else:
+                return 50.0
+        elif self.term_cnt > 3:
+            return 50.0
+        else:
+            return 1.0
 
     def get_score(self,g):
         #return sum(self.fv)
@@ -77,7 +97,7 @@ class LabeledFeatureSet(object):
 
     @property
     def fs(self):
-        return dict(pr=self.pr,stem_cnt=self.stem_cnt,term_cnt=self.term_cnt)
+        return dict(pr=self.pr,term_cnt=self.term_cnt)
 
     @property
     def dict(self):
@@ -88,7 +108,7 @@ class LabeledFeatureSet(object):
 
     @property
     def fv(self):
-        return self.pr, self.term_cnt, self.stem_cnt, self.pic
+        return self.pr, self.term_cnt
 
 
 
@@ -110,28 +130,24 @@ class FeatureSetCollection(defaultdict):
             for term in self.terms:
                 self[page][term].pr = pr
                 self[page][term].term_cnt, self[page][term].stem_cnt = get_count(term,clean_page)
-                self[page][term].pic = has_image(page)
+        #        self[page][term].pic = has_image(page)
 
     def compute_cat(self,is_test):
+        global mn, mx, t
         nums = []
         for page in self.pages:
             for term in self.terms:
                 nums.append(self[page][term].score)
-        mn = min(nums)
-        mx = max(nums)
-        t = int(round(median(nums),0))
-        #t = int(round((mn+mx)/2,0))
-        zero = 0
-        one = 0
+                mn = min(nums)
+                mx = max(nums)
+                t = int(round(median(nums),0))
+
         for page in self.pages:
             for term in self.terms:
                 if (int(round(self[page][term].score,0)))>t:
                     self[page][term].cat = 1
-                    one += 1
                 else:
                     self[page][term].cat = 0
-                    zero += 1
-                print self[page][term].score, '-->', self[page][term].cat
 
     def compute_ord(self, is_test):
         for term in self.terms:
@@ -164,7 +180,7 @@ class TestFeatureSetCollection(FeatureSetCollection):
 
     def __init__(self,terms,nb=None):
         super(TestFeatureSetCollection,self).__init__(terms,TestFeatureSet)
-        self.pages = get_rpages(terms,True)
+        self.pages = get_pages(True)
         self.terms = terms
         self.compute_fs(True)
         if MODE=='rank':
@@ -183,21 +199,25 @@ class TestFeatureSetCollection(FeatureSetCollection):
                 self[page][term].p_cat = nb.predict(self[page][term].fs)
 
     def get_results(self,g=None):
-        act, pred = [], []
+        act, pred, ceil, bl = [], [], [], []
         for p in self.pages:
             for t in self.terms:
                 s = self[p][t]
                 if s.term_cnt>0:#s.ordinal != None and s.pr<max_pr and s.term_cnt<max_cnt:
-                    act.append(s.cat)
-                    pred.append(s.p_cat)
+                    act.append(s.score)
+                    pred.append(get_mean(s.p_cat))
+                    ceil.append(get_mean(s.cat))
 
-        return act, pred
+        for i in act:
+            bl.append(get_mean(choice([0,1])))
+
+        return act, pred, ceil, bl, hpht
 
 class LabeledFeatureSetCollection(FeatureSetCollection):
 
     def __init__(self,terms):
         super(LabeledFeatureSetCollection,self).__init__(terms)
-        self.pages = get_rpages(terms,False)
+        self.pages = get_pages(False)
         self.compute_fs(False)
         if CLASS:
             self.compute_cat(False)

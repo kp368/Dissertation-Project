@@ -1133,10 +1133,50 @@ corpus and the Validation corpus to mirror the Training and the Test corpus
 which are used to obtain all the results presented in this chapter.
 The evaluation was performed after the development of a complete system was
 performed and validated on the Development corpus.
-\section{Bayes Baseline}
 
-\section{Ranking with Bayes}
-\section{SVM Baseline}
+\section{Measurements}
+Talk about which statistical techniques are used for evaluation and explain why each was
+chosen and what were other alternatives considered.
+\subsection{Mean Squared Error}
+\subsection{Tolerance intervals}
+\subsection{Mean Reciprocal Rank}
+\section{Bayes and heuristic functions}
+
+\paragraph{Hypothesis: Naive Bayes performs better with heuristics which do not depend on
+multiple interdependent features.}
+
+Naive Bayes is expected to separate classes well when the features are conditionally
+independent. This behaviour is expected from the independence assumption described
+earlier. One example of a heuristic which will cause the Naive Bayes to perform badly is,
+therefore the \texttt{sum} function \(\sum_{f\in features} f\).
+
+To test this hypothesis, we construct a minimal two dimensional function which is linearly separable, but
+has dependent features. 
+\begin{minipage}[t]{0.5\textwidth}
+
+\begin{verbatim}
+
+    def score:
+        if f1 > median_f1:
+            if f2 > median_f2:
+                return class1
+        else if f2 > median_f2:
+            return class1
+        else:
+            return class2
+\end{verbatim}
+
+\end{minipage}
+
+
+\begin{figure}
+\begin{minipage}[t]{0.5\textwidth}
+\includegraphics[scale=0.5]{figs/bayes1.png}
+\caption{}
+\label{bayes1}
+\end{minipage}
+
+\end{figure}
 \section{SVM Hyperparameter Tuning}
 Grid Search + Cross validation
 Graphs.

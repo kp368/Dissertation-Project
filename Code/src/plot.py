@@ -4,6 +4,16 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 import matplotlib.pyplot as plt
 import numpy as np
 
+def bayes():
+    plt.plot([0,1,1.6],[1.6,0.6,0],'r')
+    plt.xticks(np.arange(3), ('0','Median', 'Max'))
+    plt.yticks(np.arange(3), ('0','Median', 'Max'))
+    plt.annotate('Class 1',xy=(1.5,1.5),xytext=(1.5,1.5))
+    plt.annotate('Class 1',xy=(1.5,1.5),xytext=(0.5,1.5))
+    plt.annotate('Class 1',xy=(1.5,1.5),xytext=(1.5,0.5))
+    plt.annotate('Class 2',xy=(1.5,1.5),xytext=(0.5,0.5))
+    plt.show()
+
 def label(ax):
 
     ax.set_xlabel('PageRank')

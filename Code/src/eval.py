@@ -39,8 +39,8 @@ def evaluate(train,test):
 
                         fun = S.predict
                         #compute error for both train and test data
-                        train_mse =  mse(X_tr,Y_tr,fun)
-                        test_mse =  mse(X_ts,Y_ts,fun)
+                        train_mse =  get_mse(X_tr,Y_tr,fun)
+                        test_mse =  get_mse(X_ts,Y_ts,fun)
 
                         #write to memory
                         writer.writerow([h,k,a,train_mse,test_mse,error])
