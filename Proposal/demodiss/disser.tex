@@ -1149,11 +1149,8 @@ Naive Bayes is expected to separate classes well when the features are condition
 independent. This behaviour is expected from the independence assumption described
 earlier. One example of a heuristic which will cause the Naive Bayes to perform badly is,
 therefore the \texttt{sum} function \(\sum_{f\in features} f\).
-
 To test this hypothesis, we construct a minimal two dimensional function which is linearly separable, but
 has dependent features. 
-\begin{minipage}[t]{0.5\textwidth}
-
 \begin{verbatim}
 
     def score:
@@ -1166,17 +1163,28 @@ has dependent features.
             return class2
 \end{verbatim}
 
-\end{minipage}
-
-
-\begin{figure}
-\begin{minipage}[t]{0.5\textwidth}
-\includegraphics[scale=0.5]{figs/bayes1.png}
-\caption{}
-\label{bayes1}
-\end{minipage}
-
+\begin{figure}[h]
+\begin{subfigure}[b]{.5\textwidth}
+  \centering
+  \includegraphics[width=1.2\linewidth]{figs/bayes1.png}
+  \caption{Classification problem}
+  \label{bayes1}
+\end{subfigure}
+\quad\quad
+\begin{subfigure}[b]{.5\textwidth}
+  \centering
+  \includegraphics[width=1.2\linewidth]{figs/bayes_dep.png}
+  \caption{Naive Bayes performance}
+  \label{bayes2}
+\end{subfigure}
+\caption{Figure \ref{bayes1} visually represents the program above: the features are clearly
+  linearly separable, however, the features depend on each other. M is the median value of each feature.
+  Figure \ref{bayes2} demonstrates how Naive Bayes fails to classify well when the score function uses dependencies between features. The program above is run with scores 50 and 1 for class 1 and class 2
+  respectively. Each line represents the mean of the squared error and its confidence
+  interval. The actual classifier performance is very similar to the baseline (random)
+performance, which verifies the stated hypothesis.}
 \end{figure}
+
 \section{SVM Hyperparameter Tuning}
 Grid Search + Cross validation
 Graphs.

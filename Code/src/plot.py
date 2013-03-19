@@ -6,12 +6,17 @@ import numpy as np
 
 def bayes():
     plt.plot([0,1,1.6],[1.6,0.6,0],'r')
-    plt.xticks(np.arange(3), ('0','Median', 'Max'))
-    plt.yticks(np.arange(3), ('0','Median', 'Max'))
+    plt.xticks(np.arange(3), ('0','M', ''))
+    plt.yticks(np.arange(3), ('0','M', ''))
     plt.annotate('Class 1',xy=(1.5,1.5),xytext=(1.5,1.5))
     plt.annotate('Class 1',xy=(1.5,1.5),xytext=(0.5,1.5))
     plt.annotate('Class 1',xy=(1.5,1.5),xytext=(1.5,0.5))
     plt.annotate('Class 2',xy=(1.5,1.5),xytext=(0.5,0.5))
+    plt.title('Classification with Interdependent Features')
+    plt.ylabel('Feature 1')
+    plt.xlabel('Feature 2')
+    params = {'font.size': 16}
+    plt.rcParams.update(params)
     plt.show()
 
 def label(ax):

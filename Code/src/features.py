@@ -211,7 +211,7 @@ class TestFeatureSetCollection(FeatureSetCollection):
         for i in act:
             bl.append(get_mean(choice([0,1])))
 
-        return act, pred, ceil, bl, hpht
+        return act, pred, ceil, bl
 
 class LabeledFeatureSetCollection(FeatureSetCollection):
 
