@@ -1,4 +1,5 @@
-\documentclass[11pt,twoside,notitlepage]{report}
+\documentclass[11pt,notitlepage]{report}
+\usepackage{sidecap}
 \usepackage{a4}
 \usepackage{verbatim}
 \usepackage{graphicx}
@@ -1129,10 +1130,10 @@ Due to the incremental development measurements were taken at various stages as
 the implementations evolved. To avoid biased results Development corpus was
 used during development, which is disjoint from the real Test corpus and is of
 smaller size. The development corpus is further subdivided into the Training
-corpus and the Validation corpus to mirror the Training and the Test corpus
+corpus and the Validation corpus to mirror the Training and the Test corpora,
 which are used to obtain all the results presented in this chapter.
-The evaluation was performed after the development of a complete system was
-performed and validated on the Development corpus.
+The evaluation was performed after the development of the whole system was
+complete and validated on the Development corpus.
 
 \section{Measurements}
 Talk about which statistical techniques are used for evaluation and explain why each was
@@ -1140,55 +1141,117 @@ chosen and what were other alternatives considered.
 \subsection{Mean Squared Error}
 \subsection{Tolerance intervals}
 \subsection{Mean Reciprocal Rank}
-\section{Bayes and heuristic functions}
+\subsection{Classification and Quantization Error}
+To compare classification and regression effectively, the error incurred in quantizing
+scores is tracked. In a two-class scenario there is one threshold score value that
+separates the two classes. This score value is computed as a median to have adequate class
+representation. When Bayes assigns a class to a feature set, it is perceived as assigning
+the mean value of the scores present in the class. 
+\section{Linear and non-linear classification}
+\paragraph{Hypothesis: Naive Bayes performs better with linearly separable data.}
 
-\paragraph{Hypothesis: Naive Bayes performs better with heuristics which do not depend on
-multiple interdependent features.}
-
-Naive Bayes is expected to separate classes well when the features are conditionally
-independent. This behaviour is expected from the independence assumption described
-earlier. One example of a heuristic which will cause the Naive Bayes to perform badly is,
-therefore the \texttt{sum} function \(\sum_{f\in features} f\).
-To test this hypothesis, we construct a minimal two dimensional function which is linearly separable, but
-has dependent features. 
-\begin{verbatim}
-
-    def score:
-        if f1 > median_f1:
-            if f2 > median_f2:
-                return class1
-        else if f2 > median_f2:
-            return class1
-        else:
-            return class2
-\end{verbatim}
+Naive Bayes is a linear classifier and, therefore, linear separability of data is a
+premise of successful classification. To test this hypothesis, we will construct two
+minimal two-dimensional examples as shown in figures \ref{code:insep} and \ref{code:sep}
+below. Example \ref{code:insep} cannot be solved by plotting a line to separate the
+classes. Bayes is expected to fail in this case. Example \ref{code:sep} illustrates a
+`cut-off sum' function. Such a linear heuristic should be easy for Bayes to pick up on.
 
 \begin{figure}[h]
-\begin{subfigure}[b]{.5\textwidth}
-  \centering
-  \includegraphics[width=1.2\linewidth]{figs/bayes1.png}
-  \caption{Classification problem}
-  \label{bayes1}
-\end{subfigure}
-\quad\quad
-\begin{subfigure}[b]{.5\textwidth}
-  \centering
-  \includegraphics[width=1.2\linewidth]{figs/bayes_dep.png}
-  \caption{Naive Bayes performance}
-  \label{bayes2}
-\end{subfigure}
-\caption{Figure \ref{bayes1} visually represents the program above: the features are clearly
-  linearly separable, however, the features depend on each other. M is the median value of each feature.
-  Figure \ref{bayes2} demonstrates how Naive Bayes fails to classify well when the score function uses dependencies between features. The program above is run with scores 50 and 1 for class 1 and class 2
-  respectively. Each line represents the mean of the squared error and its confidence
-  interval. The actual classifier performance is very similar to the baseline (random)
-performance, which verifies the stated hypothesis.}
+\begin{minipage}[b]{0.55\linewidth}
+  \includegraphics[width=1.2\linewidth]{figs/gen_insep.png}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}[b]{0.4\linewidth}
+\begin{verbatim}
+  def score_inseparable:
+
+      if f1 > M(f1):
+          if f2 > M(f2):
+              return class2
+          else: return class1
+      elif f2 > M(f2): 
+          return class1
+      else: return class2
+
+\end{verbatim}
+\end{minipage}
+\caption{An example of inseparable data. M represents median points for corresponding
+features.  The red lines visualize the boundaries between the classes, separating four
+distinct quadrants. The M value is chosen to be a median, so that adequate number of
+training examples was available for all quadrants.  \label{code:insep}}
 \end{figure}
 
-\section{SVM Hyperparameter Tuning}
+\begin{figure}[h]
+\begin{minipage}[b]{0.55\linewidth}
+  \includegraphics[width=1.2\linewidth]{figs/gen_sep.png}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}[b]{0.4\linewidth}
+\begin{verbatim}
+  def score_separable:
+
+      if f1 +f2 > T:
+          return class1
+      else:
+          return class2
+
+
+\end{verbatim}
+\end{minipage}
+\caption{An example of separable data. On the red line the sum of features is equal to the
+threshold value T.  As before, T is chosen to be the median of the sum f1+f2 to supply
+equally many training examples on either side of the line. \label{code:sep}}
+\end{figure}
+
+To evaluate the real Bayes behaviour the programs described above are ran with class 1
+score equal to 1 and class 2 score equal to 50. Mean squared errors are computed for both cases.
+Figures \ref{insep} and \ref{sep} show the mean squared errors within their corresponding
+confidence intervals.  Along with the actual Bayes classification error (denoted as
+`Actual' on the y axes) the Baseline and Ceiling errors are plotted for comparison. The
+Baseline performance is evaluated by randomly assigning classes, whereas the Ceiling error
+illustrates the contribution of quantization error, inherent in classification of
+non-discrete scores.
+
+The mean squared error in the inseparable case is significantly larger: in fact, its
+confidence interval overlaps with the one of the error in random classification (the
+Baseline error). Similarly, the standard deviation of the error is similar in width to the
+Baseline. This is due to the fact that the classifier is making mistakes as frequently. In
+contrast, the separable data case shows a convincing improvement in classification error.
+However, the classifier is still not perfect. This might be a result of insufficient
+or unbalanced training data. In this particular case and in general, adding more training
+data improves the error up to a point when overfitting occurs. Nonetheless, it is rarely
+possible to gather a subset of training data that will have enough points very near to the class
+boundary to allow for perfect classification. Therefore, the result is consistent with the
+proposed hypothesis.
+\begin{SCfigure}
+ \includegraphics[width=0.75\linewidth]{figs/insep.png}
+ \caption{Classification of Inseparable Data: Evaluation. The mean error is near random
+ classification and with wide spread. \label{insep}}
+\end{SCfigure}
+
+
+\begin{SCfigure}
+  \includegraphics[width=0.75\linewidth]{figs/sep.png}
+  \caption{Classification of Separable Data: Evaluation. The mean error is distinctly
+  better than random and approaches the goal performance. \label{sep}}
+\end{SCfigure}
+
+\paragraph{SVM performs equally well regardless whether or not the data is linearly
+separable.}
+\section{Hyperparameter tuning}
+\paragraph{Hypothesis: Bayes classifies better when fewer classes are present.}
+\paragraph{SVM with linear kernel performs well for linear heuristics, but becomes
+unusable for non-linear ones.}
+
 Grid Search + Cross validation
 Graphs.
-
+\paragraph{Some kernels are more general than others.}
+\section{Features}
+\paragraph{Bayes performance degrades rapidly as the number of features grows whereas SVM
+performance does not.}
+\paragraph{Both Bayes and SVM perform better when all the features used in training are
+also used in heuristics.}
 \cleardoublepage
 \chapter{Conclusion}
 \cleardoublepage
