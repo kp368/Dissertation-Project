@@ -1161,7 +1161,6 @@ In the best case, the interval is tight. If the error is spread, the classifier 
 inconsistent mistakes. Particularly important to include these in our evaluation due to
 the presence of quantization error. The mean error of the ceiling and its spread is a good
 indicator of the mean and variance introduced by quantization.
-\subsection{Mean Reciprocal Rank}
 \subsection{Classification and Quantization Error}
 To compare classification and regression effectively, the error incurred in quantizing
 scores is tracked. In a two-class scenario there is one threshold score value that
@@ -1305,20 +1304,37 @@ classification: when new features are added, the size of the training set has to
 exponentially to cover all the new dimensions. Naive Bayes, however, lessens this problem
 a little due to the assumption of conditional independence. It is interesting to see how
 rapidly its performance degrades when more features are added while the training data is
-unchanged. It is important that all the features used are independent, as otherwise, the
-results will not be valid.
+unchanged. It is important that all the features used are conditionally independent, as
+otherwise, the results would not be valid. 
 
-Fix quanta to middle value -- this way it is not affected by the extremes of the sides.
-Good enough performance but not too expensive..
+The number of classes is fixed at a value of 7, at which the performance is reasonable but
+still has some quantization error. This is done to prevent the effects of the extremes of
+performance. We are only interested in relative performance, so it should not matter how
+many classes are used, however, it is important that the number of classes used produces a
+significantly better result than the baseline, to make sure a random guess could not
+produce a good result.
 
-Hard to find enough independent features. 
+The result for a few linearly separable functions is computed and the average errors are
+plotted in figure \ref{feats}. The actual classification diverges from the ceiling when
+the number of features is about 6. The rapid growth of the random classification curve is
+explained by the curse of dimensionality: degrees of freedom grow exponentially. The
+exponential growth is plotted in black for comparison: initially the baseline growth is
+near exponential, but less steep subsequently. \todo{why might that be?}
 
-Dont expect exponential decrease...
+The ceiling and the actual curves are growing almost monotonously, as is expected. The
+flat regions at 5-6 and 7-8 are explained by the data specifics: the particular features added at
+those point appeared insignificant in the scores as they occurred infrequently and had
+small values.
 
 \begin{figure}[h!]
   \includegraphics[width=\linewidth]{figs/feats.png}
-  \caption{Error response with varying the number of features.\label{feats}}
+  \caption{Error response with varying number of features.\label{feats}}
 \end{figure}
+
+It has proven hard to pick many conditionally independent features. Among the ones used
+were pagerank, image count, word count, frequency of search term occurrence, quality of
+html, price information availability and alike.
+
 
 \paragraph{Both Bayes and SVM perform better when all the features used in training are
 also used in heuristics.}
