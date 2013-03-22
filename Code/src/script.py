@@ -6,8 +6,8 @@ import nbayes
 def bayes():
     l = features.LabeledFeatureSetCollection([u'arcitecture',u'building'])
     nb = nbayes.Bayes(l.XY[0],l.XY[1],2)
-    t = features.TestFeatureSetCollection([u'arcitecture',u'building'],nb)
-    return t
+    t = features.TestFeatureSetCollection([u'arcitecture',u'building'],l.t,nb)
+    return l, t
 
 def data():
     l = features.LabeledFeatureSetCollection([u'arcitecture',u'building'])

@@ -21,6 +21,71 @@ def bayes():
     plt.rcParams.update(params)
     plt.show()
 
+from numpy import *
+
+def plot_cats(cats):
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    cols = ['b','r']
+    t = [5,41]
+    x = arange(0,25,5)
+    for i,c in enumerate(cols):
+        ax.scatter(cats[i][0],cats[i][1],color=c)
+        ax.plot(x,t[i]-x,color=c)
+    plt.xlim(xmin=0,xmax=17)
+    plt.ylim(ymin=-1,ymax=30)
+    plt.xlabel('Feature 1')
+    plt.ylabel('Feature 2')
+    plt.title('Classification into Two Quantized Classes')
+    plt.show()
+
+def feats():
+    fs = [2,3,4,5,6,7,8,12,15]
+    fig = plt.figure()
+    ax = fig.add_axes([0.1,0.1,0.6,0.75])
+    c_es = [10,19.9,19.5,42.2,42.6,64.7,45.6,46.7,78.1]
+    c_yerr = [2.8,4,3.9,11.5,11.5,14,11.1,10,17.6]
+    ax.errorbar(fs,c_es,c_yerr,color='r',fmt='--',label='Ceiling')
+    p_es = [18,39.5,41.6,71,64,130.7,124.5,281.2,458]
+    p_yerr = [5,5.4,5.9,13.5,12.3,20.8,21.4,37.8,59.6]
+    ax.errorbar(fs,p_es,p_yerr,color='b',label='Actual')
+    b_es = [133,148,126,279,270,600,533,941,1282.9]
+    b_yerr = [22,22,19.4,50,48,81,74,136.4,184.2]
+    ax.errorbar(fs,b_es,b_yerr,color='g',fmt=':',label='Baseline')
+    ax.plot(fs,exp(fs),'k-.',label='Exponential')
+    ax.legend(bbox_to_anchor=(1.02, 1), loc=2, borderaxespad=0.)
+    plt.xlim(xmin=1.5,xmax = 16)
+    plt.ylim(ymin=0,ymax=1100)
+    plt.xticks(arange(2,16))
+    #plt.yticks(arange(0,225,25))
+    plt.ylabel('Mean Squared Error')
+    plt.xlabel('Number of Features')
+    plt.show()
+
+def quants():
+    qs = [2,3,4,5,6,7,10,12,15]
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    c_es = [72,24,23,14,11,10,6,2,0]
+    c_yerr = [10.6,5.4,4.2,3.6,2.8,2.8,1,0.4,0]
+    ax.errorbar(qs,c_es,c_yerr,color='r',fmt='--',label='Ceiling')
+    p_es = [90.3,36.5,33.7,22.5,18.1,18.8,10,4,1.5]
+    p_yerr = [13.1,7,6.7,4.5,3.8,3.9,2,1.1,0.18]
+    ax.errorbar(qs,p_es,p_yerr,color='b',label='Actual')
+    b_es = [195,72,94,95,143,154,160,180,170]
+    b_yerr = [20.1,15,17.6,17.7,22.3,20.3,20,19,21]
+    ax.errorbar(qs,b_es,b_yerr,color='g',fmt=':',label='Baseline')
+    plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+       ncol=3, mode="expand", borderaxespad=0.)
+    plt.xlim(xmin=1.5,xmax = 16)
+    plt.ylim(ymin=0,ymax=225)
+    plt.xticks(arange(2,16))
+    plt.yticks(arange(0,225,25))
+    plt.ylabel('Mean Squared Error')
+    plt.xlabel('Number of Classes')
+    plt.show()
+
+
 def label(ax):
 
     ax.set_xlabel('PageRank')

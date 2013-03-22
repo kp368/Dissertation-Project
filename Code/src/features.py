@@ -7,9 +7,9 @@ from util import clean, has_image
 from nltk import PorterStemmer as PS
 import matplotlib.pyplot as plt
 from random import random, choice
-from numpy import median, mean
+from numpy import median, mean, arange, array_split, array, ones
 
-QUANT = 2
+QUANT = 7
 MODE = 'score'
 CLASS = True
 max_pr = 10
@@ -21,10 +21,10 @@ test_dir = abspath('../Test')
 def get_page_rank(page,is_test):
     pr = PageRank.load(test=is_test)
     try:
-        rank = int(round(1000*pr.by_name[page]))
+        rank = 1000*pr.by_name[page]
     except KeyError:
-        rank = random()
-    return rank
+        rank = choice(arange(5))
+    return int(round(rank,0))
 
 def get_count(term,page):
     t_count = page.count(term)+page.count(term.title())
@@ -62,6 +62,18 @@ class LabeledFeatureSet(object):
         self.stem_cnt = None
         self.term_cnt = None
         self.img = None
+        self.wd_cnt = None
+        self.has_price = choice(arange(20))
+        self.has_contacts = choice(arange(30))
+        self.has_ads = choice(arange(4))
+        self.form = choice(arange(5))
+        self.a = choice(arange(25))
+        self.b = choice(arange(25))
+        self.c = choice(arange(25))
+        self.d = choice(arange(25))
+        self.e = choice(arange(25))
+        self.f = choice(arange(25))
+
 
         #Now concerned with regression, no need to compute category
         #self.cat = cat
@@ -71,7 +83,7 @@ class LabeledFeatureSet(object):
 
     @property
     def score(self):
-        return self.get_sep()
+        return sum(self.fv)
 
 #Various score functions used in evaluation
     def get_sep(self):
@@ -100,7 +112,10 @@ class LabeledFeatureSet(object):
 
     @property
     def fs(self):
-        return dict(img = self.img,pr=self.pr,term_cnt=self.term_cnt)
+        return dict(img =
+                self.img,pr=self.pr,term_cnt=self.term_cnt,stem_cnt=self.stem_cnt,wd_cnt=self.wd_cnt,
+                price = self.has_price, con = self.has_contacts,ads = self.has_ads,form =
+                self.form,a=self.a,b=self.b,c=self.c,d=self.d,e=self.e,f=self.f)
 
     @property
     def dict(self):
@@ -111,7 +126,7 @@ class LabeledFeatureSet(object):
 
     @property
     def fv(self):
-        return self.img, self.term_cnt
+        return self.fs.values()
 
 
 
@@ -125,36 +140,67 @@ class FeatureSetCollection(defaultdict):
     def __init__(self,terms,l=LabeledFeatureSet):
         super(FeatureSetCollection,self).__init__(lambda:defaultdict(l))
         self.terms = terms
-        self.mn = 0
-        self.mx = 0
-        self.t = 0
+        self.t = None
 
     def get_mean(self,cat):
-        return abs(self.t-cat*self.mx)/2.0+self.t*cat
+        if QUANT==2:
+            if cat==0:
+                return 3
+            else:
+                return 16
+            #return abs(self.t-cat*self.mx)/2.0+self.t*cat
+        if QUANT==7:
+            m = [mean(arange(self.t[i],self.t[i+1])) for i in arange(7)]
+            return m[cat]
+
 
     def compute_fs(self,is_test):
         for page in self.pages:
             pr = get_page_rank(page,is_test)
             clean_page = clean(page)
             for term in self.terms:
+                s = self[page][term]
                 self[page][term].pr = pr
                 self[page][term].term_cnt, self[page][term].stem_cnt = get_count(term,clean_page)
+                s.wd_cnt = s.term_cnt%len(clean(page))
+                #s.has_price = choice(arange(15))# sum(list(get_count(u'price',clean_page)))
                 self[page][term].img = has_image(page)
 
-    def compute_cat(self,is_test):
+    def compute_stat(self):
         nums = []
         for page in self.pages:
             for term in self.terms:
                 nums.append(self[page][term].score)
         self.mn = min(nums)
         self.mx = max(nums)
-        self.t = int(round(mean(nums),0))
+        nums.sort()
+        a = array_split(nums,7)
+        self.t = [(a[i][len(a[i])-1]+a[i+1][0])/2.0 for i in xrange(6)]
+        self.t.append(self.mn); self.t.append(self.mx); self.t.sort()
+
+    def compute_cat(self,is_test):
         for page in self.pages:
             for term in self.terms:
-                if (round(self[page][term].score,0))>self.t:
-                    self[page][term].cat = 1
+                s = self[page][term]
+                #if s.score <= self.t:
+                #    s.cat = 0
+                #else:
+                #    s.cat =1
+                if s.score <= self.t[1]:
+                    s.cat = 0
+                elif s.score <= self.t[2]:
+                    s.cat = 1
+                elif s.score <= self.t[3]:
+                    s.cat = 2
+                elif s.score <= self.t[4]:
+                    s.cat = 3
+                elif s.score <= self.t[5]:
+                    s.cat = 4
+                elif s.score <= self.t[6]:
+                    s.cat = 5
                 else:
-                    self[page][term].cat = 0
+                    s.cat = 6
+                #print self[page][term].score,'-->',self[page][term].cat
 
     def compute_ord(self, is_test):
         for term in self.terms:
@@ -183,12 +229,22 @@ class FeatureSetCollection(defaultdict):
 
         return X, Y
 
+    def get_points(self):
+        tuples = [([],[]) for x in xrange(7)]
+        for p in self.pages:
+            for t in self.terms:
+                s = self[p][t]
+                tuples[s.cat][0].append(s.img)
+                tuples[s.cat][1].append(s.term_cnt)
+        return tuples
+
 class TestFeatureSetCollection(FeatureSetCollection):
 
-    def __init__(self,terms,nb=None):
+    def __init__(self,terms,t,nb=None):
         super(TestFeatureSetCollection,self).__init__(terms,TestFeatureSet)
-        self.pages = get_pages(True)
+        self.pages = get_rpages(terms,True)
         self.terms = terms
+        self.t = t
         self.compute_fs(True)
         if MODE=='rank':
             self.compute_ord(True)
@@ -198,12 +254,14 @@ class TestFeatureSetCollection(FeatureSetCollection):
 
     def predict_cat(self,nb):
         for page in self.pages:
-            pr = get_page_rank(page,True)
-            clean_page = clean(page)
+            #pr = get_page_rank(page,True)
+            #clean_page = clean(page)
             for term in self.terms:
-                self[page][term].pr = pr
-                self[page][term].term_cnt, self[page][term].stem_cnt = get_count(term,clean_page)
-                self[page][term].img = has_image(page)
+               # s = self[page][term]
+               # self[page][term].pr = pr
+               # self[page][term].term_cnt, self[page][term].stem_cnt = get_count(term,clean_page)
+               # s.wd_cnt = len(clean_page)
+               # self[page][term].img = has_image(page)
                 self[page][term].p_cat = nb.predict(self[page][term].fs)
 
     def get_results(self,g=None):
@@ -218,7 +276,7 @@ class TestFeatureSetCollection(FeatureSetCollection):
                 #print s.p_cat, s.cat, '-->', self.get_mean(s.p_cat), self.get_mean(s.cat)
 
         for i in act:
-            bl.append(self.get_mean(choice([0,1])))
+            bl.append(self.get_mean(choice(arange(QUANT))))
 
         return act, pred, bl, ceil
 
@@ -226,8 +284,9 @@ class LabeledFeatureSetCollection(FeatureSetCollection):
 
     def __init__(self,terms):
         super(LabeledFeatureSetCollection,self).__init__(terms)
-        self.pages = get_pages(False)
+        self.pages = get_rpages(terms,False)
         self.compute_fs(False)
+        self.compute_stat()
         if CLASS:
             self.compute_cat(False)
         if MODE=='rank':
@@ -241,6 +300,19 @@ class LabeledFeatureSetCollection(FeatureSetCollection):
                 train_set.append(self[p][t].tuple)
         return train_set
 
+
+    def plot_d(self):
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        cats = self.get_points()
+        cols = ['b','g','r','c','m','y','k']
+        t = [1,2,4,9,81,256]
+        x = arange(0,20,2)
+        for i,c in enumerate(cols):
+            ax.scatter(cats[i][0],cats[i][1],color=c)
+        for th in t:
+            ax.plot(x,th-x**2)
+        plt.show()
 
     def plot(self,test):
         if test:

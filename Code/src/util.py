@@ -18,4 +18,7 @@ def has_image(path):
     with open(path,'r') as f:
         data = f.read()
     soup = BS(data,"lxml")
-    return len(soup.findAll("img"))
+    num = len(soup.findAll("img"))
+    if num > 16:
+        num = 16
+    return num

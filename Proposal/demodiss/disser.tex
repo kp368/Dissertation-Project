@@ -528,7 +528,10 @@ be used, which must be disjoint with the Training or Test data. This ensures
 that no optimization is tailored to the data used for evaluation. 
 
 \subsection*{Requirements Analysis}
-The resulting system must comply with the requirements stated below. 
+The resulting system must comply with the functional and non-functional requirements, but
+not the non-requirements.
+
+Functional and Non-Functional Requirements:
 \begin{itemize}
   \item{A search engine, which given a query must return a relevant subset of
       pages within 10 seconds in an order corresponding to a given heuristic, which can also be
@@ -541,6 +544,11 @@ The resulting system must comply with the requirements stated below.
   \item{Machine learners must be able to process thousands of pages in a
     reasonable time.}
   \item{The evaluation module must write results to persistent storage.}
+\end{itemize}
+Non-Requirements:
+\begin{itemize}
+  \item{Usability. This system is not meant to be used by other people and is result
+    oriented, so no user interface is necessary.}
 \end{itemize}
 \cleardoublepage
 \chapter{Implementation}
@@ -1124,7 +1132,9 @@ clearly is undesirable. I used caching to ensure that each of the two possible
 PageRank vectors (corresponding to the test and train directories) is loaded
 from memory exactly once. This is achieved via a double singleton class, which
 loads the vectors lazily.
+
 \cleardoublepage
+
 \chapter{Evaluation}
 Due to the incremental development measurements were taken at various stages as
 the implementations evolved. To avoid biased results Development corpus was
@@ -1138,8 +1148,19 @@ complete and validated on the Development corpus.
 \section{Measurements}
 Talk about which statistical techniques are used for evaluation and explain why each was
 chosen and what were other alternatives considered.
+
 \subsection{Mean Squared Error}
+Second moment of the error, so incorporates both variance and bias.
+\(\frac{1}{n}\sum_{i=1}^n(Actual-Predicted)^2\) Penalizes large errors heavily, but small
+errors diminish.
+Assuming Gaussian noise. But sensitive to outliers. MAE is less so. But MSE more visual
+and distinct representation of this particular data.
 \subsection{Tolerance intervals}
+Tolerance interval of the error mean is a good visualisation of how spread the error is.
+In the best case, the interval is tight. If the error is spread, the classifier is making
+inconsistent mistakes. Particularly important to include these in our evaluation due to
+the presence of quantization error. The mean error of the ceiling and its spread is a good
+indicator of the mean and variance introduced by quantization.
 \subsection{Mean Reciprocal Rank}
 \subsection{Classification and Quantization Error}
 To compare classification and regression effectively, the error incurred in quantizing
@@ -1157,7 +1178,7 @@ below. Example \ref{code:insep} cannot be solved by plotting a line to separate 
 classes. Bayes is expected to fail in this case. Example \ref{code:sep} illustrates a
 `cut-off sum' function. Such a linear heuristic should be easy for Bayes to pick up on.
 
-\begin{figure}[h]
+\begin{figure}[h!]
 \begin{minipage}[b]{0.55\linewidth}
   \includegraphics[width=1.2\linewidth]{figs/gen_insep.png}
 \end{minipage}
@@ -1182,7 +1203,7 @@ distinct quadrants. The M value is chosen to be a median, so that adequate numbe
 training examples was available for all quadrants.  \label{code:insep}}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[h!]
 \begin{minipage}[b]{0.55\linewidth}
   \includegraphics[width=1.2\linewidth]{figs/gen_sep.png}
 \end{minipage}
@@ -1224,14 +1245,14 @@ data improves the error up to a point when overfitting occurs. Nonetheless, it i
 possible to gather a subset of training data that will have enough points very near to the class
 boundary to allow for perfect classification. Therefore, the result is consistent with the
 proposed hypothesis.
-\begin{SCfigure}
+\begin{SCfigure}[0.5][h!]
  \includegraphics[width=0.75\linewidth]{figs/insep.png}
  \caption{Classification of Inseparable Data: Evaluation. The mean error is near random
  classification and with wide spread. \label{insep}}
 \end{SCfigure}
 
 
-\begin{SCfigure}
+\begin{SCfigure}[0.5][h!]
   \includegraphics[width=0.75\linewidth]{figs/sep.png}
   \caption{Classification of Separable Data: Evaluation. The mean error is distinctly
   better than random and approaches the goal performance. \label{sep}}
@@ -1241,6 +1262,34 @@ proposed hypothesis.
 separable.}
 \section{Hyperparameter tuning}
 \paragraph{Hypothesis: Bayes classifies better when fewer classes are present.}
+It is intuitive that at a large number of classes, the more classes we introduce, the more precise the classifier has to be to perform
+equally well. However, taking into account the quantization error, we might expect
+non-linear behaviour: performance will improve due to the quantization error decreasing
+faster than precision up to a certain point. This experiment aims to determine the number
+of classes minimizes the overall error of the classifier.
+
+\begin{SCfigure}[0.5][h!]
+  \includegraphics[width=0.75\linewidth]{figs/quants.png}
+  \caption{Error response to varying number of classes.\label{quants}}
+\end{SCfigure}
+
+\begin{figure}[h!]
+\centering
+\begin{subfigure}[b]{.49\textwidth}
+  \centering
+  \includegraphics[width=1.1\linewidth]{figs/two.png}
+  \caption{TWO}
+  \label{def}
+\end{subfigure}
+%
+\begin{subfigure}[b]{.49\textwidth}
+  \centering
+  \includegraphics[width=1.1\linewidth]{figs/seven.png}
+  \caption{seven}
+  \label{html}
+\end{subfigure}
+\end{figure}
+
 \paragraph{SVM with linear kernel performs well for linear heuristics, but becomes
 unusable for non-linear ones.}
 
@@ -1250,6 +1299,27 @@ Graphs.
 \section{Features}
 \paragraph{Bayes performance degrades rapidly as the number of features grows whereas SVM
 performance does not.}
+So far we have considered two dimensional cases where only two features were used for
+convenience of visualization. Dimensionality curse is one of the well-known issues with
+classification: when new features are added, the size of the training set has to grow
+exponentially to cover all the new dimensions. Naive Bayes, however, lessens this problem
+a little due to the assumption of conditional independence. It is interesting to see how
+rapidly its performance degrades when more features are added while the training data is
+unchanged. It is important that all the features used are independent, as otherwise, the
+results will not be valid.
+
+Fix quanta to middle value -- this way it is not affected by the extremes of the sides.
+Good enough performance but not too expensive..
+
+Hard to find enough independent features. 
+
+Dont expect exponential decrease...
+
+\begin{figure}[h!]
+  \includegraphics[width=\linewidth]{figs/feats.png}
+  \caption{Error response with varying the number of features.\label{feats}}
+\end{figure}
+
 \paragraph{Both Bayes and SVM perform better when all the features used in training are
 also used in heuristics.}
 \cleardoublepage
