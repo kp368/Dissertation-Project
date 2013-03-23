@@ -23,6 +23,13 @@ def bayes():
 
 from numpy import *
 
+def points(x,y,y_fit):
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.scatter(x,y)
+    ax.plot(x,y_fit,color='r')
+    plt.show()
+
 def plot_cats(cats):
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -118,8 +125,8 @@ def plot(f,train,test):
 
 
 def plot_hyper(f,XY,XY2):
-    pr_max =5
-    occ_max =6
+    pr_max =20
+    occ_max =20
     train = plt.figure(1)
     test = plt.figure(2)
     ax = train.gca(projection='3d')
@@ -144,12 +151,12 @@ def plot_hyper(f,XY,XY2):
     label(ax)
     label(ax2)
     A = np.matrix(XY[0])
-    #A, ind = zip(*[(XY[0][i],i) for i in np.arange(len(XY[0])) if (XY[0][i][0]<pr_max and XY[0][i][1]<occ_max)])
-    #A = np.matrix(A)
+    A, ind = zip(*[(XY[0][i],i) for i in np.arange(len(XY[0])) if (XY[0][i][0]<pr_max and XY[0][i][1]<occ_max)])
+    A = np.matrix(A)
     X = A[:,0]
     Y = A[:,1]
     Z_act = XY[1]
-    #Z_act = [XY[1][i] for i in ind]
+    Z_act = [XY[1][i] for i in ind]
     ax.scatter(X,Y,Z_act,c='r')
 
     A2, ind2 = zip(*[(XY2[0][i],i) for i in np.arange(len(XY2[0])) if XY2[0][i][0]<pr_max and XY2[0][i][1]<occ_max])
@@ -158,5 +165,8 @@ def plot_hyper(f,XY,XY2):
     Y2 = A2[:,1]
     Z_tst = [XY2[1][i] for i in ind2]
     ax2.scatter(X2,Y2,Z_tst,c='r')
-    train.show()
-    test.show()
+    plt.show()
+   # test.show()
+
+
+

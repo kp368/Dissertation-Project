@@ -10,7 +10,7 @@ def evaluate(train,test):
     k_names = ['Lin ', 'Gaus', 'Prod', 'Poly']
     k_funs = {'Lin ':lin, 'Gaus':gauss, 'Poly':poly, 'Prod':comb_prod}
     h_names = ['Sum ','Sqrd']
-    h_funs = {'Sum ':lambda x, y, z: x+y+z, 'Sqrd':lambda x, y, z: x**2+y+z}
+    h_funs = {'Sum ':lambda x, y: x+y, 'Sqrd':lambda x, y: x**2+y}
     args = {'Lin ':[None], 'Gaus':[0.05,0.50,5.00,50.0], 'Poly':[2,3,4,5], 'Prod':[0.05,0.50,5.00,50.0]}
 
     X_tr = train.XY[0]
@@ -39,8 +39,8 @@ def evaluate(train,test):
 
                         fun = S.predict
                         #compute error for both train and test data
-                        train_mse =  get_mse(X_tr,Y_tr,fun)
-                        test_mse =  get_mse(X_ts,Y_ts,fun)
+                        train_mse =  mse(X_tr,Y_tr,fun)
+                        test_mse =  mse(X_ts,Y_ts,fun)
 
                         #write to memory
                         writer.writerow([h,k,a,train_mse,test_mse,error])

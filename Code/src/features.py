@@ -11,7 +11,7 @@ from numpy import median, mean, arange, array_split, array, ones
 
 QUANT = 7
 MODE = 'score'
-CLASS = True
+CLASS = False
 max_pr = 10
 max_cnt = 12
 train_dir = abspath('../Train')
@@ -59,20 +59,20 @@ class LabeledFeatureSet(object):
 
         #these are features of the page
         self.pr = None
-        self.stem_cnt = None
+        #self.stem_cnt = None
         self.term_cnt = None
-        self.img = None
-        self.wd_cnt = None
-        self.has_price = choice(arange(20))
-        self.has_contacts = choice(arange(30))
-        self.has_ads = choice(arange(4))
-        self.form = choice(arange(5))
-        self.a = choice(arange(25))
-        self.b = choice(arange(25))
-        self.c = choice(arange(25))
-        self.d = choice(arange(25))
-        self.e = choice(arange(25))
-        self.f = choice(arange(25))
+        #self.img = None
+        #self.wd_cnt = None
+        #self.has_price = choice(arange(20))
+        #self.has_contacts = choice(arange(30))
+        #self.has_ads = choice(arange(4))
+        #self.form = choice(arange(5))
+        #self.a = choice(arange(25))
+        #self.b = choice(arange(25))
+        #self.c = choice(arange(25))
+        #self.d = choice(arange(25))
+        #self.e = choice(arange(25))
+        #self.f = choice(arange(25))
 
 
         #Now concerned with regression, no need to compute category
@@ -106,16 +106,15 @@ class LabeledFeatureSet(object):
     def get_score(self,g):
         #return sum(self.fv)
         if g:
-            return g(self.pr, self.term_cnt, self.stem_cnt)
+            return g(self.term_cnt,self.pr)
         else:
             return self.score
 
     @property
     def fs(self):
-        return dict(img =
-                self.img,pr=self.pr,term_cnt=self.term_cnt,stem_cnt=self.stem_cnt,wd_cnt=self.wd_cnt,
-                price = self.has_price, con = self.has_contacts,ads = self.has_ads,form =
-                self.form,a=self.a,b=self.b,c=self.c,d=self.d,e=self.e,f=self.f)
+        return dict(pr=self.pr,term_cnt=self.term_cnt)#,stem_cnt=self.stem_cnt),img=self.img,wd_cnt=self.wd_cnt,
+    #price = self.has_price, con = self.has_contacts,ads = self.has_ads,form =
+    #self.form,a=self.a,b=self.b,c=self.c,d=self.d,e=self.e,f=self.f)
 
     @property
     def dict(self):
@@ -219,7 +218,7 @@ class FeatureSetCollection(defaultdict):
             for t in self.terms:
                 s = self[p][t]
                 #if s.term_cnt>0:#s.ordinal != None and s.pr<max_pr and s.term_cnt<max_cnt:
-                X.append(self[p][t].fs)
+                X.append(self[p][t].fv)
                 if CLASS:
                     Y.append(self[p][t].cat)
                 elif MODE=='rank':
@@ -240,11 +239,11 @@ class FeatureSetCollection(defaultdict):
 
 class TestFeatureSetCollection(FeatureSetCollection):
 
-    def __init__(self,terms,t,nb=None):
+    def __init__(self,terms,nb=None):
         super(TestFeatureSetCollection,self).__init__(terms,TestFeatureSet)
         self.pages = get_rpages(terms,True)
         self.terms = terms
-        self.t = t
+        #self.t = t
         self.compute_fs(True)
         if MODE=='rank':
             self.compute_ord(True)
@@ -286,7 +285,7 @@ class LabeledFeatureSetCollection(FeatureSetCollection):
         super(LabeledFeatureSetCollection,self).__init__(terms)
         self.pages = get_rpages(terms,False)
         self.compute_fs(False)
-        self.compute_stat()
+        #self.compute_stat()
         if CLASS:
             self.compute_cat(False)
         if MODE=='rank':

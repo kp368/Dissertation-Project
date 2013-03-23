@@ -1257,8 +1257,9 @@ proposed hypothesis.
   better than random and approaches the goal performance. \label{sep}}
 \end{SCfigure}
 
-\paragraph{SVM performs equally well regardless whether or not the data is linearly
-separable.}
+\paragraph{SVM with linear kernel performs well for linear heuristics, but becomes
+unusable for non-linear ones.}
+
 \section{Hyperparameter tuning}
 \paragraph{Hypothesis: Bayes classifies better when fewer classes are present.}
 It is intuitive that at a large number of classes, the more classes we introduce, the more precise the classifier has to be to perform
@@ -1289,13 +1290,11 @@ of classes minimizes the overall error of the classifier.
 \end{subfigure}
 \end{figure}
 
-\paragraph{SVM with linear kernel performs well for linear heuristics, but becomes
-unusable for non-linear ones.}
 
 Grid Search + Cross validation
 Graphs.
 \paragraph{Some kernels are more general than others.}
-\section{Features}
+\section{Curse of Dimensionality}
 \paragraph{Bayes performance degrades rapidly as the number of features grows whereas SVM
 performance does not.}
 So far we have considered two dimensional cases where only two features were used for
@@ -1335,9 +1334,8 @@ It has proven hard to pick many conditionally independent features. Among the on
 were pagerank, image count, word count, frequency of search term occurrence, quality of
 html, price information availability and alike.
 
+\section{Implementation Evaluation}
 
-\paragraph{Both Bayes and SVM perform better when all the features used in training are
-also used in heuristics.}
 \cleardoublepage
 \chapter{Conclusion}
 \cleardoublepage

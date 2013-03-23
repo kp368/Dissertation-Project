@@ -71,10 +71,10 @@ class SVM:
 
         A = vstack((E, -E)).T
         I = eye(2*N)
-        G = vstack((A,-A,-I, I))
-        h = vstack(([[0]],[[0]],0*E2,C*E2))
+        G = vstack((-I, I))
+        h = vstack((0*E2,C*E2))
         b = 0.0
-        sol = QP(m(P), m(q), G=m(G), h=m(h))#, A=m(A), b =m(b))
+        sol = QP(m(P), m(q), G=m(G), h=m(h), A=m(A), b =m(b))
         self.a = matrix(sol['x'])
         st = sol['status']
 
