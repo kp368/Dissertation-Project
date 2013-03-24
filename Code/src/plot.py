@@ -3,6 +3,8 @@ from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 import matplotlib.pyplot as plt
 import numpy as np
+import csv
+from matplotlib import mlab
 
 def bayes():
    # plt.plot([0,1,1.6],[1.6,0.6,0],'r')
@@ -46,6 +48,35 @@ def plot_cats(cats):
     plt.title('Classification into Two Quantized Classes')
     plt.show()
 
+def svm_feats():
+    fs = [1,15,21,27]
+    fig = plt.figure()
+    plt.subplot(211)
+    r = mlab.csv2rec('svm_fs.csv',delimiter=' ',names=['b_m','b_l','b_r','m','l','r'])
+    p_es = r['m']
+    p_yerr = array(zip(r['l'],r['r'])).T
+    b_es = r['b_m']
+    b_yerr = array(zip(r['b_l'],r['b_r'])).T
+    ax1 = fig.add_subplot(211)
+    ax1.errorbar(fs,p_es,p_yerr,color='b',label='Actual')
+    ax1.errorbar(fs,b_es,b_yerr,color='g',fmt=':',label='Baseline')
+    ax2 = fig.add_subplot(212)
+    ax2.errorbar(fs,log(p_es),log(p_yerr),color='b',label='Actual')
+    ax2.errorbar(fs,log(b_es),log(b_yerr),color='g',fmt=':',label='Baseline')
+    #ax2.legend(bbox_to_anchor=(1.02, 1), loc=2, borderaxespad=0.)
+    ax2.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15),ncol=2)
+    #ax2.legend(bbox_to_anchor=(0., -0.42, 1.0, 0.1), loc=3, borderaxespad=0.,ncol=2,mode='expand')
+    #plt.xlim(xmin=1.5,xmax = 16)
+    ax2.set_ylim(ymax=35)
+    #plt.xticks(arange(2,16))
+    #plt.yticks(arange(0,225,25))
+    plt.suptitle('SVM Performance with Varying Number of Features')
+    ax1.set_ylabel('MSE')
+    ax2.set_ylabel('MSE (Log Scale)')
+    plt.xlabel('Number of Features')
+    plt.show()
+
+
 def feats():
     fs = [2,3,4,5,6,7,8,12,15]
     fig = plt.figure()
@@ -65,6 +96,7 @@ def feats():
     plt.ylim(ymin=0,ymax=1100)
     plt.xticks(arange(2,16))
     #plt.yticks(arange(0,225,25))
+    plt.suptitle('Bayes Performance with Varying Number of Features')
     plt.ylabel('Mean Squared Error')
     plt.xlabel('Number of Features')
     plt.show()
@@ -72,7 +104,7 @@ def feats():
 def quants():
     qs = [2,3,4,5,6,7,10,12,15]
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_axes([0.1,0.1,0.6,0.75])
     c_es = [72,24,23,14,11,10,6,2,0]
     c_yerr = [10.6,5.4,4.2,3.6,2.8,2.8,1,0.4,0]
     ax.errorbar(qs,c_es,c_yerr,color='r',fmt='--',label='Ceiling')
@@ -82,8 +114,10 @@ def quants():
     b_es = [195,72,94,95,143,154,160,180,170]
     b_yerr = [20.1,15,17.6,17.7,22.3,20.3,20,19,21]
     ax.errorbar(qs,b_es,b_yerr,color='g',fmt=':',label='Baseline')
-    plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
-       ncol=3, mode="expand", borderaxespad=0.)
+    ax.legend(bbox_to_anchor=(1.02, 1), loc=2, borderaxespad=0.)
+    #plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+    #   ncol=3, mode="expand", borderaxespad=0.)
+    plt.suptitle('Bayes Performance with Varying Number of Classes')
     plt.xlim(xmin=1.5,xmax = 16)
     plt.ylim(ymin=0,ymax=225)
     plt.xticks(arange(2,16))
@@ -125,8 +159,8 @@ def plot(f,train,test):
 
 
 def plot_hyper(f,XY,XY2):
-    pr_max =20
-    occ_max =20
+    pr_max =50
+    occ_max =50
     train = plt.figure(1)
     test = plt.figure(2)
     ax = train.gca(projection='3d')

@@ -1,6 +1,7 @@
 \documentclass[11pt,notitlepage]{report}
 \usepackage{sidecap}
 \usepackage{a4}
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
 \usepackage{verbatim}
 \usepackage{graphicx}
 \usepackage[font={small,it}]{caption}
@@ -1156,6 +1157,7 @@ errors diminish.
 Assuming Gaussian noise. But sensitive to outliers. MAE is less so. But MSE more visual
 and distinct representation of this particular data.
 \subsection{Tolerance intervals}
+Bootstrapping!
 Tolerance interval of the error mean is a good visualisation of how spread the error is.
 In the best case, the interval is tight. If the error is spread, the classifier is making
 inconsistent mistakes. Particularly important to include these in our evaluation due to
@@ -1260,7 +1262,44 @@ proposed hypothesis.
 \paragraph{SVM with linear kernel performs well for linear heuristics, but becomes
 unusable for non-linear ones.}
 
-\section{Hyperparameter tuning}
+Number of features -- 2, Heuristic -- sum function for linear.
+
+Ceiling = MSE minimizing hyperplane fitting. linalg
+
+Error parameter is 0 or more in other cases.
+
+Clearly degrading
+
+\begin{figure}[h!]
+\centering
+\begin{subfigure}[b]{.49\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figs/svm_lin.png}
+  \caption{Linear}
+\end{subfigure}
+\begin{subfigure}[b]{.49\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figs/svm_sq.png}
+  \caption{Quadratic}
+  \label{def}
+\end{subfigure}
+
+\begin{subfigure}[b]{.49\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figs/svm_cub.png}
+  \caption{Cubic}
+  \label{html}
+\end{subfigure}
+\begin{subfigure}[b]{.49\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figs/svm_exp.png}
+  \caption{Exponential}
+  \label{lxml}
+\end{subfigure}
+\end{figure}
+
+
+\section{Bayes: Effects of Quantization}
 \paragraph{Hypothesis: Bayes classifies better when fewer classes are present.}
 It is intuitive that at a large number of classes, the more classes we introduce, the more precise the classifier has to be to perform
 equally well. However, taking into account the quantization error, we might expect
@@ -1290,13 +1329,8 @@ of classes minimizes the overall error of the classifier.
 \end{subfigure}
 \end{figure}
 
-
-Grid Search + Cross validation
-Graphs.
-\paragraph{Some kernels are more general than others.}
 \section{Curse of Dimensionality}
-\paragraph{Bayes performance degrades rapidly as the number of features grows whereas SVM
-performance does not.}
+\paragraph{Bayes performance degrades rapidly as the number of features grows.}
 So far we have considered two dimensional cases where only two features were used for
 convenience of visualization. Dimensionality curse is one of the well-known issues with
 classification: when new features are added, the size of the training set has to grow
@@ -1326,13 +1360,47 @@ those point appeared insignificant in the scores as they occurred infrequently a
 small values.
 
 \begin{figure}[h!]
-  \includegraphics[width=\linewidth]{figs/feats.png}
+  \includegraphics[width=0.8\linewidth]{figs/feats.png}
   \caption{Error response with varying number of features.\label{feats}}
 \end{figure}
 
 It has proven hard to pick many conditionally independent features. Among the ones used
 were pagerank, image count, word count, frequency of search term occurrence, quality of
 html, price information availability and alike.
+
+\paragraph{SVM performance does not degrade as the number of features grows.}
+
+
+\begin{figure}[h!]
+\centering
+  \includegraphics[width=\linewidth]{figs/svm_feats.png}
+  \caption{}
+  \label{def}
+\end{figure}
+
+\section{SVM Hyperparameter Tuning}
+In comparison to Naive Bayes, the SVM has a lot of degrees of freedom. Kernel functions is
+one such degree of freedom and each kernel has more adjustable parameters. Selecting a kernel 
+itself is discussed in more detail in the next section. This section illustrates how
+kernel parameters might be tuned. As an example we are using a Radial Basis Function and a
+spherical heuristic.
+
+There are several ways of adjusting parameters of which Grid search is the simplest. In
+grid search we specify a range of parameters and note down the MSEs for each value (or
+combination of values). To chose the domain successfully, we will be analyzing at
+different scales, starting from coarser (wider spread) parameter values, each time only
+choosing the best for finer tuning. This method does not scale beyond a few variables. 
+
+\section{SVM Kernel Function Selection}
+The kernel functions offer SVMs great flexibility, however, it can be difficult to pick an
+appropriate one. If the expected pattern is well-defined, kernel selection might be
+intuitive. For example, a linear kernel is perfect for linear heuristics and the problem
+is reduced to fitting a hyperplane.  Similarly, Radial Basis Kernel picks out hyperspheres
+and so on. However, when we have no expectation of data, we need a most general kernel.
+
+In this section we will examine a few kernels with various score functions: both intuitive
+and not to observe how performance of each degrades as we use less 
+Here we are using kernels with the parameters determined as shown in the precious section.
 
 \section{Implementation Evaluation}
 

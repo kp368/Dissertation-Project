@@ -58,22 +58,15 @@ class LabeledFeatureSet(object):
     def __init__(self):
 
         #these are features of the page
-        self.pr = None
+        #self.pr = None
         #self.stem_cnt = None
         self.term_cnt = None
-        #self.img = None
+        self.img = None
         #self.wd_cnt = None
         #self.has_price = choice(arange(20))
         #self.has_contacts = choice(arange(30))
         #self.has_ads = choice(arange(4))
         #self.form = choice(arange(5))
-        #self.a = choice(arange(25))
-        #self.b = choice(arange(25))
-        #self.c = choice(arange(25))
-        #self.d = choice(arange(25))
-        #self.e = choice(arange(25))
-        #self.f = choice(arange(25))
-
 
         #Now concerned with regression, no need to compute category
         #self.cat = cat
@@ -106,15 +99,13 @@ class LabeledFeatureSet(object):
     def get_score(self,g):
         #return sum(self.fv)
         if g:
-            return g(self.term_cnt,self.pr)
+            return g(self.term_cnt,self.img)
         else:
             return self.score
 
     @property
     def fs(self):
-        return dict(pr=self.pr,term_cnt=self.term_cnt)#,stem_cnt=self.stem_cnt),img=self.img,wd_cnt=self.wd_cnt,
-    #price = self.has_price, con = self.has_contacts,ads = self.has_ads,form =
-    #self.form,a=self.a,b=self.b,c=self.c,d=self.d,e=self.e,f=self.f)
+        return dict(term_cnt=self.term_cnt,img=self.img)
 
     @property
     def dict(self):
