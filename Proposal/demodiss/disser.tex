@@ -1,7 +1,5 @@
-\documentclass[11pt,notitlepage]{report}
-\usepackage{sidecap}
+\documentclass[12pt,notitlepage,twoside]{scrreprt}
 \usepackage{a4}
-\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
 \usepackage{verbatim}
 \usepackage{graphicx}
 \usepackage[font={small,it}]{caption}
@@ -943,7 +941,17 @@ function had an identical specification to the Python solver I intended to use.
 Matrices in Matlab are a lot more straightforward to manipulate, which was also
 a good reason to first check the correctness of my matrices in Matlab.
 
-\subsubsection*{Kernel Functions}
+\subsection{SVM Kernel Functions}
+The kernel functions offer SVMs great flexibility, however, it can be difficult to pick an
+appropriate one. If the expected pattern is well-defined, kernel selection might be
+intuitive. For example, a linear kernel is perfect for linear heuristics and the problem
+is reduced to fitting a hyperplane.  Similarly, Radial Basis Kernel picks out hyperspheres
+and so on. However, when we have no expectation of data, we need a most general kernel.
+
+In this section we will examine a few kernels with various score functions: both intuitive
+and not to observe how performance of each degrades as we use less 
+Here we are using kernels with the parameters determined as shown in the precious section.
+
 Kernel functions are the central component of support vector machines, and its
 choice is highly dependent on the application. I have considered a variety of
 kernel functions and experimented with their combinations to see how the
@@ -956,15 +964,15 @@ performance differs. Table \ref{kfun} shows the kernel functions I have used.
   \hline\hline
   Linear  & \(ax\cdot y^T + c\)\\  
 \hline
-Radial Basis Function(RBF)  & \(\exp^{-\gamma ||x-y||^2}\)\\
+Gaussian  & \(\exp^{-\gamma ||x-y||^2}\)\\
 \hline
 Sigmoid   &   \(\tanh(ax \cdot y^T + c)\)\\
 \hline
 Polynomial& \(a(x\cdot y^T)^d\)  \\
 \hline
-Weighted Sum&  \texttt{a*RBF(x,y)+(1-a)*Linear(x,y)}\\
+Weighted Sum&  \texttt{a*Gaussian(x,y,\(\gamma\))+(1-a)*Linear(x,y)}\\
 \hline
-Product     & \texttt{RBF(x,y)*RBF(x,y)}\\
+Product     & \texttt{Linear(x,y)*Gaussian(x,y,\(\gamma\))}\\
 \hline
 \end{tabular}
 \end{center}
@@ -987,8 +995,105 @@ dimensions (features)\cite{sigmoid}. The Sum and Product kernels are both a
 combination of the linear and RBF kernels. In the Evaluation chapter we will discuss
 the relative performance of each of the kernels.
 
+\begin{figure}[h]
+\centering
+\begin{subfigure}[b]{.49\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figs/lin.png}
+  \caption{Linear}
+  \label{lin}
+\end{subfigure}
+\begin{subfigure}[b]{.49\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figs/quad.png}
+  \caption{Quadratic}
+  \label{quad}
+\end{subfigure}
+
+\begin{subfigure}[b]{.49\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figs/cub.png}
+  \caption{Cubic}
+  \label{cubic}
+\end{subfigure}
+\begin{subfigure}[b]{.49\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figs/step.png}
+  \caption{Step}
+  \label{step}
+\end{subfigure}
+\end{figure}
+
+\subsection{SVM Hyperparameter Tuning}
+In comparison to Naive Bayes, the SVM has a lot of degrees of freedom. Kernel functions is
+one such degree of freedom and each kernel has more adjustable parameters. Selecting a kernel 
+itself is discussed in more detail in the next section. This section illustrates how
+kernel parameters might be tuned. 
+
+There are several ways of adjusting parameters of which Grid search is the simplest. In
+grid search we specify a range of parameters and note down the MSEs for each value (or
+combination of values). To chose the domain successfully, we will be analyzing at
+different scales, starting from coarser (wider spread) parameter values, each time only
+choosing the best for finer tuning. This method does not scale beyond a few variables.
+
+As an example a combined product kernel will be used. The data used is deliberately noisy
+and non-injective. Given a positive sigma,The Gaussian component varies
+between one and zero
+We want to find out how perturbing with Gaussian can make a better fit. 
+
+
+\begin{figure}[h!]
+\centering
+\begin{subfigure}[b]{.49\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figs/coarse_tune2.png}
+  \caption{Increasing epsilon affects the fitting oftest data so greatly, that the changes
+  due to gamma variation are insignificant in comparison.}
+  \label{coarse}
+\end{subfigure}
+\begin{subfigure}[b]{.49\textwidth}
+  \centering
+  \includegraphics[width=0.9\linewidth]{figs/fine_tune_tr.png}
+  \caption{On a finer scale minimums are visible.}
+  \label{fine}
+\end{subfigure}
+\end{figure}
+
+Varying gamma determines how far from linear the fit as well as overfitting.
+
+
+\begin{figure}[h!]
+\centering
+\begin{subfigure}[b]{.49\textwidth}
+  \centering
+  \caption{Gamma is zero, so  the fit is linear}
+  \includegraphics[width=\linewidth]{figs/lin_fit.png}
+  \label{coarse}
+\end{subfigure}
+\begin{subfigure}[b]{.49\textwidth}
+  \centering
+  \caption{Gamma is at its best: the surface slightly perturbed to fit best.}
+  \includegraphics[width=\linewidth]{figs/perf_fit.png}
+  \label{fine}
+\end{subfigure}
+\end{figure}
 \section{Parser}
 
+\begin{figure}[h!]
+\centering
+\begin{subfigure}[b]{.49\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figs/fine_tune_tr_zoom.png}
+  \caption{}
+  \label{coarse}
+\end{subfigure}
+\begin{subfigure}[b]{.49\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figs/fine_tune_ts.png}
+  \caption{}
+  \label{fine}
+\end{subfigure}
+\end{figure}
 So far we have looked at the two separate blocks -- the search engine and the
 machine learners. As a functional unit the parser must provide an interface
 between the two. The search engine simply retrieves pages in response to a
@@ -1137,6 +1242,7 @@ loads the vectors lazily.
 \cleardoublepage
 
 \chapter{Evaluation}
+\section{Empirical Evaluation}
 Due to the incremental development measurements were taken at various stages as
 the implementations evolved. To avoid biased results Development corpus was
 used during development, which is disjoint from the real Test corpus and is of
@@ -1246,18 +1352,18 @@ data improves the error up to a point when overfitting occurs. Nonetheless, it i
 possible to gather a subset of training data that will have enough points very near to the class
 boundary to allow for perfect classification. Therefore, the result is consistent with the
 proposed hypothesis.
-\begin{SCfigure}[0.5][h!]
+\begin{figure}[h!]
  \includegraphics[width=0.75\linewidth]{figs/insep.png}
  \caption{Classification of Inseparable Data: Evaluation. The mean error is near random
  classification and with wide spread. \label{insep}}
-\end{SCfigure}
+\end{figure}
 
 
-\begin{SCfigure}[0.5][h!]
+\begin{figure}[h!]
   \includegraphics[width=0.75\linewidth]{figs/sep.png}
   \caption{Classification of Separable Data: Evaluation. The mean error is distinctly
   better than random and approaches the goal performance. \label{sep}}
-\end{SCfigure}
+\end{figure}
 
 \paragraph{SVM with linear kernel performs well for linear heuristics, but becomes
 unusable for non-linear ones.}
@@ -1307,10 +1413,10 @@ non-linear behaviour: performance will improve due to the quantization error dec
 faster than precision up to a certain point. This experiment aims to determine the number
 of classes minimizes the overall error of the classifier.
 
-\begin{SCfigure}[0.5][h!]
-  \includegraphics[width=0.75\linewidth]{figs/quants.png}
+\begin{figure}[h!]
+  \includegraphics[width=\linewidth]{figs/quants.png}
   \caption{Error response to varying number of classes.\label{quants}}
-\end{SCfigure}
+\end{figure}
 
 \begin{figure}[h!]
 \centering
@@ -1360,7 +1466,7 @@ those point appeared insignificant in the scores as they occurred infrequently a
 small values.
 
 \begin{figure}[h!]
-  \includegraphics[width=0.8\linewidth]{figs/feats.png}
+  \includegraphics[width=\linewidth]{figs/feats.png}
   \caption{Error response with varying number of features.\label{feats}}
 \end{figure}
 
@@ -1378,31 +1484,12 @@ html, price information availability and alike.
   \label{def}
 \end{figure}
 
-\section{SVM Hyperparameter Tuning}
-In comparison to Naive Bayes, the SVM has a lot of degrees of freedom. Kernel functions is
-one such degree of freedom and each kernel has more adjustable parameters. Selecting a kernel 
-itself is discussed in more detail in the next section. This section illustrates how
-kernel parameters might be tuned. As an example we are using a Radial Basis Function and a
-spherical heuristic.
 
-There are several ways of adjusting parameters of which Grid search is the simplest. In
-grid search we specify a range of parameters and note down the MSEs for each value (or
-combination of values). To chose the domain successfully, we will be analyzing at
-different scales, starting from coarser (wider spread) parameter values, each time only
-choosing the best for finer tuning. This method does not scale beyond a few variables. 
+\section{Testing}
 
-\section{SVM Kernel Function Selection}
-The kernel functions offer SVMs great flexibility, however, it can be difficult to pick an
-appropriate one. If the expected pattern is well-defined, kernel selection might be
-intuitive. For example, a linear kernel is perfect for linear heuristics and the problem
-is reduced to fitting a hyperplane.  Similarly, Radial Basis Kernel picks out hyperspheres
-and so on. However, when we have no expectation of data, we need a most general kernel.
+\section{Performance Evaluation}
 
-In this section we will examine a few kernels with various score functions: both intuitive
-and not to observe how performance of each degrades as we use less 
-Here we are using kernels with the parameters determined as shown in the precious section.
 
-\section{Implementation Evaluation}
 
 \cleardoublepage
 \chapter{Conclusion}

@@ -58,10 +58,10 @@ class LabeledFeatureSet(object):
     def __init__(self):
 
         #these are features of the page
-        #self.pr = None
+        self.pr = None
         #self.stem_cnt = None
         self.term_cnt = None
-        self.img = None
+        #self.img = None
         #self.wd_cnt = None
         #self.has_price = choice(arange(20))
         #self.has_contacts = choice(arange(30))
@@ -99,13 +99,13 @@ class LabeledFeatureSet(object):
     def get_score(self,g):
         #return sum(self.fv)
         if g:
-            return g(self.term_cnt,self.img)
+            return g(self.term_cnt,self.pr)
         else:
             return self.score
 
     @property
     def fs(self):
-        return dict(term_cnt=self.term_cnt,img=self.img)
+        return dict(term_cnt=self.term_cnt,pr=self.pr)
 
     @property
     def dict(self):
@@ -152,9 +152,9 @@ class FeatureSetCollection(defaultdict):
                 s = self[page][term]
                 self[page][term].pr = pr
                 self[page][term].term_cnt, self[page][term].stem_cnt = get_count(term,clean_page)
-                s.wd_cnt = s.term_cnt%len(clean(page))
+                #s.wd_cnt = s.term_cnt%len(clean(page))
                 #s.has_price = choice(arange(15))# sum(list(get_count(u'price',clean_page)))
-                self[page][term].img = has_image(page)
+                #self[page][term].img = has_image(page)
 
     def compute_stat(self):
         nums = []
@@ -196,7 +196,7 @@ class FeatureSetCollection(defaultdict):
         for term in self.terms:
             res = sort(term, is_test)
             for i, page in enumerate(res):
-                self[page][term].ordinal = i
+                self[page][term].ordinal = 1.0/(i+1.0)
 
 
     @property

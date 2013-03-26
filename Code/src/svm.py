@@ -7,8 +7,11 @@ import numpy.linalg as linalg
 def lin(x,y,args=None):
     return (x*y.T)[0,0]
 
+def lap(x,y,sigma):
+    return exp(-sigma*linalg.norm(x-y))
+
 def gauss(x,y,sigma):
-    return exp(-sigma*linalg.norm(x-y)**2)
+    return exp(-sigma**2*linalg.norm(x-y)**2)
 
 def poly(x,y,d):
     a = 1.0
@@ -20,6 +23,9 @@ def sigmoid(x,y,a):
 
 def comb_sum(x,y,sigma):
     return lin(x,y) + gauss(x,y,sigma)
+
+def comb_poly(x,y,sig):
+    return poly(x,y,3)+gauss(x,y,sig)
 
 def comb_wsum(x,y,a):
     return (a**2)*lin(x,y)+(1-a)**2*gauss(x,y)

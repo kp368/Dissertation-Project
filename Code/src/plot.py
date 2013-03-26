@@ -48,6 +48,48 @@ def plot_cats(cats):
     plt.title('Classification into Two Quantized Classes')
     plt.show()
 
+def tune():
+    params = [-1,-0.5,-0.25,-0.15,-0.05,0]
+    errors = [0,0.01,0.05]
+    fig = plt.figure()
+    #params = [-500,-100,-50,-5,-0.5,0,0.5,5,50,500]
+    #errors = [0,0.25,0.5,0.75,1.0]
+    r = mlab.csv2rec('htun.csv',names=['e','p','tr','ts'])
+    X,Y = meshgrid(params,errors)
+    Z = np.zeros(X.shape)
+
+    for i in np.arange(len(X)):
+        for j in np.arange(len(X[0])):
+            r1 = r[r['p']==X[i][j]]
+            r2 = r1[r1['e']==Y[i][j]]
+            Z[i][j] = r2['tr'][0]
+    #ax2.set_ylim(ymax=35)
+    #plt.xticks(arange(-500,500,100))
+    #plt.yticks(arange(-1,1,0.1))
+    #ax = fig.gca(projection='3d')
+    #ax.plot_wireframe(X,Y,Z)
+    #ax.set_zlabel('Mean Squared Error')
+    plt.ylabel('Epsilon')
+    plt.xlabel('Gamma')
+    CS = plt.contour(X,Y,Z)
+    plt.clabel(CS, colors='k', fontsize=13)
+    params = {'font.size': 14}
+    plt.rcParams.update(params)
+    #plt.title('Tuning Parameters: Coarse')
+    plt.show()
+
+def timings():
+    times = [14.342,38.318]
+    pages = [480,1000]
+    plt.plot(pages,times,
+    fig = plt.figure()
+    #plt.xticks(arange(2,16))
+    #plt.yticks(arange(0,225,25))
+    plt.title('')
+    plt.ylabel('')
+    plt.xlabel('')
+    plt.show()
+
 def svm_feats():
     fs = [1,15,21,27]
     fig = plt.figure()
@@ -76,7 +118,6 @@ def svm_feats():
     plt.xlabel('Number of Features')
     plt.show()
 
-
 def feats():
     fs = [2,3,4,5,6,7,8,12,15]
     fig = plt.figure()
@@ -101,6 +142,31 @@ def feats():
     plt.xlabel('Number of Features')
     plt.show()
 
+def bench():
+    fig = plt.figure()
+    times = []
+    pages = [179,557,5050]
+    ax = fig.add_axes([0.1,0.1,0.6,0.75])
+    c_es = [72,24,23,14,11,10,6,2,0]
+    c_yerr = [10.6,5.4,4.2,3.6,2.8,2.8,1,0.4,0]
+    ax.errorbar(qs,c_es,c_yerr,color='r',fmt='--',label='Ceiling')
+    p_es = [90.3,36.5,33.7,22.5,18.1,18.8,10,4,1.5]
+    p_yerr = [13.1,7,6.7,4.5,3.8,3.9,2,1.1,0.18]
+    ax.errorbar(qs,p_es,p_yerr,color='b',label='Actual')
+    b_es = [195,72,94,95,143,154,160,180,170]
+    b_yerr = [20.1,15,17.6,17.7,22.3,20.3,20,19,21]
+    ax.errorbar(qs,b_es,b_yerr,color='g',fmt=':',label='Baseline')
+    ax.legend(bbox_to_anchor=(1.02, 1), loc=2, borderaxespad=0.)
+    #plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+    #   ncol=3, mode="expand", borderaxespad=0.)
+    plt.suptitle('Bayes Performance with Varying Number of Classes')
+    plt.xlim(xmin=1.5,xmax = 16)
+    plt.ylim(ymin=0,ymax=225)
+    plt.xticks(arange(2,16))
+    plt.yticks(arange(0,225,25))
+    plt.ylabel('Mean Squared Error')
+    plt.xlabel('Number of Classes')
+    plt.show()
 def quants():
     qs = [2,3,4,5,6,7,10,12,15]
     fig = plt.figure()
@@ -131,7 +197,7 @@ def label(ax):
 
     ax.set_xlabel('PageRank')
     ax.set_ylabel('Occurence')
-    ax.set_zlabel('Ranking')
+    ax.set_zlabel('Score')
 
 
 def plot(f,train,test):
@@ -159,16 +225,20 @@ def plot(f,train,test):
 
 
 def plot_hyper(f,XY,XY2):
-    pr_max =50
-    occ_max =50
+    pr_max = 6
+    occ_max =15
     train = plt.figure(1)
     test = plt.figure(2)
     ax = train.gca(projection='3d')
-    ax.set_title("Training data")
+    #ax.set_title("Training data")
     ax2 = test.gca(projection='3d')
-    ax2.set_title("Test data")
-    a = np.arange(-1,pr_max)
-    b = np.arange(-1,occ_max)
+    #ax2.set_title("Test data")
+    #ax.autoscale(False,'z')
+    #ax.set_xlim(-1,6)
+    #ax.set_ylim(0,15)
+    #ax.set_zlim3d(-0.10,0.15)
+    a = np.arange(0,pr_max)
+    b = np.arange(0,occ_max)
     a,b = np.meshgrid(a,b)
     Z = np.zeros(a.shape)
 
@@ -178,10 +248,10 @@ def plot_hyper(f,XY,XY2):
 
     ax.plot_wireframe(a, b, Z)
     ax2.plot_wireframe(a, b, Z)
-    ax2.plot_surface(a, b, Z, rstride=8, cstride=8, alpha=0.3, cmap=cm.coolwarm)
-    cset = ax2.contour(a, b, Z, zdir='z', offset = -0.1, cmap=cm.coolwarm)
-    ax.plot_surface(a, b, Z, rstride=8, cstride=8, alpha=0.3, cmap=cm.coolwarm)
-    cset = ax.contour(a, b, Z, zdir='z', offset = -0.1, cmap=cm.coolwarm)
+    #ax2.plot_surface(a, b, Z, rstride=8, cstride=8, alpha=0.3, cmap=cm.coolwarm)
+    #cset = ax2.contour(a, b, Z, zdir='z', offset = -0.1, cmap=cm.coolwarm)
+    #ax.plot_surface(a, b, Z, rstride=8, cstride=8, alpha=0.3, cmap=cm.coolwarm)
+    #cset = ax.contour(a, b, Z, zdir='z', offset = -0.1, cmap=cm.coolwarm)
     label(ax)
     label(ax2)
     A = np.matrix(XY[0])

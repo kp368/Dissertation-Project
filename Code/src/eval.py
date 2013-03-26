@@ -2,9 +2,36 @@ from svm import SVM, lin, gauss, sigmoid, poly, comb_prod, comb_sum, comb_wsum
 from mse import mse
 import csv
 
-PROD = 'x*y*z'
-SUM  = 'x+y+z'
-SQRD = 'x**2 +y +z'
+def hyper_tune(train, test):
+    X_tr = train.XY[0]
+    X_ts = test.XY[0]
+    params = [-0.5,-0.25,-0.15,-0.05,0]
+    errors = [0.001,0.005]
+    Y_tr = train.get_XY()[1]
+    Y_ts = test.get_XY()[1]
+    kernel = comb_prod
+
+    with open('htun.csv','a') as f:
+        writer = csv.writer(f)
+
+        for e in errors:
+            #compute a predict function with svm
+            S = SVM(X_tr,Y_tr,e)
+            S.sample()
+
+            for p in params:
+                    if S.solve(kernel,p)=='optimal':
+
+                        fun = S.predict
+                        #compute error for both train and test data
+                        train_mse =  mse(X_tr,Y_tr,fun)
+                        test_mse =  mse(X_ts,Y_ts,fun)
+
+                        #write to memory
+                        writer.writerow([e,p,train_mse,test_mse])
+                    else:
+                        writer.writerow([e,p,'Singular matrix'])
+
 
 def evaluate(train,test):
     k_names = ['Lin ', 'Gaus', 'Prod', 'Poly']

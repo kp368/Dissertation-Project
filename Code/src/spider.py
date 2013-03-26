@@ -50,7 +50,7 @@ class Crawler:
             soup = page.soupify()
         except IOError:
             #if page is unfriendly assume it has no links!
-            print 'IGNORED PAGE: '+ page.path#TODO:add logging
+            #print 'IGNORED PAGE: '+ page.path#TODO:add logging
             return
 
         for tag in soup.findAll('a'):
