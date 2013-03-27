@@ -70,3 +70,27 @@ Each of the above 12 runs were run in random, non-consecutive order by
 `benchmark` v0.1.5 (http://jspi.es/benchmark) with Python 2.7.3
 Linux-3.2.0-40-generic-i686 on 2013-03-26 20:52:33.
 
+
+Benchmark Report
+================
+
+Benchmark Indexer
+-----------------
+
+       name | rank | runs |  mean |     sd | timesBaseline
+------------|------|------|-------|--------|--------------
+indexer big |    1 |  100 | 26.21 | 0.4772 |           1.0
+indexer med |    2 |  100 |  35.7 | 0.8149 | 1.36210526448
+
+Benchmark Spider
+----------------
+
+          name | rank | runs |  mean |      sd | timesBaseline
+---------------|------|------|-------|---------|--------------
+pagerank small |    1 |  100 | 2.063 | 0.06103 |           1.0
+  pagerank med |    2 |  100 | 17.69 |  0.1817 |   8.573571401
+
+Each of the above 400 runs were run in random, non-consecutive order by
+`benchmark` v0.1.5 (http://jspi.es/benchmark) with Python 2.7.3
+Linux-3.2.0-40-generic-i686 on 2013-03-26 23:30:30.
+

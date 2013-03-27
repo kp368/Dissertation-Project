@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 from matplotlib import mlab
+from scipy.optimize import curve_fit
 
 def bayes():
    # plt.plot([0,1,1.6],[1.6,0.6,0],'r')
@@ -78,18 +79,6 @@ def tune():
     #plt.title('Tuning Parameters: Coarse')
     plt.show()
 
-def timings():
-    times = [14.342,38.318]
-    pages = [480,1000]
-    plt.plot(pages,times,
-    fig = plt.figure()
-    #plt.xticks(arange(2,16))
-    #plt.yticks(arange(0,225,25))
-    plt.title('')
-    plt.ylabel('')
-    plt.xlabel('')
-    plt.show()
-
 def svm_feats():
     fs = [1,15,21,27]
     fig = plt.figure()
@@ -142,31 +131,49 @@ def feats():
     plt.xlabel('Number of Features')
     plt.show()
 
+def cubic(l,a,b,c,d):
+    return array([a*x**3+b*x**2+c*x+d for x in l])
+
+def quadratic(l,a,b,c):
+    return array([a*x**2+b*x+c for x in l])
+
 def bench():
     fig = plt.figure()
-    times = []
-    pages = [179,557,5050]
-    ax = fig.add_axes([0.1,0.1,0.6,0.75])
-    c_es = [72,24,23,14,11,10,6,2,0]
-    c_yerr = [10.6,5.4,4.2,3.6,2.8,2.8,1,0.4,0]
-    ax.errorbar(qs,c_es,c_yerr,color='r',fmt='--',label='Ceiling')
-    p_es = [90.3,36.5,33.7,22.5,18.1,18.8,10,4,1.5]
-    p_yerr = [13.1,7,6.7,4.5,3.8,3.9,2,1.1,0.18]
-    ax.errorbar(qs,p_es,p_yerr,color='b',label='Actual')
-    b_es = [195,72,94,95,143,154,160,180,170]
-    b_yerr = [20.1,15,17.6,17.7,22.3,20.3,20,19,21]
-    ax.errorbar(qs,b_es,b_yerr,color='g',fmt=':',label='Baseline')
-    ax.legend(bbox_to_anchor=(1.02, 1), loc=2, borderaxespad=0.)
-    #plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
-    #   ncol=3, mode="expand", borderaxespad=0.)
-    plt.suptitle('Bayes Performance with Varying Number of Classes')
-    plt.xlim(xmin=1.5,xmax = 16)
-    plt.ylim(ymin=0,ymax=225)
-    plt.xticks(arange(2,16))
-    plt.yticks(arange(0,225,25))
-    plt.ylabel('Mean Squared Error')
-    plt.xlabel('Number of Classes')
+    fig2 = plt.figure()
+    i_times = [12.2,26.21,35.7,63.4,125.3,258.3,479.8]
+    i_errors = [0.03,0.4772,0.8149,2.1,3.7,3.1,14.18]
+    p_times = [2.063,17.69,45.6,73.4,500.1,780.4,1339]
+    p_errors = [0.061,0.1817,0.3,0.8,1.2,4.7,2.172]
+    pages = [179,557,1000,1500,3000,4300,5050]
+    a,b = curve_fit(cubic,pages,p_times)
+    c,d = curve_fit(cubic,pages,i_times)
+    p,b = curve_fit(quadratic,pages,p_times)
+    q,d = curve_fit(quadratic,pages,i_times)
+    print p,q
+    ax = fig.add_subplot(111)
+    ax2 = fig2.add_subplot(111)
+    ax.errorbar(pages,i_times,yerr=i_errors,label = "Actual Runtime")
+    ax.plot(pages,cubic(pages,c[0],c[1],c[2],c[3]),'r--',label='Cubic')
+    ax.plot(pages,quadratic(pages,q[0],q[1],q[2]),'k:',label='Quadratic')
+    ax.legend(loc=2)
+    ax2.errorbar(pages,p_times,yerr=p_errors,label='Actual Runtime')
+    ax2.plot(pages,cubic(pages,a[0],a[1],a[2],a[3]),'r--',label='Cubic')
+    ax2.plot(pages,quadratic(pages,p[0],p[1],p[2]),'k:',label='Quadratic')
+    ax2.legend(loc=2)
+    ax.set_title('Indexer Performance')
+    ax2.set_title('PageRank Performance')
+    ax.set_ylim(0,500)
+    ax2.set_ylim(0,1400)
+    #plt.xlim(xmin=1.5,xmax = 16)
+    #plt.ylim(ymin=0,ymax=225)
+    #plt.xticks(arange(2,16))
+    #plt.yticks(arange(0,225,25))
+    ax.set_ylabel('Mean time (s)')
+    ax.set_xlabel('Number of Pages')
+    plt.ylabel('Mean time (s)')
+    plt.xlabel('Number of Pages')
     plt.show()
+
 def quants():
     qs = [2,3,4,5,6,7,10,12,15]
     fig = plt.figure()
@@ -272,5 +279,34 @@ def plot_hyper(f,XY,XY2):
     plt.show()
    # test.show()
 
+def bars():
+    N = 4
+    cMeans = (-68, -61, -52, -24)
+    cStd =   [[0.5,1,3,5],[1,1,3,3]]
 
+    ind = np.arange(N)  # the x locations for the groups
+    width = 0.2       # the width of the bars
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    rects1 = ax.bar(ind, cMeans, width, color='r', yerr=cStd)
+
+    aMeans = (-58,8,12,46)
+    aStd =   [[1,2,3,7],[0.2,2,3,3]]
+    rects2 = ax.bar(ind+width, aMeans, width, color='m', yerr=aStd)
+
+    bMeans = (3,9,11,45)
+    bStd =   [[1,2,3,8],[1,2,3,3]]
+    rects3 = ax.bar(ind+2*width, bMeans, width, color='b', yerr=bStd)
+    # add some
+    ax.set_ylabel('Mean Squared Error (Log Scale)')
+    plt.suptitle('Degradation of Linear Kernel Performance')
+    ax.set_xticks(ind+width)
+    ax.set_xticklabels( ('Linear', 'Quadratic', 'Cubic', 'Exponential') )
+
+    ax.legend( (rects1[0], rects2[0], rects3[0]), ('Ceiling', 'Actual', 'Baseline') ,loc=2)
+
+    params = {'font.size': 16}
+    plt.rcParams.update(params)
+    plt.show()
 
