@@ -61,14 +61,12 @@ Name:               & \bf Karina Palyutina                       \\
 College:            & \bf St Catharine's College                     \\
 Project Title:      & \bf Machine learning inference of search engine heuristics \\
 Examination:        & \bf Part II Project        \\
-Word Count:         & \bf \footnotemark[1]     \\
+Word Count:         & \bf      \\
 Project Originator: & Dr Jon Crowcroft                    \\
 Supervisor:         & Dr Jon Crowcroft                  \\ 
 \end{tabular}
 }
-\footnotetext[1]{This word count was computed
-by {\tt detex diss.tex | tr -cd '0-9A-Za-z $\tt\backslash$n' | wc -w}
-}
+
 \stepcounter{footnote}
 
 \newpage
@@ -112,8 +110,8 @@ extent for a comparable purpose.
 \pagenumbering{arabic}
 \pagestyle{headings}
 
-\chapter*{Introduction}
-\addcontentsline{toc}{chapter}{Introduction}
+\chapter{Introduction}
+\section{Motivation}
 This project is inspired by increasing importance of search engine rankings.
 Today major search engines given a query return web pages in an order
 determined by secret algorithms. Such algorithms are believed 
@@ -129,6 +127,7 @@ queries through the black box of any existing search engine,the immensity of
 the search space, and instability of such algorithms make them impossible to
 reverse engineer.
 
+\section{Challenges}
 Machine learning is a natural approach to inferring the true algorithm from a
 subset of all possible observations. However, applying machine learning
 techniques to real search engines would be hardly effective, as the dynamic
@@ -157,19 +156,220 @@ heuristics, the results can be applied to such an ambitious task.
 Moreover, such a framework is potentially more general and can be used for a
 range of problems.
 
+\section{Related Work}
+
 \newcommand\todo[1]{\textcolor{red}{\textbf{TODO: #1}}}
-\todo{overview of the chapters here.}
 
 \cleardoublepage
 \chapter{Preparation}
-This chapter describes work that has been done before coding was started.  In
-particular, it focuses on the reasoning behind the design of the system to be
-implemented. The first section is devoted to research undertaken to determine
-what can be done and how best to do it. The second section formulates the
-system requirements, namely formalizes everything that is developed in this
-project. The last section outlines the particulars of the software engineering
-approach to be adopted by this project.
+The original aims of the project were defined very broadly, so some further structuring and
+planning were crucial at the early stages to make sure the goals are understood and
+subsequently achieved.
 
+The beginning of this chapter introduces the principles of machine learning and the particular
+techniques implemented during this project in order to familiarise the reader with the
+field and the research done at the beginning.
+The rest of the chapter describes the analysis undertaken before the development, in particular,
+formulating the goals and evaluating the relative importance of parts, as well as
+associated risks. 
+
+\section{Machine Learning}
+
+Machine learning
+constitutes the central part of the project. The field was completely new to me
+to start with, so research of different techniques was a big part of the
+preparation.
+
+Machine learning is a vast field and very little is prescribed.
+The supervised learning approach, where the hidden function is
+inferred from the labelled training data, best fits our purposes for a number
+of reasons. Firstly, it applies well to the real-world problem of inferring the
+heuristics of the real search engines, as we can select training data and
+obtain the labels simply by querying. Secondly, supervised learning is widely
+used and offers a variety of flexible techniques.
+
+An interesting known problem with machine learning in general is referred to as
+the Curse of Dimensionality. In the real world scenario -- suppose if we were
+inferring an existing search engine from the observed query responses -- we
+could not be sure about which features are and which are not relevant to the
+hidden algorithm. Potentially, some features we might choose to use will
+increase the dimensionality, but would not actually be used by the real
+algorithm. Gathering more features can hurt, as it makes the learner infer
+nonexistent dependencies. Clearly within the scope of this project we will know
+at each point which features are or are not used. So observations can be made
+as to how using more features than the search engine will affect the
+classifier.
+
+Another major issue that is common to all machine learning methods is
+over/under-fitting. These refer to the problem of finding balance between the
+generalized model and the training data at hand. This is yet another source of
+interest to this project, as we can observe the behaviour of the learner when
+certain control parameters are changed.
+
+It is generally recommended that the simplest learners are tried
+first\cite{domingos}. Of all learners Naive Bayesian is one of the most
+comprehensible.This in itself is a major advantage according to the Occam's
+razor principle, which finds ample application in machine learning.
+Hence, we start with describing the principles of the two machine learning
+techniques used - Naive Bayes and Support Vector Machines.
+
+\section{Naive Bayes}
+
+Naive Bayes is a probabilistic classifier based on the Bayes Theorem. The
+posterior probability \(P(C|\vec{F})\) denotes the probability that a sample
+page with a feature vector \(\vec{F}=(F_1,F_2,\dots,F_n)\) belongs to class C.
+The posterior probability is computed from the observable in the training data: the prior
+probability \(P(C)\) -- the unconditional probability of a page belonging to
+the class C, the likelihood \(P(\vec{F}|C)\) and the evidence \(P(\vec{F})\):
+\begin{equation}
+P(C|\vec{F}) = \frac{P(C)P(\vec{F}|C)}{P(\vec{F})}
+\end{equation}
+
+The simplicity of Bayesian approach owes to the conditional independence
+assumption: each \(F_i\) in \(\vec{F}\) is assumed to be independent of one
+another to get \(P(\vec{F}|C)=P(F_1|C)*P(F_2|C)*\dots*P(F_n|C)\). This leads to a concise classifier definition:
+\begin{equation}
+\hat{C}= argmax_C P(C)\prod_{i=1}^{n}P(F_i|C)
+\end{equation}
+where \(C\) is the result of classification of a page with feature vector
+\(F_1,F_2,\dots,F_n\).
+
+In practice, the crude assumption rarely  holds and is likely to
+be violated by our data, as we expect features of pages to be interdependent.
+However, it has been shown that Naive Bayes performs well under zero-one loss
+function in presence of dependencies\cite{OPTIM}. This has a few
+implications for this project, particularly, on evaluation methods 
+
+As we have seen, Naive Bayes assigns probabilities to possible classifications
+in the process of classifying. Even though it generally performs well in
+classification tasks, these probability estimates are poor \cite{domingos96}.
+However, despite poor probability estimates, there exist several frameworks,
+which make use of Bayesian classification and achieve decent performance in
+ranking. For example, Zhang \cite{zhang04} experimentally found that Naive
+Bayes is locally optimal in ranking. The paper defines a classifier as locally
+optimal in ranking a positive example E if there is no negative example ranked
+after E and vice versa for a negative exaple. A classifier is global in ranking
+if it is locally optimal for all examples in the example set: in other words,
+it is optimal in pairwise ranking.  It is particularly interesting that the
+paper discovered that Naive Bayes is globally optimal in ranking on linear
+functions that have been shown as not learnable by Naive
+Bayes\footnote{\textit{M-of-N
+  Concepts} and \textit{Conjunctive Concepts} can't be learnt by Naive Bayes classifier but
+can be optimally ranked by it according to Zhang \cite{zhang04}.}.
+Another framework for ranking \cite{bayesrank} is based on Placket-Luce model, which reconciles
+the concepts of score and rank. This framework is based on minimizing the Bayes
+risk over possible permutations.Existence of such frameworks suggest that Naive Bayes is an adequate choice
+for a prototype learner.
+
+Although classification is a useful technique to try, it feels more natural to
+represent our score or rank as real numbers rather than classes. Regression is
+another approach to machine learning and the next learning technique we explore
+-- Support Vector Regression -- is non-probabilistic, to try something as distant
+from Naive Bayes as possible.
+
+\section{$\epsilon$-Support Vector Regression}
+While the binary classification problem has as its goal the maximization of the
+margin between the classes, regression is concerned with fitting a hyperplane
+through the given training sequence. 
+
+A great advantage of Support Vector machines is that they can perform
+non-linear classification or regression by using what is referred to as the
+\textit{Kernel Trick} - an implicit mapping of features into a higher
+dimensional space, in which the data is linearly separable. The choice of a
+kernel function is problem specific and the best one is usually decided by
+experiment.
+
+We begin with the theoretical foundations of Support Vector
+Regression, which were first proposed by Vapnik \ref{vapnik}.\\ Define a
+training sequence as a set of training points \(D = \{ (\mathbf{x_1},t_1),
+(\mathbf{x_2},t_2), ... , (\mathbf{x_l},t_l) \}\) where \( \mathbf{x_i} \in R^n
+\) is a feature vector holding features of pages and \( \mathbf{t_i} \in R \)
+is the corresponding ranking of each page.
+
+\begin{figure}[h!]
+  \centering 
+  \begin{subfigure}[b]{0.49\textwidth}
+  \includegraphics[width=\linewidth]{figs/loss.png}
+  \caption{\(\epsilon\)-insensitive loss function}
+  \label{eps} 
+\end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+  \centering 
+  \includegraphics[width=\linewidth]{figs/loss2.png}
+  \caption{Predictions with \(\epsilon\)-SVR}
+  \label{eps2} 
+\end{subfigure}
+\end{figure}
+
+In simple linear regression the aim is to minimize a regularized error
+function. We will be using an \(\epsilon\)-insensitive error function(see
+Figure \ref{eps} (a)).
+
+\(E_\phi(y(\mathbf(x)-t)) = \left\{ \begin{array}{l l} 0 & \quad \text{if
+\(|y(\mathbf{x})-t)|<\epsilon\)}\\ |y(\mathbf{x})-t)|-\epsilon & \quad
+\text{otherwise} \end{array} \right.\)
+
+where \(y(\mathbf(x) = \mathbf{w^T}\phi(\mathbf{x})+b\) is the hyperplane
+equation (and so \(y(\mathbf{x}) \) is the predicted output) and \(t_n\) is the
+target (true) output.
+
+The regression tube then contains all the points for which \(
+y(\mathbf{x_n})-\epsilon \leq t_n \leq y(\mathbf{x_n})+\epsilon \) as shown in
+Figure \ref{eps}(b).
+
+To allow variables to lie outside of the tube, slack variables \(\xi_n \geq
+0\)and \(\xi_n^* \geq 0\) are introduced.  The standard formulation of the
+error function for support vector regression (ref Vapnik 1998) can be written
+as follows:
+
+\begin{gather} E= C\sum_{n=1}^{N}(\xi_n+\xi_n^*)+\frac{1}{2}\|\mathbf{w}\|^2
+\end{gather}
+
+\(E\) must be minimized subject to four constraints:
+
+\begin{gather} \xi_n\geq 0,\\ \xi_n^*\geq 0,\\ t_n \leq
+  y(\mathbf{x_n})+\epsilon+\xi_n,\\ t_n \geq y(\mathbf{x_n})-\epsilon-\xi_n^*,
+\end{gather}
+
+This constraint problem can be transformed into its dual form  by introducing
+Lagrange multipliers \(a_n \geq 0, a_n^* \geq 0\).  The dual problem involves
+maximizing
+
+\begin{gather} \label{eq:maxim}  L(\mathbf{a},\mathbf{a^*}) =
+  -\frac{1}{2}\sum_{n=1}^{N}\sum_{m=1}^{N}(a_n-a_n^*)(a_m-a_m^*)K(\mathbf{x_n},\mathbf{x_m})
+\end{gather} \begin{gather*} -\epsilon\sum_{n=1}^{N}(a_n+a_n^*) +
+  \sum_{n=1}^{N}t_n(a_n-a_n^*) \end{gather*}
+
+where \(K(x_n,x_m) \) is the kernel function, \(t_n\) is the target output,
+
+subject to constraints
+
+\begin{gather}
+  \sum_{n=1}^{N}(a_n-a_n^*)=0,\\
+  0\leq a_n,\; a_n^*\leq C,\;\;    n=1,...,l 
+\end{gather}
+
+\section{Requirements Analysis}
+\begin{table}
+  \begin{tabular}{p{9.5cm} c c c}
+    \hline
+    \bf Requirement description & \bf Priority & \bf Difficulty & \bf Risk  \\ \hline\hline
+    \multicolumn{4}{ c }{\bf Functional Requirements}\\ \hline
+    Implement a simple search engine & High & Low & Low  \\ \hline
+    Ensure search engine can use both score and rank & Medium & Medium & Low \\ \hline
+    Implement two different machine learning techniques & High & High & High\\ \hline
+    Classifiers must achieve better than random results & High & Medium & High \\ \hline
+    Implement PageRank & Medium & Medium & Low \\ \hline
+    \multicolumn{4}{ c }{\bf Non-Functional Requirements}\\\hline
+    The search engine must be able to index a few \\ thousand pages in reasonable time\footnote{`Feasible' time explain}
+    & Medium & High & Medium \\ \hline
+    PageRank computation on a few thousand pages \\ must complete in reasonable time & Medium & High & Medium \\ \hline
+    Machine learning modules must learn and classify \\ within reasonable time & High & High & High \\ \hline
+  \end{tabular}
+  \caption{Project objecives\label{req}}
+\end{table}
+
+Non Requirement -- usability
 \section{Formulating the Goals}
 \label{prep}
 A particular difficulty in this project has been in planning what has to be
@@ -290,173 +490,7 @@ are distributed according the knowledge of the surfer's previous activity. In
 this project we are only concerned with nonpersonalized ranking, which
 simplifies things a little.
 
-\subsection{Machine Learning}
 
-I have now covered the main peripheral decisions, but it is machine learning that
-constitutes the central part of the project. The field was completely new to me
-to start with, so research of different techniques was a big part of the
-preparation.
-
-Machine learning is a vast field and very little is prescribed.
-The supervised learning approach, where the hidden function is
-inferred from the labelled training data, best fits our purposes for a number
-of reasons. Firstly, it applies well to the real-world problem of inferring the
-heuristics of the real search engines, as we can select training data and
-obtain the labels simply by querying. Secondly, supervised learning is widely
-used and offers a variety of flexible techniques.
-
-An interesting known problem with machine learning in general is referred to as
-the Curse of Dimensionality. In the real world scenario -- suppose if we were
-inferring an existing search engine from the observed query responses -- we
-could not be sure about which features are and which are not relevant to the
-hidden algorithm. Potentially, some features we might choose to use will
-increase the dimensionality, but would not actually be used by the real
-algorithm. Gathering more features can hurt, as it makes the learner infer
-nonexistent dependencies. Clearly within the scope of this project we will know
-at each point which features are or are not used. So observations can be made
-as to how using more features than the search engine will affect the
-classifier.
-
-Another major issue that is common to all machine learning methods is
-over/under-fitting. These refer to the problem of finding balance between the
-generalized model and the training data at hand. This is yet another source of
-interest to this project, as we can observe the behaviour of the learner when
-certain control parameters are changed.
-
-It is generally recommended that the simplest learners are tried
-first\cite{domingos}. Of all learners Naive Bayesian is one of the most
-comprehensible.This in itself is a major advantage according to the Occam's
-razor principle, which finds ample application in machine learning.
-Hence, we start with describing the principles of the two machine learning
-techniques used - Naive Bayes and Support Vector Machines.
-
-\subsubsection*{Naive Bayes}
-
-Naive Bayes is a probabilistic classifier based on the Bayes Theorem. The
-posterior probability \(P(C|\vec{F})\) denotes the probability that a sample
-page with a feature vector \(\vec{F}=(F_1,F_2,\dots,F_n)\) belongs to class C.
-The posterior probability is computed from the observable in the training data: the prior
-probability \(P(C)\) -- the unconditional probability of a page belonging to
-the class C, the likelihood \(P(\vec{F}|C)\) and the evidence \(P(\vec{F})\):
-\begin{equation}
-P(C|\vec{F}) = \frac{P(C)P(\vec{F}|C)}{P(\vec{F})}
-\end{equation}
-
-The simplicity of Bayesian approach owes to the conditional independence
-assumption: each \(F_i\) in \(\vec{F}\) is assumed to be independent of one
-another to get \(P(\vec{F}|C)=P(F_1|C)*P(F_2|C)*\dots*P(F_n|C)\). This leads to a concise classifier definition:
-\begin{equation}
-\hat{C}= argmax_C P(C)\prod_{i=1}^{n}P(F_i|C)
-\end{equation}
-where \(C\) is the result of classification of a page with feature vector
-\(F_1,F_2,\dots,F_n\).
-
-In practice, the crude assumption rarely  holds and is likely to
-be violated by our data, as we expect features of pages to be interdependent.
-However, it has been shown that Naive Bayes performs well under zero-one loss
-function in presence of dependencies\cite{OPTIM}. This has a few
-implications for this project, particularly, on evaluation methods 
-
-As we have seen, Naive Bayes assigns probabilities to possible classifications
-in the process of classifying. Even though it generally performs well in
-classification tasks, these probability estimates are poor \cite{domingos96}.
-However, despite poor probability estimates, there exist several frameworks,
-which make use of Bayesian classification and achieve decent performance in
-ranking. For example, Zhang \cite{zhang04} experimentally found that Naive
-Bayes is locally optimal in ranking. The paper defines a classifier as locally
-optimal in ranking a positive example E if there is no negative example ranked
-after E and vice versa for a negative exaple. A classifier is global in ranking
-if it is locally optimal for all examples in the example set: in other words,
-it is optimal in pairwise ranking.  It is particularly interesting that the
-paper discovered that Naive Bayes is globally optimal in ranking on linear
-functions that have been shown as not learnable by Naive
-Bayes\footnote{\textit{M-of-N
-  Concepts} and \textit{Conjunctive Concepts} can't be learnt by Naive Bayes classifier but
-can be optimally ranked by it according to Zhang \cite{zhang04}.}.
-Another framework for ranking \cite{bayesrank} is based on Placket-Luce model, which reconciles
-the concepts of score and rank. This framework is based on minimizing the Bayes
-risk over possible permutations.Existence of such frameworks suggest that Naive Bayes is an adequate choice
-for a prototype learner.
-
-Although classification is a useful technique to try, it feels more natural to
-represent our score or rank as real numbers rather than classes. Regression is
-another approach to machine learning and the next learning technique we explore
--- Support Vector Regression -- is non-probabilistic, to try something as distant
-from Naive Bayes as possible.
-
-\subsubsection*{\(\epsilon\)-Support Vector Regression}
-While the binary classification problem has as its goal the maximization of the
-margin between the classes, regression is concerned with fitting a hyperplane
-through the given training sequence. 
-
-A great advantage of Support Vector machines is that they can perform
-non-linear classification or regression by using what is referred to as the
-\textit{Kernel Trick} - an implicit mapping of features into a higher
-dimensional space, in which the data is linearly separable. The choice of a
-kernel function is problem specific and the best one is usually decided by
-experiment. 
-
-We begin with the theoretical foundations of Support Vector
-Regression, which were first proposed by Vapnik \ref{vapnik}.\\ Define a
-training sequence as a set of training points \(D = \{ (\mathbf{x_1},t_1),
-(\mathbf{x_2},t_2), ... , (\mathbf{x_l},t_l) \}\) where \( \mathbf{x_i} \in R^n
-\) is a feature vector holding features of pages and \( \mathbf{t_i} \in R \)
-is the corresponding ranking of each page.
-
-\begin{figure}
-  \centering 
-  \includegraphics[width=120mm]{epsilon.jpg}
-  \caption{TODO: plot these yourself!} 
-  \label{eps} 
-\end{figure}
-
-In simple linear regression the aim is to minimize a regularized error
-function. We will be using an \(\epsilon\)-insensitive error function(see
-Figure \ref{eps} (a)).
-
-\(E_\phi(y(\mathbf(x)-t)) = \left\{ \begin{array}{l l} 0 & \quad \text{if
-\(|y(\mathbf{x})-t)|<\epsilon\)}\\ |y(\mathbf{x})-t)|-\epsilon & \quad
-\text{otherwise} \end{array} \right.\)
-
-where \(y(\mathbf(x) = \mathbf{w^T}\phi(\mathbf{x})+b\) is the hyperplane
-equation (and so \(y(\mathbf{x}) \) is the predicted output) and \(t_n\) is the
-target (true) output.
-
-The regression tube then contains all the points for which \(
-y(\mathbf{x_n})-\epsilon \leq t_n \leq y(\mathbf{x_n})+\epsilon \) as shown in
-Figure \ref{eps}(b).
-
-To allow variables to lie outside of the tube, slack variables \(\xi_n \geq
-0\)and \(\xi_n^* \geq 0\) are introduced.  The standard formulation of the
-error function for support vector regression (ref Vapnik 1998) can be written
-as follows:
-
-\begin{gather} E= C\sum_{n=1}^{N}(\xi_n+\xi_n^*)+\frac{1}{2}\|\mathbf{w}\|^2
-\end{gather}
-
-\(E\) must be minimized subject to four constraints:
-
-\begin{gather} \xi_n\geq 0,\\ \xi_n^*\geq 0,\\ t_n \leq
-  y(\mathbf{x_n})+\epsilon+\xi_n,\\ t_n \geq y(\mathbf{x_n})-\epsilon-\xi_n^*,
-\end{gather}
-
-This constraint problem can be transformed into its dual form  by introducing
-Lagrange multipliers \(a_n \geq 0, a_n^* \geq 0\).  The dual problem involves
-maximizing
-
-\begin{gather} \label{eq:maxim}  L(\mathbf{a},\mathbf{a^*}) =
-  -\frac{1}{2}\sum_{n=1}^{N}\sum_{m=1}^{N}(a_n-a_n^*)(a_m-a_m^*)K(\mathbf{x_n},\mathbf{x_m})
-\end{gather} \begin{gather*} -\epsilon\sum_{n=1}^{N}(a_n+a_n^*) +
-  \sum_{n=1}^{N}t_n(a_n-a_n^*) \end{gather*}
-
-where \(K(x_n,x_m) \) is the kernel function, \(t_n\) is the target output,
-
-subject to constraints
-
-\begin{gather}
-  \sum_{n=1}^{N}(a_n-a_n^*)=0,\\
-  0\leq a_n,\; a_n^*\leq C,\;\;    n=1,...,l 
-\end{gather}
 
 \subsubsection*{Evaluation methodology}
 Measuring performance of machine learners accurately is a major challenge
@@ -526,29 +560,6 @@ During the development of the learners a development pool of pages will
 be used, which must be disjoint with the Training or Test data. This ensures
 that no optimization is tailored to the data used for evaluation. 
 
-\subsection*{Requirements Analysis}
-The resulting system must comply with the functional and non-functional requirements, but
-not the non-requirements.
-
-Functional and Non-Functional Requirements:
-\begin{itemize}
-  \item{A search engine, which given a query must return a relevant subset of
-      pages within 10 seconds in an order corresponding to a given heuristic, which can also be
-  supplied to the search engine.}
-  \item{Search engine must base ranking decisions on both dynamic
-      (query dependent) and static (query independent)
-    page features.}
-  \item{A machine learner must be sufficiently isolated from the search engine
-    through an encapsulating interface to avoid the possibility of undesirable interaction.}
-  \item{Machine learners must be able to process thousands of pages in a
-    reasonable time.}
-  \item{The evaluation module must write results to persistent storage.}
-\end{itemize}
-Non-Requirements:
-\begin{itemize}
-  \item{Usability. This system is not meant to be used by other people and is result
-    oriented, so no user interface is necessary.}
-\end{itemize}
 \cleardoublepage
 \chapter{Implementation}
 This section describes parts of the system that I have implemented.
@@ -1488,7 +1499,9 @@ html, price information availability and alike.
 
 
 \cleardoublepage
-\chapter{Conclusion}
+\chapter{Conclusions}
+\section{Lessons Learnt}
+\section{Future Work}
 \cleardoublepage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
