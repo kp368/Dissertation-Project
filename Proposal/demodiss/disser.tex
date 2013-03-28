@@ -173,7 +173,7 @@ The rest of the chapter describes the analysis undertaken before the development
 formulating the goals and evaluating the relative importance of parts, as well as
 associated risks. 
 
-\section{Machine Learning}
+\section{Introduction to Machine Learning}
 
 Machine learning
 constitutes the central part of the project. The field was completely new to me
@@ -213,7 +213,7 @@ razor principle, which finds ample application in machine learning.
 Hence, we start with describing the principles of the two machine learning
 techniques used - Naive Bayes and Support Vector Machines.
 
-\section{Naive Bayes}
+\subsection{Naive Bayes}
 
 Naive Bayes is a probabilistic classifier based on the Bayes Theorem. The
 posterior probability \(P(C|\vec{F})\) denotes the probability that a sample
@@ -267,7 +267,7 @@ another approach to machine learning and the next learning technique we explore
 -- Support Vector Regression -- is non-probabilistic, to try something as distant
 from Naive Bayes as possible.
 
-\section{$\epsilon$-Support Vector Regression}
+\subsection{$\epsilon$-Support Vector Regression}
 While the binary classification problem has as its goal the maximization of the
 margin between the classes, regression is concerned with fitting a hyperplane
 through the given training sequence. 
@@ -349,115 +349,8 @@ subject to constraints
   0\leq a_n,\; a_n^*\leq C,\;\;    n=1,...,l 
 \end{gather}
 
-\section{Requirements Analysis}
-\begin{table}
-  \begin{tabular}{p{9.5cm} c c c}
-    \hline
-    \bf Requirement description & \bf Priority & \bf Difficulty & \bf Risk  \\ \hline\hline
-    \multicolumn{4}{ c }{\bf Functional Requirements}\\ \hline
-    Implement a simple search engine & High & Low & Low  \\ \hline
-    Ensure search engine can use both score and rank & Medium & Medium & Low \\ \hline
-    Implement two different machine learning techniques & High & High & High\\ \hline
-    Classifiers must achieve better than random results & High & Medium & High \\ \hline
-    Implement PageRank & Medium & Medium & Low \\ \hline
-    \multicolumn{4}{ c }{\bf Non-Functional Requirements}\\\hline
-    The search engine must be able to index a few \\ thousand pages in reasonable time\footnote{`Feasible' time explain}
-    & Medium & High & Medium \\ \hline
-    PageRank computation on a few thousand pages \\ must complete in reasonable time & Medium & High & Medium \\ \hline
-    Machine learning modules must learn and classify \\ within reasonable time & High & High & High \\ \hline
-  \end{tabular}
-  \caption{Project objecives\label{req}}
-\end{table}
 
-Non Requirement -- usability
-\section{Formulating the Goals}
-\label{prep}
-A particular difficulty in this project has been in planning what has to be
-done. Due to the exploratory nature of the project the course of action had to
-be predominantly determined by the outcome of a current tactic. Moreover, the
-unknowns originating from the machine learning further complicated matters. 
-
-\subsection{System Overview}
-
-To achieve the goal of the project, a machine learning techniques comparison
-framework was necessary. In the Introduction I mentioned the benefit of having
-a transparent system as an object of learning. To further justify this
-decision, it is worth mentioning that  generalisation using machine learning is
-different from most optimization problems in that the function that is being
-optimized is out of our reach, and all that is visible to the machine learner
-is the training error. Because our goal is not the correct classification of
-real data, but identifying the means to correct classification, it is important
-that informed choices are made towards improvement of the learner. Taking this
-into account, knowing the function that we want to learn and having direct
-control over it  will guide the improvement of the search engine. 
-
-This argument motivates a system in three parts: a search engine, a machine
-learner and a parser to mediate between the two.  Figure \ref{overview}
-illustrates the proposed learning system. Training data is a set of web pages
-set aside specifically for training purposes.  
-
-\begin{figure}
-\centering
-\includegraphics[scale=0.5]{figs/overview.pdf}
-\caption{Overview of the system. Three major parts from left to right are search engine,
-parser and machine learner.}
-\label{overview}
-\end{figure}
-
-\subsubsection*{Choice of Programming Language}
-
-When choosing a programming language, main considerations reduced to library
-availability and simplicity. The project imposes no special  requirements on the
-language, apart from, perhaps, library infrastructure for parsing web pages.
-Python is simple language with extensive library support. As
-for efficiency, all the mathematical operations in this project rely on python
-math libraries, which are implemented in C. I have not programmed in Python
-before the project, so a slight overhead was caused by having to learn a new
-language.
-
-\subsubsection*{Data}
-Web pages used as Training and Test data are not required to have any special
-properties, but diversity and typicality are seen as advantageous. As for the
-size of the training data, Domingos \cite{domingos} suggests that a primitive
-learner given more data performs better than a more complex one with less data.
-This, of course, is under certain assumptions of data quality, namely the
-assumption that the training data is a representative subset of all the
-possible data. Intuitively, provided there is no bias in data gathering, more
-data implies better generality. I have started with a training set spanning an
-order of a few thousands of pages, however, in practice, I found that there is
-no particular improvement beyond a thousand pages. \todo{Link to relevant part
-or example data here?}
-
-\subsection{Search Engine}
-
-Next important decision regarded the search engine.  Originally, I considered
-using open source existing engines, in particular, Lucene. Even though I could
-freely modify it for the purposes of the project, the complexity of it was
-superfluous. I saw writing a simple search engine as a more beneficial
-exercise, as developing it in the first place potentially gives an insight into
-the problem.
-
-Functionally our search engine is a black box that takes a set of webpages and
-a set of queries and outputs an order. The order is determined by the features
-of the page, which together make up a score. The score is the
-function we want to infer using the ranking assigned by the search engine,
-however, we are only given the order as evidence. Machine learning paragraph
-below will address this issue in more details.
-
-In general there are two aspects of information retrieval that have to be
-accounted for: precision and recall. Precision is the fraction of retrieved pages that
-are relevant to the query, whereas recall is the fraction of relevant
-documents that are retrieved. Even though both are important for a good search
-engine, but in practice, the web is very large, and so precision, or even
-\textit{precision at n}\footnote{`Precision at n' only evaluates precision with respect to
-n topmost returned pages.}) has become
-more prominent in defining a good search engine: very rarely the user actually
-browses returns that are not in the top few tens of returned pages. Therefore, 
-modern search engines tend to focus on high precision at the expense of recall
-\cite{GOOGLE}. Therefore, we will concentrate primarily on precision, when
-designing a search engine.
-
-\subsubsection*{PageRank}
+\section{Introduction to PageRank}
 The PageRank algorithm was originally described in a research paper
 by Page and Brin\cite{PageRank}. It was first introduced as a way `to measure
 the relative importance of web pages'. PageRank is interesting to include in
@@ -490,9 +383,29 @@ are distributed according the knowledge of the surfer's previous activity. In
 this project we are only concerned with nonpersonalized ranking, which
 simplifies things a little.
 
+\section{Requirements Analysis}
+\begin{table}
+  \begin{tabular}{p{9.5cm} c c c}
+    \hline
+    \bf Requirement description & \bf Priority & \bf Difficulty & \bf Risk  \\ \hline\hline
+    \multicolumn{4}{ c }{\bf Functional Requirements}\\ \hline
+    Implement a simple search engine & High & Low & Low  \\ \hline
+    Ensure search engine can use both score and rank & Medium & Medium & Low \\ \hline
+    Implement two different machine learning techniques & High & High & High\\ \hline
+    Classifiers must achieve better than random results & High & Medium & High \\ \hline
+    Implement PageRank & Medium & Medium & Low \\ \hline
+    \multicolumn{4}{ c }{\bf Non-Functional Requirements}\\\hline
+    The search engine must be able to index a few \\ thousand pages in reasonable time\footnote{`Feasible' time explain}
+    & Medium & High & Medium \\ \hline
+    PageRank computation on a few thousand pages \\ must complete in reasonable time & Medium & High & Medium \\ \hline
+    Machine learning modules must learn and classify \\ within reasonable time & High & High & High \\ \hline
+  \end{tabular}
+  \caption{Project objecives\label{req}}
+\end{table}
 
+Non Requirement -- usability
 
-\subsubsection*{Evaluation methodology}
+\section{Evaluation Approach}
 Measuring performance of machine learners accurately is a major challenge
 primarily because both training and testing are dependent both on the quantity
 and quality of data used. This fact motivates repeating experiments with a
@@ -539,7 +452,66 @@ Mean Squared Error will be used as the risk function to minimize.
 where \(Actual\) is an array of true values of size \(|Actual|\) and
 \(Predicted\) is the corresponding array of predictions made by the classifier.
 
-\section{Development Strategy}
+\section{Choice of Tools}
+
+\subsection{Data Gathering}
+Web pages used as Training and Test data are not required to have any special
+properties, but diversity and typicality are seen as advantageous. As for the
+size of the training data, Domingos \cite{domingos} suggests that a primitive
+learner given more data performs better than a more complex one with less data.
+This, of course, is under certain assumptions of data quality, namely the
+assumption that the training data is a representative subset of all the
+possible data. Intuitively, provided there is no bias in data gathering, more
+data implies better generality. I have started with a training set spanning an
+order of a few thousands of pages, however, in practice, I found that there is
+no particular improvement beyond a thousand pages. \todo{Link to relevant part
+or example data here?}
+
+\subsection{Search Engine}
+
+Next important decision regarded the search engine.  Originally, I considered
+using open source existing engines, in particular, Lucene. Even though I could
+freely modify it for the purposes of the project, the complexity of it was
+superfluous. I saw writing a simple search engine as a more beneficial
+exercise, as developing it in the first place potentially gives an insight into
+the problem.
+
+Functionally our search engine is a black box that takes a set of webpages and
+a set of queries and outputs an order. The order is determined by the features
+of the page, which together make up a score. The score is the
+function we want to infer using the ranking assigned by the search engine,
+however, we are only given the order as evidence. Machine learning paragraph
+below will address this issue in more details.
+
+In general there are two aspects of information retrieval that have to be
+accounted for: precision and recall. Precision is the fraction of retrieved pages that
+are relevant to the query, whereas recall is the fraction of relevant
+documents that are retrieved. Even though both are important for a good search
+engine, but in practice, the web is very large, and so precision, or even
+\textit{precision at n}\footnote{`Precision at n' only evaluates precision with respect to
+n topmost returned pages.}) has become
+more prominent in defining a good search engine: very rarely the user actually
+browses returns that are not in the top few tens of returned pages. Therefore, 
+modern search engines tend to focus on high precision at the expense of recall
+\cite{GOOGLE}. Therefore, we will concentrate primarily on precision, when
+designing a search engine.
+
+
+\subsection{Programming Language}
+
+When choosing a programming language, main considerations reduced to library
+availability and simplicity. The project imposes no special  requirements on the
+language, apart from, perhaps, library infrastructure for parsing web pages.
+Python is simple language with extensive library support. As
+for efficiency, all the mathematical operations in this project rely on python
+math libraries, which are implemented in C. I have not programmed in Python
+before the project, so a slight overhead was caused by having to learn a new
+language.
+
+\subsection{Libraries}
+\subsection{Development Environment}
+
+\section{Software Engineering Techniques}
 While the set up of Part II projects encourages waterfall-like development
 model, this project takes an iterative approach. The first iteration renders a
 prototype: a primitive search engine with a Naive Bayesian baseline classifier.
@@ -561,9 +533,39 @@ be used, which must be disjoint with the Training or Test data. This ensures
 that no optimization is tailored to the data used for evaluation. 
 
 \cleardoublepage
+
+\section{Summary}
 \chapter{Implementation}
 This section describes parts of the system that I have implemented.
 \todo{overview}
+
+\section{System Architecture}
+
+To achieve the goal of the project, a machine learning techniques comparison
+framework was necessary. In the Introduction I mentioned the benefit of having
+a transparent system as an object of learning. To further justify this
+decision, it is worth mentioning that  generalisation using machine learning is
+different from most optimization problems in that the function that is being
+optimized is out of our reach, and all that is visible to the machine learner
+is the training error. Because our goal is not the correct classification of
+real data, but identifying the means to correct classification, it is important
+that informed choices are made towards improvement of the learner. Taking this
+into account, knowing the function that we want to learn and having direct
+control over it  will guide the improvement of the search engine. 
+
+This argument motivates a system in three parts: a search engine, a machine
+learner and a parser to mediate between the two.  Figure \ref{overview}
+illustrates the proposed learning system. Training data is a set of web pages
+set aside specifically for training purposes.  
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.5]{figs/overview.pdf}
+\caption{Overview of the system. Three major parts from left to right are search engine,
+parser and machine learner.}
+zo\label{overview}
+
+\end{figure}
 
 \section{Data}
 Data gathering is of major importance, as data decisions have tremendous impact
@@ -1253,7 +1255,6 @@ loads the vectors lazily.
 \cleardoublepage
 
 \chapter{Evaluation}
-\section{Empirical Evaluation}
 Due to the incremental development measurements were taken at various stages as
 the implementations evolved. To avoid biased results Development corpus was
 used during development, which is disjoint from the real Test corpus and is of
@@ -1263,30 +1264,28 @@ which are used to obtain all the results presented in this chapter.
 The evaluation was performed after the development of the whole system was
 complete and validated on the Development corpus.
 
-\section{Measurements}
-Talk about which statistical techniques are used for evaluation and explain why each was
-chosen and what were other alternatives considered.
-
-\subsection{Mean Squared Error}
+\section{Classifier Evaluation}
+\subsection{Methodology}
+\subsubsection*{Mean Squared Error}
 Second moment of the error, so incorporates both variance and bias.
 \(\frac{1}{n}\sum_{i=1}^n(Actual-Predicted)^2\) Penalizes large errors heavily, but small
 errors diminish.
 Assuming Gaussian noise. But sensitive to outliers. MAE is less so. But MSE more visual
 and distinct representation of this particular data.
-\subsection{Tolerance intervals}
+\subsubsection*{Tolerance intervals}
 Bootstrapping!
 Tolerance interval of the error mean is a good visualisation of how spread the error is.
 In the best case, the interval is tight. If the error is spread, the classifier is making
 inconsistent mistakes. Particularly important to include these in our evaluation due to
 the presence of quantization error. The mean error of the ceiling and its spread is a good
 indicator of the mean and variance introduced by quantization.
-\subsection{Classification and Quantization Error}
+\subsubsection*{Classification and Quantization Error}
 To compare classification and regression effectively, the error incurred in quantizing
 scores is tracked. In a two-class scenario there is one threshold score value that
 separates the two classes. This score value is computed as a median to have adequate class
 representation. When Bayes assigns a class to a feature set, it is perceived as assigning
 the mean value of the scores present in the class. 
-\section{Linear and non-linear classification}
+\subsection{Linear and non-linear classification}
 \paragraph{Hypothesis: Naive Bayes performs better with linearly separable data.}
 
 Naive Bayes is a linear classifier and, therefore, linear separability of data is a
@@ -1398,7 +1397,7 @@ Clearly degrading
 \end{figure}
 
 
-\section{Bayes: Effects of Quantization}
+\subsection{Bayes: Effects of Quantization}
 \paragraph{Hypothesis: Bayes classifies better when fewer classes are present.}
 It is intuitive that at a large number of classes, the more classes we introduce, the more precise the classifier has to be to perform
 equally well. However, taking into account the quantization error, we might expect
@@ -1428,7 +1427,7 @@ of classes minimizes the overall error of the classifier.
 \end{subfigure}
 \end{figure}
 
-\section{Curse of Dimensionality}
+\subsection{Curse of Dimensionality}
 \paragraph{Bayes performance degrades rapidly as the number of features grows.}
 So far we have considered two dimensional cases where only two features were used for
 convenience of visualization. Dimensionality curse is one of the well-known issues with
@@ -1479,7 +1478,6 @@ html, price information availability and alike.
 \end{figure}
 
 
-\section{Testing}
 
 \section{Performance Evaluation}
 \begin{figure}[h!]
@@ -1499,6 +1497,9 @@ html, price information availability and alike.
 
 
 \cleardoublepage
+\section{Testing}
+
+\section{Summary}
 \chapter{Conclusions}
 \section{Lessons Learnt}
 \section{Future Work}
