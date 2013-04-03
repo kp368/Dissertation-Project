@@ -608,7 +608,7 @@ away from the specifics of web pages towards the more general problem, so that
 the nature of features makes little difference and the existence of a hidden
 function is all that matters.
 
-\subsection*{Indexer}
+\section{Indexer}
 
 The requirements on the indexer include flexibility, speed of indexing and
 retrieval as well as simplicity and usability.  The \textit{Whoosh} python
@@ -636,7 +636,7 @@ pages in the order of decreasing PageRank.  Subsequently, the sorting has been
 decoupled from retrieval and incorporated into the Parser module, which is
 described later in detail.
 
-\subsubsection*{PageRank} 
+\section{PageRank} 
 The PageRank vector is computed using matrix inversion. All matrix operations
 were performed with the help of the python numerical library `numpy'.  Take t
 to be the teleportation probability, s=1-t is the probability of following a
@@ -694,7 +694,7 @@ directory. The class is instantiated with an instance of the \texttt{Crawler}
 class, which embodies the link structure of a directory and is described in the
 next section.
 
-\subsubsection*{Crawler} 
+\section{Crawler} 
 
 The \texttt{Crawler} abstracts away the underlying data directories and
 computes their link structures as matrices.  The matrix G, used for the
@@ -740,7 +740,7 @@ described by the Table \ref{tab}.
   \end{center}
 \end{table}
 
-\section{Machine Learning}
+\section{Naive Bayes}
 In the course of this project two distinct machine learning algorithms have
 been used. The design goals for the implementations were as usual: speed and
 correctness. Another important aspect of the design is that the system and the
@@ -750,7 +750,6 @@ implementations is that both must communicate with the system via the same
 interface. The rest of the section describes in detail how the two proposed
 machine learners were implemented.
 
-\subsection{Naive Bayes}
 In Section \ref{prep} it has been shown that Naive Bayesian is a good learner
 to implement for the first prototype, so a very quick implementation was
 preferable to make sure the system can potentially function as intended. Due to
@@ -789,7 +788,7 @@ object is passed to the Parser, where the featuresets for the test directories
 are computed, classified and recorded for the evaluation stage later. The
 particulars of this process is described in section \ref{parser}.
 
-\subsection{Support Vector Machine} In the Preparaion chapter we have looked at
+\section{Support Vector Regression} In the Preparaion chapter we have looked at
 the theory of support vector machines as found in textbooks. This section
 builds on the theory described and explains further transformations that were
 an essential part of the implementation.
@@ -1255,30 +1254,50 @@ loads the vectors lazily.
 \cleardoublepage
 
 \chapter{Evaluation}
-Due to the incremental development measurements were taken at various stages as
-the implementations evolved. To avoid biased results Development corpus was
+
+\section{Overall Results}
+\section{Classifier Evaluation}
+
+\subsection{Methodology}
+Evaluation and comparison of classifiers is largely unprescribed: there is no method
+that applies well to every case. A lot of ambiguity is due to the fact that results obtained are
+ultimately dependent on the data used for training and testing. There are, however,
+generic guidelines to ensure adequate evaluation and comparison where possible. 
+This section highlights several such aspects, which are then applied throughout the whole
+chapter.
+\subsubsection{Data}
+To avoid biased results Development corpus was
 used during development, which is disjoint from the real Test corpus and is of
 smaller size. The development corpus is further subdivided into the Training
 corpus and the Validation corpus to mirror the Training and the Test corpora,
 which are used to obtain all the results presented in this chapter.
 The evaluation was performed after the development of the whole system was
 complete and validated on the Development corpus.
-
-\section{Classifier Evaluation}
-\subsection{Methodology}
-\subsubsection*{Mean Squared Error}
-Second moment of the error, so incorporates both variance and bias.
-\(\frac{1}{n}\sum_{i=1}^n(Actual-Predicted)^2\) Penalizes large errors heavily, but small
-errors diminish.
-Assuming Gaussian noise. But sensitive to outliers. MAE is less so. But MSE more visual
-and distinct representation of this particular data.
+\subsubsection*{Mean Squared Error (MSE)}
+As a measure of classifier performance I have chosen to use mean squared error.
+It is computed as 
+\begin{gather}
+	\frac{1}{n}\sum_{i=1}^n(Actual-Predicted)^2
+\end{gather}
+where \(Actual\) is the true score and \(Predicted\) is the score assigned by the
+classifier. MSE is the second moment of the error and hence, incorporates both variance
+and bias of it. Squaring penalizes large errors heavily, but small errors vanish,
+therefore MSE is sensitive to outliers as opposed to Mean Absolute Error (MAE). On the other
+hand, MAE is more sensitive to noise, which we expect when predicting continuous scores.
+Altogether, MSE provides a good measure that is easily visualised.
 \subsubsection*{Tolerance intervals}
-Bootstrapping!
-Tolerance interval of the error mean is a good visualisation of how spread the error is.
-In the best case, the interval is tight. If the error is spread, the classifier is making
-inconsistent mistakes. Particularly important to include these in our evaluation due to
-the presence of quantization error. The mean error of the ceiling and its spread is a good
-indicator of the mean and variance introduced by quantization.
+As MSE already captures the variance of the squared error, computing error bars to be the
+standard deviation of the squared error would offer no new information. In contrast,
+tolerance interval of the mean error itself is a good visualisation of how spread the
+error is.  In the best case, the interval is tight, indicating the stability of the seen
+error. If the error is spread, the classifier is making inconsistent mistakes.
+It is particularly important to include these in our evaluation due to the presence of
+quantization error. The mean error of the ceiling and its spread is a good indicator of
+the mean and variance introduced by quantization.
+
+To compute confidence intervals one could repeat the measurement on different data
+subsets. The number of subsets would have to exceed 16 for the Central Limit Theorem to
+apply. In practice, the data is scarce and so
 \subsubsection*{Classification and Quantization Error}
 To compare classification and regression effectively, the error incurred in quantizing
 scores is tracked. In a two-class scenario there is one threshold score value that
