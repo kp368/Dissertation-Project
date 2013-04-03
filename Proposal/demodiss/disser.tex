@@ -1265,6 +1265,14 @@ ultimately dependent on the data used for training and testing. There are, howev
 generic guidelines to ensure adequate evaluation and comparison where possible. 
 This section highlights several such aspects, which are then applied throughout the whole
 chapter.
+
+\subsubsection*{Classification and Quantization Error}
+To compare classification and regression effectively, the error incurred in quantizing
+scores is tracked. In a two-class scenario there is one threshold score value that
+separates the two classes. This score value is computed as a median to have adequate class
+representation. When Bayes assigns a class to a feature set, it is perceived as assigning
+the mean value of the scores present in the class. 
+
 \subsubsection{Data}
 To avoid biased results Development corpus was
 used during development, which is disjoint from the real Test corpus and is of
@@ -1302,21 +1310,16 @@ way to compute the intervals with just one error measurement is desirable. Boots
 achieves exactly that by sampling randomly from the array of squared errors to recompute a
 new mean error.  Even though bootstrapping might be less reliable, it provides a simple
 way to check the stability of the results.
-\subsubsection*{Classification and Quantization Error}
-To compare classification and regression effectively, the error incurred in quantizing
-scores is tracked. In a two-class scenario there is one threshold score value that
-separates the two classes. This score value is computed as a median to have adequate class
-representation. When Bayes assigns a class to a feature set, it is perceived as assigning
-the mean value of the scores present in the class. 
 \subsection{Linear and non-linear classification}
-\paragraph{Hypothesis: Naive Bayes performs better with linearly separable data.}
+\subsubsection*{Hypothesis: Naive Bayes performs better with linearly separable data.}
 
 Naive Bayes is a linear classifier and, therefore, linear separability of data is a
-premise of successful classification. To test this hypothesis, we will construct two
-minimal two-dimensional examples as shown in figures \ref{code:insep} and \ref{code:sep}
-below. Example \ref{code:insep} cannot be solved by plotting a line to separate the
-classes. Bayes is expected to fail in this case. Example \ref{code:sep} illustrates a
-`cut-off sum' function. Such a linear heuristic should be easy for Bayes to pick up on.
+premise of successful classification. To test this hypothesis, two minimal two-dimensional
+examples are constructed as shown in figures \ref{code:insep} and \ref{code:sep} below.
+Example \ref{code:insep} cannot be solved by fitting a separating line between the
+classes, so Bayes is expected to fail in this case. Example \ref{code:sep} illustrates a
+`cut-off sum' function and is trivially separable. Such a linear heuristic should be easy
+for Bayes to pick up on.
 
 \begin{figure}[h!]
 \begin{minipage}[b]{0.55\linewidth}
@@ -1334,6 +1337,7 @@ classes. Bayes is expected to fail in this case. Example \ref{code:sep} illustra
       elif f2 > M(f2): 
           return class1
       else: return class2
+
 
 
 \end{verbatim}
@@ -1359,6 +1363,8 @@ training examples was available for all quadrants.  \label{code:insep}}
           return class2
 
 
+
+
 \end{verbatim}
 \end{minipage}
 \caption{An example of separable data. On the red line the sum of features is equal to the
@@ -1375,51 +1381,70 @@ Baseline performance is evaluated by randomly assigning classes, whereas the Cei
 illustrates the contribution of quantization error, inherent in classification of
 non-discrete scores.
 
-The mean squared error in the inseparable case is significantly larger: in fact, its
-confidence interval overlaps with the one of the error in random classification (the
-Baseline error). Similarly, the standard deviation of the error is similar in width to the
-Baseline. This is due to the fact that the classifier is making mistakes as frequently. In
-contrast, the separable data case shows a convincing improvement in classification error.
-However, the classifier is still not perfect. This might be a result of insufficient
-or unbalanced training data. In this particular case and in general, adding more training
-data improves the error up to a point when overfitting occurs. Nonetheless, it is rarely
-possible to gather a subset of training data that will have enough points very near to the class
-boundary to allow for perfect classification. Therefore, the result is consistent with the
-proposed hypothesis.
 \begin{figure}[h!]
   \begin{subfigure}[b]{0.49\textwidth}
     \centering
  \includegraphics[width=\linewidth]{figs/insep.png}
- \caption{The mean error is near random
- classification and with wide spread. \label{insep}}
+ \caption{The mean error is near the baseline performance
+ with similarly wide spread. \label{insep}}
 \end{subfigure}
 \begin{subfigure}[b]{0.49\textwidth}
   \centering
   \includegraphics[width=\linewidth]{figs/sep.png}
   \caption{The mean error is distinctly
-  better than random and approaches the goal performance. \label{sep}}
+  better than the baseline and approaches the goal performance. \label{sep}}
 \end{subfigure}
 \end{figure}
 
-\paragraph{SVM with linear kernel performs well for linear heuristics, but becomes
+The mean squared error in the inseparable case is significantly larger: in fact, its
+confidence interval overlaps with the one of the error in random classification (the
+Baseline error). Similarly, the standard deviation of the error is similar in width to the
+Baseline. This is due to the fact that the classifier is making mistakes as frequently. In
+contrast, the separable data case shows a convincing improvement in classification error,
+however, the classifier is still not perfect. This might be a result of insufficient
+or unbalanced training data. In this particular case and in general, adding more training
+data improves the error up to a point when overfitting occurs. Nonetheless, it is rarely
+possible to gather a subset of training data that will have enough points very near to the class
+boundary to allow for perfect classification. Therefore, the result is consistent with the
+proposed hypothesis.
+\subsubsection*{Hypothesis: SVM with linear kernel performs well for linear heuristics, but becomes
 unusable for non-linear ones.}
 
-Number of features -- 2, Heuristic -- sum function for linear.
 
-Ceiling = MSE minimizing hyperplane fitting. linalg
+For comparison, SVM with a linear kernel is tested for linearly separable and
+non-separable data. In this particular experiment the number of features used is fixed at
+2 and the heuristics used are shown in the table \ref{linkern} below. 
 
-Error parameter is 0 or more in other cases.
+\begin{table}[h!]
+	\centering
+	\begin{tabular}[h!]{l|c}
+		\hline
+		Name & Function \\ \hline
+		Linear & \(x+y\)\\ \hline
+		Quadratic & \(x^2+y\)\\ \hline
+		Cubic & \(x^3+y\)\\ \hline
+		Exponential & \(exp(x)+y\)\\ \hline
+	\end{tabular}
+	\caption{Heuristic functions used to evaluate the performance of linear kernel.
+		\label{linkern}}
+\end{table}
 
-Clearly degrading
+The SVM with Linear Kernel is run with each of the heuristics shown above. The error
+parameter is tuned as described in Section \ref{sec:tuning}. The error that produces
+the best result is used in each case, for example, the error is zero in the
+case of a linear heuristic. The baseline performance is a hyperplane fitted through the
+mean score. The ceiling performance is computed a least squares solution: 
 
 \begin{figure}[h!]
 \centering
   \includegraphics[width=\linewidth]{figs/lin_degrad.png}
-  \caption{}
-  \label{lin_degrad}
+  \caption{SVM with a linear kernel is evaluated against four different heuristics (x
+  axis). Note than the MSE is in log scale. The error in the linear case is negligibly
+  small, but is similar to the baseline case for all other heuristics. \label{lin_degrad}}
 \end{figure}
 
-
+Figure \ref{linear_degrad} shows a failure of the linear kernel to fit non-linear data.
+The ceiling error grows WHY? 
 \subsection{Bayes: Effects of Quantization}
 \paragraph{Hypothesis: Bayes classifies better when fewer classes are present.}
 It is intuitive that at a large number of classes, the more classes we introduce, the more precise the classifier has to be to perform
