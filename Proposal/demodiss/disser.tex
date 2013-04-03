@@ -1433,7 +1433,10 @@ The SVM with Linear Kernel is run with each of the heuristics shown above. The e
 parameter is tuned as described in Section \ref{sec:tuning}. The error that produces
 the best result is used in each case, for example, the error is zero in the
 case of a linear heuristic. The baseline performance is a hyperplane fitted through the
-mean score. The ceiling performance is computed a least squares solution: 
+mean score. The ceiling performance is computed as a least squares solution of an equation
+which has the form of the particular heuristic used. \textit{Numpy} provides a
+\textit{lstsq} function which finds the coefficients of a particular heuristic such that
+the squared error is minimimal.
 
 \begin{figure}[h!]
 \centering
@@ -1444,40 +1447,64 @@ mean score. The ceiling performance is computed a least squares solution:
 \end{figure}
 
 Figure \ref{linear_degrad} shows a failure of the linear kernel to fit non-linear data.
-The ceiling error grows WHY? 
+The ceiling error due to numerical error in computation: this explains why the ceiling
+error in the exponential case is the largest of all. 
+
+Clearly, as in the Bayes case, the degradation is rapid. In the cubic and exponential
+cases the SVM seems to perform worse than the baseline, which can be explained by
+overfitting.
 \subsection{Bayes: Effects of Quantization}
 \subsubsection{Hypothesis: Bayes classifies better when fewer classes are present.}
-It is intuitive that at a large number of classes, the more classes we introduce, the more precise the classifier has to be to perform
-equally well. However, taking into account the quantization error, we might expect
-non-linear behaviour: performance will improve due to the quantization error decreasing
-faster than precision up to a certain point. This experiment aims to determine the number
-of classes minimizes the overall error of the classifier.
+It is intuitive that at a large number of classes, the more classes we introduce, the more
+precise the classifier has to be to perform equally well. However, taking into account the
+quantization error, non-linear behaviour might be expected: performance will improve due to
+the quantization error decreasing faster than precision up to a certain point. This
+experiment aims to determine the number of classes that minimizes the overall error of the
+classifier. In some sense, quantization is akin to a hyperparameter: the results are
+specific to the heuristic and the data used.
+
+In this experiment, a linear heuristic is used with two features as before. The number of
+classes is varied starting with two classes. Classes are added until the maximum possible
+number is reached -- the number of distinct scores. 
 
 \begin{figure}[h!]
   \includegraphics[width=\linewidth]{figs/quants.png}
   \caption{Error response to varying number of classes.\label{quants}}
 \end{figure}
+Figure \ref{quants} shows a result inconsistent with the proposed hypothesis: the error is
+diminishing as rapidly as the quantization error (ceiling). It is visible from figure
+\ref{separable} that the data remains separable (as expected) independently of the number
+of classes. Clearly, Bayes is very effective at classification with the given heuristic.
+It is worth noting, that the actual performance is still worse than the ceiling and does
+not converge to zero as opposed to quantization error. It is possible that Bayes
+consistently misclassified a few particular examples, which lead to a gap in the plot.
 
+ 
 \begin{figure}[h!]
 \centering
 \begin{subfigure}[b]{.49\textwidth}
   \centering
   \includegraphics[width=1.1\linewidth]{figs/two.png}
-  \caption{TWO}
+  \caption{Two classes}
   \label{def}
 \end{subfigure}
 %
 \begin{subfigure}[b]{.49\textwidth}
   \centering
   \includegraphics[width=1.1\linewidth]{figs/seven.png}
-  \caption{seven}
+  \caption{Seven classes}
   \label{html}
 \end{subfigure}
+\caption{Classification with different number of classes. The data is consistently
+	separable.\label{separable}}
 \end{figure}
+
+The example chosen does not verify the hypothesis and proves the intuition wrong: the
+Bayes erformance depends solely on whether the data is separable or not.
 
 \subsection{Curse of Dimensionality}
 \subsubsection*{Hypothesis: Bayes performance degrades rapidly as the number of features grows.}
-So far we have considered two dimensional cases where only two features were used for
+So far I have explored two dimensional cases where only two features were used for
 convenience of visualization. Dimensionality curse is one of the well-known issues with
 classification: when new features are added, the size of the training set has to grow
 exponentially to cover all the new dimensions. Naive Bayes, however, lessens this problem
@@ -1493,36 +1520,48 @@ many classes are used, however, it is important that the number of classes used 
 significantly better result than the baseline, to make sure a random guess could not
 produce a good result.
 
-The result for a few linearly separable functions is computed and the average errors are
-plotted in figure \ref{feats}. The actual classification diverges from the ceiling when
-the number of features is about 6. The rapid growth of the random classification curve is
-explained by the curse of dimensionality: degrees of freedom grow exponentially. The
-exponential growth is plotted in black for comparison: initially the baseline growth is
-near exponential, but less steep subsequently. \todo{why might that be?}
-
-The ceiling and the actual curves are growing almost monotonously, as is expected. The
-flat regions at 5-6 and 7-8 are explained by the data specifics: the particular features added at
-those point appeared insignificant in the scores as they occurred infrequently and had
-small values.
-
 \begin{figure}[h!]
   \centering
   \includegraphics[width=\linewidth]{figs/feats.png}
   \caption{Error response with varying number of features.\label{feats}}
 \end{figure}
 
+The result for a few linearly separable functions is computed and the average errors are
+plotted in figure \ref{feats}. The actual classification diverges from the ceiling when
+the number of features is about 6. The rapid growth of the random classification curve is
+explained by the curse of dimensionality: degrees of freedom grow exponentially. The
+exponential growth is plotted in black for comparison: initially the baseline growth is
+near exponential, but less steep subsequently. This is due to the quality of training and
+test data: as the number of features grows, the number of training examples for each class
+is reduced, influencing the overall performance.
+
+The ceiling and the actual curves are growing almost monotonously, as is expected. The
+flat regions at 5-6 and 7-8 are explained by the data specifics: the particular features added at
+those point appeared insignificant in the scores as they occurred infrequently and had
+small values.
+
+
 It has proven hard to pick many conditionally independent features. Among the ones used
 were pagerank, image count, word count, frequency of search term occurrence, quality of
 html, price information availability and alike.
 
+The hypothesis is verified: the error grows as the number of features is increased. The
+growth, however, depends also on the quality of features -- how much the addition of a new
+feature alters the classification, as well as on the training set -- how many training
+examples are supplied.
 \subsubsection*{Hypothesis: SVM performance does not degrade as the number of features grows.}
 
+As before, linear kernel is used in combination with a linear heuristic. Figure
+\ref{svm_feats} supports the hypothesis: the error looks almost constant even in
+logarithmic scale. Hyperplane fitting is more resilient to more dimensions in the presence
+of linear heuristics.
 
 \begin{figure}[h!]
 \centering
   \includegraphics[width=\linewidth]{figs/svm_feats.png}
-  \caption{}
-  \label{def}
+  \caption{Both normal (upper figure) and logarithmic (lower figure)  scales are shown.
+  The error grows too slow for the growth to be noticeable without the logarithmic scale.
+  \label{svm_feats}}
 \end{figure}
 
 
