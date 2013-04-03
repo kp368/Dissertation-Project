@@ -1296,8 +1296,12 @@ quantization error. The mean error of the ceiling and its spread is a good indic
 the mean and variance introduced by quantization.
 
 To compute confidence intervals one could repeat the measurement on different data
-subsets. The number of subsets would have to exceed 16 for the Central Limit Theorem to
-apply. In practice, the data is scarce and so
+subsets. The number of subsets would have to be around 20 or more for the Central Limit Theorem to
+apply. In practice, the data is scarce and recomputing the errors is time consuming, so a
+way to compute the intervals with just one error measurement is desirable. Bootstrapping
+achieves exactly that by sampling randomly from the array of squared errors to recompute a
+new mean error.  Even though bootstrapping might be less reliable, it provides a simple
+way to check the stability of the results.
 \subsubsection*{Classification and Quantization Error}
 To compare classification and regression effectively, the error incurred in quantizing
 scores is tracked. In a two-class scenario there is one threshold score value that
