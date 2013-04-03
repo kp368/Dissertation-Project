@@ -1446,7 +1446,7 @@ mean score. The ceiling performance is computed a least squares solution:
 Figure \ref{linear_degrad} shows a failure of the linear kernel to fit non-linear data.
 The ceiling error grows WHY? 
 \subsection{Bayes: Effects of Quantization}
-\paragraph{Hypothesis: Bayes classifies better when fewer classes are present.}
+\subsubsection{Hypothesis: Bayes classifies better when fewer classes are present.}
 It is intuitive that at a large number of classes, the more classes we introduce, the more precise the classifier has to be to perform
 equally well. However, taking into account the quantization error, we might expect
 non-linear behaviour: performance will improve due to the quantization error decreasing
@@ -1476,7 +1476,7 @@ of classes minimizes the overall error of the classifier.
 \end{figure}
 
 \subsection{Curse of Dimensionality}
-\paragraph{Bayes performance degrades rapidly as the number of features grows.}
+\subsubsection*{Hypothesis: Bayes performance degrades rapidly as the number of features grows.}
 So far we have considered two dimensional cases where only two features were used for
 convenience of visualization. Dimensionality curse is one of the well-known issues with
 classification: when new features are added, the size of the training set has to grow
@@ -1515,7 +1515,7 @@ It has proven hard to pick many conditionally independent features. Among the on
 were pagerank, image count, word count, frequency of search term occurrence, quality of
 html, price information availability and alike.
 
-\paragraph{SVM performance does not degrade as the number of features grows.}
+\subsubsection*{Hypothesis: SVM performance does not degrade as the number of features grows.}
 
 
 \begin{figure}[h!]
