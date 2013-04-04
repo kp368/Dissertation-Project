@@ -1567,26 +1567,86 @@ of linear heuristics.
 
 
 \section{Performance Evaluation}
+As stated in the Preparation, the project does not have any hard timing requirements.
+PageRank computation, indexing and learning were envisaged as most time consuming. In the
+end, the time taken in learning and classifying was negligible and same can be said about
+parsing.
+Throughout the implementation, it has become obvious that the most time was spent in
+indexing and PageRank computation. Therefore, in this section, I am looking in more detail
+in the timings and scalability of the two modules.
 \begin{figure}[h!]
   \centering
     \includegraphics[width=\linewidth]{figs/pr.png}
-    \caption{}
-    \label{pr}
+    \caption{Time taken in computing PageRank for a growing set of pages. For convenience
+	    of comparison, a cubic and a quadratic curves are fitted.\label{pr}}
 \end{figure}
 
+The plots were generated using a benchmark suite, which makes repeated measurements and
+calculates means and confidence intervals. I have configured the suite to take a hundred
+repeat measurements for a range of page numbers. The 95\% confidence intervals are represented by
+the error bars on the plots.
+
+The benchmarks were performed on my personal computer with the following specifications:
+
+\begin{tabular}[h!]{l l}
+Memory & 1.7 GB \\
+Cache Size & 3072 KB \\
+CPU & Intel(R) Core(TM)2 Duo CPU \\
+CPU Clock Frequency & 2.26 GHz \\
+\end{tabular}
+Both plots also display fitted cubic and quadratic curves. The curves are fitted using the
+\textit{Scipy} library curve fitting function, which uses Levenburg-Marquardt
+algorithm\footnote{Also known as Damped Least Squares method, the Levenburg-Marquardt
+algorithm works by minimizing a function over the space of its parameters.}. 
 \begin{figure}[h!]
   \centering
     \includegraphics[width=\linewidth]{figs/ind.png}
-    \caption{}
-    \label{pr}
+    \caption{Time taken in indexing for a growing set of pages. For convenience
+	    of comparison, a cubic and a quadratic curves are fitted.\label{ind}}
 \end{figure}
+Figure \ref{pr} shows how the performance of the PageRank computation degrades with the
+number of pages. Although neither cubic nor quadratic curve fits well, it can be said that
+up to around 5000 pages the growth is bound by \(O(n^2)\). The average number of pages
+used in the project was around 3000 for each directory, which means it took around seven
+minutes to crawl and generate the PageRank vector.  However, it is expected that the
+growth is more rapid beyond the limit of 5000 pages. If dealing with more pages was within
+the scope of the project, the PageRank computation would have to be optimized further, as
+matrix inversion does not scale for a problem bigger than a few thousand pages.
 
+Indexing shows similar behaviour, although it seems a lot smoother and unambiguously exhibits cubic
+behaviour. Indexing 300 pages takes around two minutes, which is satisfactory considering
+that speed was not the primary objective of the project.
 
+Altogether, both modules could potentially become a bottleneck. However, as development
+was carried out on a comparatively small development corpus (only around 500 pages), and
+the verified program was then run on the actual data only once, which means the time loss
+was infrequent. Both the index and the PageRank vector were stored and reused to avoid
+expensive recomputation. All things considered, it was not worth further optimizing the
+modules in question, as speed of implementation was prioritized over the speed of
+computation due to its apparent infrequency. 
 
-\cleardoublepage
 \section{Testing}
 
+\subsection{High Level Test Plan}
+Acceptable performance
+Indexer relies on library, 
+\begin{table}[h!]
+	\begin{tabular}[h!]{l p{12cm}}
+	\textbf{Module} & \textbf{Test Objectives}\\ \hline
+Crawler & The output matrix accurately reflects the link structure of the pages \\
+PageRank & The PageRank vector accurately reflects the hierarchy of the web pages \\
+Indexer & Clean indexing overwrites existent index \\
+Indexer & Incremental indexing adds/removes relevant index changes to reflect the changed
+web pages \\
+Parser & Parser is robust in the face of bad formatting and encodings \\
+Naive Bayes & Classification is better than random for separable data \\
+SVM & The hyperplanes fit the data and change with the data to provide better fitting 
+\end{tabular}
+\caption{Summary of Test Objectives}
+\end{table}
+\subsection{Example Test Cases}
 \section{Summary}
+\cleardoublepage
 \chapter{Conclusions}
 \section{Lessons Learnt}
 \section{Future Work}
