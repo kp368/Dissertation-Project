@@ -289,13 +289,13 @@ is the corresponding ranking of each page.
 \begin{figure}[h!]
   \centering 
   \begin{subfigure}[b]{0.49\textwidth}
-  \includegraphics[width=\linewidth]{figs/loss.png}
+  \includegraphics[width=\linewidth]{figs/loss.pdf}
   \caption{\(\epsilon\)-insensitive loss function}
   \label{eps} 
 \end{subfigure}
   \begin{subfigure}[b]{0.49\textwidth}
   \centering 
-  \includegraphics[width=\linewidth]{figs/loss2.png}
+  \includegraphics[width=\linewidth]{figs/loss2.pdf}
   \caption{Predictions with \(\epsilon\)-SVR}
   \label{eps2} 
 \end{subfigure}
@@ -383,8 +383,13 @@ are distributed according the knowledge of the surfer's previous activity. In
 this project we are only concerned with nonpersonalized ranking, which
 simplifies things a little.
 
-\section{Requirements Analysis}
-\begin{table}
+\section{Requirements Analysis} 
+\label{req_anal}
+The original aims of the project were very high level, so explicitly defining the goals in
+the early stages, was central to the success of the project. The main project goals are
+summarized in Table \ref{req}. 
+
+\begin{table}[h!]
   \begin{tabular}{p{9.5cm} c c c}
     \hline
     \bf Requirement description & \bf Priority & \bf Difficulty & \bf Risk  \\ \hline\hline
@@ -395,7 +400,9 @@ simplifies things a little.
     Classifiers must achieve better than random results & High & Medium & High \\ \hline
     Implement PageRank & Medium & Medium & Low \\ \hline
     \multicolumn{4}{ c }{\bf Non-Functional Requirements}\\\hline
-    The search engine must be able to index a few \\ thousand pages in reasonable time\footnote{`Feasible' time explain}
+    The search engine must be able to index a few \\ thousand pages in
+    reasonable\footnote{The project imposes no rigid speed requirements, however, it is
+    highly desirable that the computing time does not slow down the project.} time
     & Medium & High & Medium \\ \hline
     PageRank computation on a few thousand pages \\ must complete in reasonable time & Medium & High & Medium \\ \hline
     Machine learning modules must learn and classify \\ within reasonable time & High & High & High \\ \hline
@@ -403,7 +410,26 @@ simplifies things a little.
   \caption{Project objecives\label{req}}
 \end{table}
 
-Non Requirement -- usability
+Along with the stated requirements, it is important to note that in this project I
+regarded usability as a non-requirement. This decision was motivated by the fact that the
+project is result-oriented, therefore, quick implementation was prioritized over ease of
+use. The system is only meant to be used by me, hence there was no need for documentation
+and user interface.
+
+To effectively plan the development, I also evaluated the dependencies of the core modules
+of the project. Figure \ref{dep} shows the major dependencies present in the project. It
+can be seen that there was a lot of freedom as to the order of implementation. Another
+observation that was revealed during the dependencies evaluation relates the integration.
+All the parts of the project come together in the evaluation, and so it was important to
+make sure the input formats of machine learners match with the output of the parser and so
+on. It also became obvious that due to the apparent convergence of the modules integration
+would be a complex exercise. Therefore, a prototype had to be implemented very early on to
+see the design at work and to avoid surprises at the end.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.7\textwidth]{figs/dep.pdf}
+	\caption{Summary of Main Dependencies\label{dep}}
+\end{figure}
 
 \section{Evaluation Approach}
 Measuring performance of machine learners accurately is a major challenge
@@ -455,86 +481,127 @@ where \(Actual\) is an array of true values of size \(|Actual|\) and
 \section{Choice of Tools}
 
 \subsection{Data Gathering}
-Web pages used as Training and Test data are not required to have any special
-properties, but diversity and typicality are seen as advantageous. As for the
-size of the training data, Domingos \cite{domingos} suggests that a primitive
-learner given more data performs better than a more complex one with less data.
-This, of course, is under certain assumptions of data quality, namely the
-assumption that the training data is a representative subset of all the
-possible data. Intuitively, provided there is no bias in data gathering, more
-data implies better generality. I have started with a training set spanning an
-order of a few thousands of pages, however, in practice, I found that there is
-no particular improvement beyond a thousand pages. \todo{Link to relevant part
-or example data here?}
+Data gathering is of major importance, as data decisions have tremendous impact on the
+rest of the implementation and the success of the project. The rest of the system assumes
+the existence of a pool of web pages available offline for fast indexing and parsing.
+Ideally the corpus of web pages would be `representative' of the whole web, to make
+generalisations more accurate.  Originally, I was hoping to get such collection from a
+resource, namely, the web corpus of the \textit{Text Retrieval Conference} (TREC).
+However, such data is not easily available, so I had to retrieve pages using
+\textit{Wget}. To approach the similarity to the web, I restricted the corpus to one
+semantic area by only downloading websites related to construction
+materials\footnote{There is no particular reason to choose this topic, except that it had
+been used by the external project originator in his experiment trying to infer Google's
+ranking factors. This is described in the Proposal in more detail.}. This limitation of
+topic has certain advantages: relatively few pages need to be  downloaded before the pages
+appear sufficiently interlinked, so the corpus has a distinct structure (as web pages
+similar in the field link to each other). All the links were converted, so that the link
+structure was preserved offline.
+
+As for the size of the training data, Domingos \cite{domingos} suggests that a primitive
+learner given more data performs better than a more complex one with less data.  This, of
+course, is under certain assumptions of data quality, namely the assumption that the
+training data is a representative subset of all the possible data. Intuitively, provided
+there is no bias in data gathering, more data implies better generality. I have started
+with a training set spanning an order of a few thousands of pages, however, in practice, I
+found that there is no particular improvement beyond a thousand pages.
+
+To conform with machine learning guidelines I separated data for Test and Training at the
+very beginning. Different seed pages were used and the web pages were downloaded into
+different directories.  Each directory was estimated at around 3000 pages. In addition to
+this, I have taken the further precaution of setting aside small Development and
+Verification corpora to be used only while development to ensure no bias towards training
+data at the implementation stage. Also, its comparatively small size meant faster
+development.
 
 \subsection{Search Engine}
 
 Next important decision regarded the search engine.  Originally, I considered
-using open source existing engines, in particular, Lucene. Even though I could
+using open source existing engines, in particular, \textit{Lucene}. Even though I could
 freely modify it for the purposes of the project, the complexity of it was
 superfluous. I saw writing a simple search engine as a more beneficial
 exercise, as developing it in the first place potentially gives an insight into
 the problem.
 
-Functionally our search engine is a black box that takes a set of webpages and
-a set of queries and outputs an order. The order is determined by the features
-of the page, which together make up a score. The score is the
-function we want to infer using the ranking assigned by the search engine,
-however, we are only given the order as evidence. Machine learning paragraph
-below will address this issue in more details.
+Functionally, the search engine is a black box that takes a set of web pages and a set of
+queries and outputs an order. The order is determined by the features of the page, which
+together make up a score. The score is the function that needs to be inferred using the
+ranking assigned by the search engine, however, we are only given the order as evidence.
+For most of this project I have assumed an existence of conversion between rank and score,
+and so the machine learners interact directly with scores. I have looked in more detail at
+the issue of score and rank, however, I decided that implementation would be beyond the
+scope of the project due to time limitations.
 
-In general there are two aspects of information retrieval that have to be
-accounted for: precision and recall. Precision is the fraction of retrieved pages that
-are relevant to the query, whereas recall is the fraction of relevant
-documents that are retrieved. Even though both are important for a good search
-engine, but in practice, the web is very large, and so precision, or even
-\textit{precision at n}\footnote{`Precision at n' only evaluates precision with respect to
-n topmost returned pages.}) has become
-more prominent in defining a good search engine: very rarely the user actually
-browses returns that are not in the top few tens of returned pages. Therefore, 
-modern search engines tend to focus on high precision at the expense of recall
-\cite{GOOGLE}. Therefore, we will concentrate primarily on precision, when
-designing a search engine.
+In general, there are two aspects of information retrieval that have to be accounted for:
+precision and recall.  
+
+\begin{tabular}{l l}
+	\textbf{Precision} & -- \textit{the fraction of retrieved pages that are
+relevant to the query.}  \\
+\textbf{Recall} & -- \textit{the fraction of relevant documents that are
+retrieved.} \\ 
+\end{tabular}
+
+Even though both are important to make a good search engine, in practice, the
+web is very large, and so precision, or even \textit{precision at n}\footnote{`Precision
+at n' only evaluates precision with respect to n topmost returned pages.}) has become more
+prominent in defining a good search engine: very rarely the user actually browses returns
+that are not in the top few tens of returned pages. As a result, modern search engines tend
+to focus on high precision at the expense of recall \cite{GOOGLE}. Therefore, I will
+concentrate primarily on precision when designing a search engine.
 
 
 \subsection{Programming Language}
 
-When choosing a programming language, main considerations reduced to library
-availability and simplicity. The project imposes no special  requirements on the
-language, apart from, perhaps, library infrastructure for parsing web pages.
-Python is simple language with extensive library support. As
-for efficiency, all the mathematical operations in this project rely on python
-math libraries, which are implemented in C. I have not programmed in Python
-before the project, so a slight overhead was caused by having to learn a new
+When choosing a programming language, main considerations reduced to library availability
+and simplicity. The project imposes no special  requirements on the language, apart from,
+perhaps, library infrastructure for parsing web pages.  Python is simple language with
+extensive library support. As for efficiency, all the mathematical operations in this
+project rely on python math libraries, which are implemented in C. I have not programmed
+in Python before the project, so a slight overhead was caused by having to learn a new
 language.
 
 \subsection{Libraries}
+
 \subsection{Development Environment}
+All of the development was carried out on my personal machine running Ubuntu Linux 12.04.
+Code was written primarily in the \textit{Vim} editor. This is a powerful editor with
+extensive plugin availability. 
 
-\section{Software Engineering Techniques}
-While the set up of Part II projects encourages waterfall-like development
-model, this project takes an iterative approach. The first iteration renders a
-prototype: a primitive search engine with a Naive Bayesian baseline classifier.
-The next iteration modifies each part of the system towards a more complex
-solution. Evaluation is performed at each iteration. Within each  iteration the
-development follows the evolved waterfall model -- the incremental build model.
-Each increment represents a functionally separate unit of the system: a search
-engine, a learner, a parser and an assessment module. Increments are developed
-sequentially and regression testing is performed separately before
-integration.
-
+\subsection{Version Control}
+I chose to use the Mercurial source control management tool due to its simplicity and my
+familiarity with it. Remote Version control Repository BitBucket.
+\subsection{Backup}
 The backup of the code is twofold: every time a substantial change is made a remote
 version control repository is updated to hold the newest version. Regularly both the code and
 the data used and obtained during evaluation are also backed up onto an
 external hard drive.
 
-During the development of the learners a development pool of pages will
-be used, which must be disjoint with the Training or Test data. This ensures
-that no optimization is tailored to the data used for evaluation. 
-
-\cleardoublepage
+\section{Software Engineering Techniques}
+\subsection{Iterative Development}
+While the set up of Part II projects encourages waterfall-like development model, the
+nature of this project motivated an iterative approach. The first iteration rendered a
+prototype: a primitive search engine with a Naive Bayesian baseline classifier.  The next
+iteration modified each part of the system towards a more complex solution. Testing and
+debugging was performed at each iteration to ensure the system was improved. Main
+advantage of iterative development to this project was the ability to verify validity of
+the proposed design early on by means of the first working prototype.
+\subsection{Incremental Build Model}
+Within each  iteration the development followed the evolved waterfall model -- the
+incremental build model. The system was split into components (`builds'), such that each
+represents a functionally separate unit of the system: a search engine, a learner, a
+parser and an assessment module. Increments were developed sequentially and were tested
+separately before integration at the end of the iteration. This approach allowed to
+decompose a complex system into manageable chunks, which eased the development.
 
 \section{Summary}
+In this chapter I have outlined the research and planning completed prior to the
+implementation stage. In particular, the chapter provided brief introductions to the machine
+learning techniques and the PageRank algorithm as well as shaping more detailed aims of
+the project. I also touched upon the development strategy followed during the project as
+well as the libraries used.
+\cleardoublepage
+
 \chapter{Implementation}
 This section describes parts of the system that I have implemented.
 \todo{overview}
@@ -566,34 +633,6 @@ parser and machine learner.}
 zo\label{overview}
 
 \end{figure}
-
-\section{Data}
-Data gathering is of major importance, as data decisions have tremendous impact
-on the rest of the implementation and the success of the project. The rest of
-the system assumes the existence of a pool of web pages available offline for
-fast indexing and parsing. Ideally the corpus of web pages would be
-`representative' of the whole web, to make generalisations more accurate.
-Originally I was hoping to get such collection from a resource, like, for
-example the web corpus of the \textit{Text Retrieval Conference} (TREC). However,
-such data is not easily available, so I had to retrieve pages using
-\textit{Wget}. To approach the similarity to the web, I restricted the corpus
-to one semantic area by only downloading websites related to construction
-materials\footnote{There is no particular reason to have chosen this particular
-topic, except it has been used by the external project originator in his
-experiment trying to infer Google's ranking factors. This is described in the
-Proposal in more detail.}. This limitation of topic has certain advantages:
-relatively few pages need to be  downloaded before the pages appear
-sufficiently interlinked, so the corpus has a distinct structure (as web pages
-similar in the field link to each other).
-
-To conform with machine learning guidelines I have originally separated data
-for Test and Training. Different seed pages were used, as well as each resides
-in their own directory. Each directory is estimated at around 3000 pages. In
-addition to this, I have taken the further precaution of setting aside a small
-Development corpus to be used only while development to ensure no bias towards
-training data at the implementation stage. Also, its comparatively small size
-meant faster testing. All the links are converted, so that the link structure
-is preserved.
 
 \section{Search Engine}
 
@@ -1256,6 +1295,11 @@ loads the vectors lazily.
 \cleardoublepage
 
 \chapter{Evaluation}
+This chapter presents an overview of the results of the work undertaken for the project
+and a comparison of these results to the initial goals.  The results include both the
+evaluation of methods implemented as well as qualitative and quantitative assessment of
+the implementation itself. Furthermore, the chapter describes the measures undertaken to
+ensure a correct implementation.
 
 \section{Overall Results}
 The original success criteria for the project stated in the Proposal (see Appendix
@@ -1295,12 +1339,23 @@ results that can be compared despite the differences in implementation. To satis
 comparability requirement, both SVM and Naive Bayes are run in the score mode: heuristic
 functions are used to output the score and the classifiers must predict the score. The
 regression case is straightforward, however, there are obvious difficulties in the case of
-the classifier. Classes can be used to approximate the score in the following way: 
+the classifier. 
+
+Classes can be used to approximate the score as shown in Figure
+\ref{diag:quant}. Suppose there are two classes separated by a threshold value T. Then for
+training all the scores are trivially mapped to the right class depending whether they are
+greater or smaller than the threshold T. During evaluation the conversion has to be from
+the class to the score. Because information is lost during the quantization stage, the
+every example classified into Class 1 is mapped to the median value of the scores -- M1
+in the hope to minimize the error due to quantization.
 \begin{figure}[h!]
 	\centering
-  \includegraphics[width=\linewidth]{figs/quantization.png}
-  \caption{\label{diag:quant}
-  \end{figure}
+  \includegraphics[width=0.6\linewidth]{figs/quantiz.pdf}
+  \caption{Quantization into two classes\label{diag:quant}}
+\end{figure}
+
+The section starts by describing general methodology used throughout the evaluation. The
+rest is structured in the form of hypotheses and evaluation. 
 \subsection{Methodology}
 Evaluation and comparison of classifiers is largely unprescribed: there is no method
 that applies well to every case. A lot of ambiguity is due to the fact that results obtained are
@@ -1635,9 +1690,10 @@ The benchmarks were performed on my personal computer with the following specifi
 \begin{tabular}[h!]{l l}
 Memory & 1.7 GB \\
 Cache Size & 3072 KB \\
-CPU & Intel(R) Core(TM)2 Duo CPU \\
+CPU & IntelCore2 Duo CPU \\
 CPU Clock Frequency & 2.26 GHz \\
 \end{tabular}
+
 Both plots also display fitted cubic and quadratic curves. The curves are fitted using the
 \textit{Scipy} library curve fitting function, which uses Levenburg-Marquardt
 algorithm\footnote{Also known as Damped Least Squares method, the Levenburg-Marquardt
@@ -1713,6 +1769,8 @@ the two- and three-dimensional cases. The data was plotted alongside the hyperpl
 or the separating line (Naive Bayes). The data was altered to provoke change in the
 hyperplane/separator and the subsequent change was verified.
 \section{Summary}
+In this chapter I first the techniques implemented in the
+
 \cleardoublepage
 \chapter{Conclusions}
 \section{Lessons Learnt}
