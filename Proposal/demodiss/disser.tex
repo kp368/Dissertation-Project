@@ -637,6 +637,7 @@ decoupled from retrieval and incorporated into the Parser module, which is
 described later in detail.
 
 \section{PageRank} 
+\label{impl:pr}
 The PageRank vector is computed using matrix inversion. All matrix operations
 were performed with the help of the python numerical library `numpy'.  Take t
 to be the teleportation probability, s=1-t is the probability of following a
@@ -954,6 +955,7 @@ Matrices in Matlab are a lot more straightforward to manipulate, which was also
 a good reason to first check the correctness of my matrices in Matlab.
 
 \subsection{SVM Kernel Functions}
+\label{sec:kernels}
 The kernel functions offer SVMs great flexibility, however, it can be difficult to pick an
 appropriate one. If the expected pattern is well-defined, kernel selection might be
 intuitive. For example, a linear kernel is perfect for linear heuristics and the problem
@@ -1090,7 +1092,7 @@ Varying gamma determines how far from linear the fit as well as overfitting.
 \end{subfigure}
 \end{figure}
 \section{Parser}
-
+\label{sec:parser}
 \begin{figure}[h!]
 \centering
 \begin{subfigure}[b]{.49\textwidth}
@@ -1256,8 +1258,44 @@ loads the vectors lazily.
 \chapter{Evaluation}
 
 \section{Overall Results}
-\section{Classifier Evaluation}
+The original success criteria for the project stated in the Proposal (see Appendix
+\ref{prop}) are summarized below:
 
+\paragraph{Criterion 1:}\textit{Implemented classifier can identify the importance of
+PageRank factor in the heuristic.}
+
+The goal has been achieved as described in Section \ref{sec:eval_class}. Both classifiers were
+evaluated with PageRank being one of the features. Although PageRank is indistinguishable
+from any other feature as far as machine learning is concerned, it has been implemented as
+described in Section \ref{impl:pr}.
+
+\paragraph{Criterion 2:}\textit{Various heuristics have been tried with different machine
+learners.}
+
+This criterion constitutes the core part of the project and the evidence for it can be
+found in Sections \ref{sec:kernels}, \ref{sec:parser} and \ref{sec:eval_class}.
+
+To achieve the original criteria the following modules have been implemented:
+\begin{enumerate}
+	\item Search Engine
+	\item PageRank vector computation
+	\item Support Vector Regression and various kernels 
+	\item Naive Bayes Classifier
+	\item Parser with a data structure supporting various heuristics
+\end{enumerate}
+
+The project has been successful in achieving the goals stated in the original proposal.
+The result of the development is an extensible framework for classifier evaluation that
+can be used for further evaluation and analysis of machine learning techniques in general.
+\section{Classifier Evaluation}
+\label{sec:eval_class}
+Two machine learning techniques explored in this project -- regression and classification
+-- are different in principle. The challenge in the evaluation is, therefore, to obtain
+results that can be compared despite the differences in implementation. To satisfy the
+comparability requirement, both SVM and Naive Bayes are run in the score mode: heuristic
+functions are used to output the score and the classifiers must predict the score. The
+regression case is straightforward, however, there are obvious difficulties in the case of
+the classifier. Classes can be used to approximate the score in the following way: 
 \subsection{Methodology}
 Evaluation and comparison of classifiers is largely unprescribed: there is no method
 that applies well to every case. A lot of ambiguity is due to the fact that results obtained are
@@ -1309,7 +1347,8 @@ apply. In practice, the data is scarce and recomputing the errors is time consum
 way to compute the intervals with just one error measurement is desirable. Bootstrapping
 achieves exactly that by sampling randomly from the array of squared errors to recompute a
 new mean error.  Even though bootstrapping might be less reliable, it provides a simple
-way to check the stability of the results.
+way to check the stability of the results. 95\% confidence intervals are used throughout this
+chapter to compute error bars.
 \subsection{Linear and non-linear classification}
 \subsubsection*{Hypothesis: Naive Bayes performs better with linearly separable data.}
 
@@ -1626,11 +1665,18 @@ modules in question, as speed of implementation was prioritized over the speed o
 computation due to its apparent infrequency. 
 
 \section{Testing}
-
-Manual testing
+Formal correctness proofs are neither within the aims of the project, nor would they be
+feasible in the time given. Therefore, the main purpose of the testing is to gain a degree
+of certainty in the correctness of the program. The system developed is in a sense a
+prototype: it only gets used one time in order to obtain certain results. Therefore, tests
+do not need to be run as often as for a system that would be used in production. In
+addition, human analysis was often required to assess the quality of the programs. These
+aspects of the system motivate the decision to use manual testing, which is described
+further in this section. 
 \subsection{High Level Test Plan}
-Acceptable performance
-Indexer relies on library, 
+Table \ref{tab:test} summarizes the test plan used for manual testing. Each of these tests
+was conducted at the end of module development and whenever a substantial change occurred
+that could potentially change the behaviour in the cases described.
 \begin{table}[h!]
 	\begin{tabular}[h!]{l p{12cm}}
 	\textbf{Module} & \textbf{Test Objectives}\\ \hline
@@ -1643,20 +1689,21 @@ Parser & Parser is robust in the face of bad formatting and encodings \\
 Naive Bayes & Classification is better than random for separable data \\
 SVM & The hyperplanes fit the data and change with the data to provide better fitting 
 \end{tabular}
-\caption{Summary of Test Objectives}
+\caption{Summary of Test Objectives\label{tab:test}}
 \end{table}
 \subsection{Example Test Cases}
-Crawler and PageRank were both tested on artificially engineered small examples of link
-structure to verify the test objectives have been achieved. The indexing is heavily
-reliant on the library, so only the implemented parts required extensive testing --
-incremental and clean indexing capabilities. These were tested on the verification corpus.
-To test incremental indexing, pages were added, removed and altered and the relevant
-queries executed to verify that the changes have taken effect. The clean index was build
-both without an existent index -- in which case a new index was created -- and with an
-existent index -- to verify that the old index is replaced by the new one.
-The objective of the Parser testing was mainly its resilience to failure: examples of
-malformatted html and pages with special characters in the address were used to verify the
-robustness. Machine Learning modules both were tested with the visual aid of plotting in
+\subsubsection{Crawler and PageRank} Both Crawler and PageRank were tested on artificially
+engineered small examples of link structure to verify the test objectives have been
+achieved.  \subsubsection{Indexer} Indexing is heavily reliant on the library, so only the
+implemented parts required extensive testing -- incremental and clean indexing
+capabilities. These were tested on the verification corpus.  To test incremental indexing,
+pages were added, removed and altered and the relevant queries executed to verify that the
+changes have taken effect. The clean index was build both without an existent index -- in
+which case a new index was created -- and with an existent index -- to verify that the old
+index is replaced by the new one.  \subsubsection{Parser} The objective of the Parser
+testing was mainly its resilience to failure: examples of malformatted html and pages with
+special characters in the address were used to verify the robustness. \subsubsection{SVM
+and Bayes} Machine Learning modules both were tested with the visual aid of plotting in
 the two- and three-dimensional cases. The data was plotted alongside the hyperplane (SVM)
 or the separating line (Naive Bayes). The data was altered to provoke change in the
 hyperplane/separator and the subsequent change was verified.
@@ -1679,6 +1726,7 @@ hyperplane/separator and the subsequent change was verified.
 \appendix
 
 \chapter{Project Proposal}
+\label{prop}
 
 %\input{propbody}
 
