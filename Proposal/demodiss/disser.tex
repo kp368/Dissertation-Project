@@ -1627,6 +1627,7 @@ computation due to its apparent infrequency.
 
 \section{Testing}
 
+Manual testing
 \subsection{High Level Test Plan}
 Acceptable performance
 Indexer relies on library, 
@@ -1645,6 +1646,20 @@ SVM & The hyperplanes fit the data and change with the data to provide better fi
 \caption{Summary of Test Objectives}
 \end{table}
 \subsection{Example Test Cases}
+Crawler and PageRank were both tested on artificially engineered small examples of link
+structure to verify the test objectives have been achieved. The indexing is heavily
+reliant on the library, so only the implemented parts required extensive testing --
+incremental and clean indexing capabilities. These were tested on the verification corpus.
+To test incremental indexing, pages were added, removed and altered and the relevant
+queries executed to verify that the changes have taken effect. The clean index was build
+both without an existent index -- in which case a new index was created -- and with an
+existent index -- to verify that the old index is replaced by the new one.
+The objective of the Parser testing was mainly its resilience to failure: examples of
+malformatted html and pages with special characters in the address were used to verify the
+robustness. Machine Learning modules both were tested with the visual aid of plotting in
+the two- and three-dimensional cases. The data was plotted alongside the hyperplane (SVM)
+or the separating line (Naive Bayes). The data was altered to provoke change in the
+hyperplane/separator and the subsequent change was verified.
 \section{Summary}
 \cleardoublepage
 \chapter{Conclusions}
