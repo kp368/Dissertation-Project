@@ -2,6 +2,8 @@
 \usepackage{a4}
 \usepackage{verbatim}
 \usepackage{graphicx}
+\usepackage{libertine}
+\usepackage[T1]{fontenc}
 \usepackage[font={small,it}]{caption}
 \usepackage{subcaption}
 \usepackage{pdfpages}
@@ -390,13 +392,13 @@ the early stages, was central to the success of the project. The main project go
 summarized in Table \ref{req}. 
 
 \begin{table}[h!]
-  \begin{tabular}{p{9.5cm} c c c}
+  \begin{tabular}{p{8.5cm} c c c}
     \hline
     \bf Requirement description & \bf Priority & \bf Difficulty & \bf Risk  \\ \hline\hline
     \multicolumn{4}{ c }{\bf Functional Requirements}\\ \hline
     Implement a simple search engine & High & Low & Low  \\ \hline
     Ensure search engine can use both score and rank & Medium & Medium & Low \\ \hline
-    Implement two different machine learning techniques & High & High & High\\ \hline
+    Implement two different machine learning\\ techniques & High & High & High\\ \hline
     Classifiers must achieve better than random results & High & Medium & High \\ \hline
     Implement PageRank & Medium & Medium & Low \\ \hline
     \multicolumn{4}{ c }{\bf Non-Functional Requirements}\\\hline
@@ -562,20 +564,46 @@ in Python before the project, so a slight overhead was caused by having to learn
 language.
 
 \subsection{Libraries}
+The project makes extensive use of libraries, Figure \ref{libs} shows an abstract diagram
+of the main libraries.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{figs/libs.pdf}
+	\caption{Libraries required in the project\label{libs}}
+\end{figure}
+\subsubsection*{HTML parsing}
+BeautifulSoup
+\subsubsection*{Maths}
+\paragraph{NumPy} linear algebra, arrays and matrices, random
+\paragraph{CvxOpt}
+used by SVM as a  Quadratic Programming Solver, -- the only one I could find.
+\paragraph{SciPy and Scikits} curve fitting facilities and bootstrapping
+\subsubsection*{Plotting}
+Matplotlib and MatplotLib 3D for visual verification of SVM and Bayes
+\subsubsection*{Indexing}
+Whoosh is simple, open source
+
+\subsubsection*{Object Serialization}
+Marshal, Pickle, cPickle
+\subsubsection*{Naive Bayes}
 
 \subsection{Development Environment}
 All of the development was carried out on my personal machine running Ubuntu Linux 12.04.
-Code was written primarily in the \textit{Vim} editor. This is a powerful editor with
-extensive plugin availability. 
+Code was written primarily in the \textit{Vim} editor in concert with the Python shell for
+interactive development. Vim is a powerful editor which provides syntax highlighting, fast
+text navigation and manipulation as well as shell integration. I used the extended IPython
+shell due to its stored history and autocompletion features.
 
-\subsection{Version Control}
-I chose to use the Mercurial source control management tool due to its simplicity and my
-familiarity with it. Remote Version control Repository BitBucket.
-\subsection{Backup}
-The backup of the code is twofold: every time a substantial change is made a remote
-version control repository is updated to hold the newest version. Regularly both the code and
-the data used and obtained during evaluation are also backed up onto an
-external hard drive.
+\subsection{Version Control and Backup}
+I chose to use the Mercurial source control management tool for both version control and
+remote backup. The choice was motivated by its ease of use, simple setup and my own
+familiarity with it. In addition, it is integrated with the online repository hosting
+service BitBucket. 
+
+The backup of the code was twofold: every time a substantial change
+was made the remote repository was updated to hold the newest version. Regularly both the
+code and the data used and obtained during evaluation were also backed up onto an external
+hard drive.
 
 \section{Software Engineering Techniques}
 \subsection{Iterative Development}
