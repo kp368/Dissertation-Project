@@ -433,52 +433,12 @@ see the design at work and to avoid surprises at the end.
 	\caption{Summary of Main Dependencies\label{dep}}
 \end{figure}
 
-\section{Evaluation Approach}
-Measuring performance of machine learners accurately is a major challenge
-primarily because both training and testing are dependent both on the quantity
-and quality of data used. This fact motivates repeating experiments with a
-variety of data (\todo{n fold sampling}). Another difficulty arises from the
-degrees of freedom that are internal to the learners: the hyperparameters.
-Especially SVM kernels are vulnerable to mis-evaluation due to the number of
-parameters which need to be set. The issues of hyperparameter tuning and data
-sampling will be addressed in the Evaluation chapter later. This section
-briefly touches upon evaluation models exploited.\\
-Two proposed techniques -- Naive Bayes and SVM regression -- are quite different, so
-comparing them is potentially erroneous. However, comparisons can be done
-within each method, as there is a lot of scope for variety of implementations
-in each.\\
-As a baseline for the Bayesian approach, a very primitive ranking model will be
-used. We will simply disregard the scoring function behind the rank and
-directly infer the ranking function instead. Precision and Recall metric is
-used to quantify performance. More sophisticated ranking models
-can then be compared to this basic performance. In particular, weak ranking
-property can be evaluated.\todo{explain}
-Figure \ref{eval} shows a simplified evaluation framework for Naive Bayes.  The Test Data
-is the data carefully set aside at the beginning that is never exposed to the
-learner. 
-\todo{bayes and heuristics?!}
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.5]{figs/eval.pdf}
 \caption{Evaluation process. }
 \label{eval}
 \end{figure}
-
-For an SVM learner the baseline can be set to the performance using a linear
-kernel below.
-
-\begin{gather*}
-K(x,y) = x \cdot y
-\end{gather*}
-where `\(\cdot\)' denotes the dot product.
-This is expected to be very high for linear heuristics but a lot lower for
-non-linear ones.
-Mean Squared Error will be used as the risk function to minimize.
-\begin{gather*}
-  MSE = \frac{1}{|Actual|}\sqrt{\sum_{i=1}^{N}(Actual_i - Predicted_i)^2}
-\end{gather*}
-where \(Actual\) is an array of true values of size \(|Actual|\) and
-\(Predicted\) is the corresponding array of predictions made by the classifier.
 
 \section{Choice of Tools}
 
@@ -1410,11 +1370,12 @@ complete and validated on the Development corpus.
 \subsubsection*{Mean Squared Error (MSE)}
 As a measure of classifier performance I have chosen to use mean squared error.
 It is computed as 
-\begin{gather}
-	\frac{1}{n}\sum_{i=1}^n(Actual-Predicted)^2
-\end{gather}
-where \(Actual\) is the true score and \(Predicted\) is the score assigned by the
-classifier. MSE is the second moment of the error and hence, incorporates both variance
+\begin{gather*}
+  MSE = \frac{1}{N}{\sum_{i=1}^{N}(Actual_i - Predicted_i)^2}
+\end{gather*}
+where \(Actual\) is an array of true values of size \(|Actual|\) and
+\(Predicted\) is the corresponding array of predictions made by the classifier.
+MSE is the second moment of the error and hence, incorporates both variance
 and bias of it. Squaring penalizes large errors heavily, but small errors vanish,
 therefore MSE is sensitive to outliers as opposed to Mean Absolute Error (MAE). On the other
 hand, MAE is more sensitive to noise, which we expect when predicting continuous scores.
