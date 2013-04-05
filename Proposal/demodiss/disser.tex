@@ -125,9 +125,18 @@ a handful of these factors are disclosed to the webmasters  in the form of very
 general guidelines. Moreover, the Google algorithm in particular is updated
 frequently. However, most of the knowledge around the area amounts to
 speculation. Despite the fact that it is possible to pass a vast number of
-queries through the black box of any existing search engine,the immensity of
-the search space, and instability of such algorithms make them impossible to
+queries through the black box of any existing search engine, the immensity of
+the search space and instability of such algorithms make them impossible to
 reverse engineer.
+
+This project is concerned with application of machine learning techniques to
+search engines. The aim of the project, in particular,  is to explore how
+machine learning techniques can be used effectively to infer algorithms from
+search engines. 
+Even though this study does not attempt to reverse engineer any existing
+heuristics, the results can be applied to such an ambitious task.
+Moreover, such a framework is potentially more general and can be used for a
+range of problems.
 
 \section{Challenges}
 Machine learning is a natural approach to inferring the true algorithm from a
@@ -144,23 +153,13 @@ much training data is necessary, as well as and selecting it to avoid
 over/under-fitting\cite{domingos}. Similarly, it is not straightforward which
 machine learning technique is best for a particular problem.
 
-This project is concerned with application of machine learning techniques to
-search engines. The aim of the project, in particular,  is to explore how
-machine learning techniques can be used effectively to infer algorithms from
-search engines. To address the limitations imposed by existing search engines,
-part of the task is to develop a toy search engine that allows me to comtrol
+To address the limitations imposed by existing search engines,
+part of the task is to develop a toy search engine that allows me to control
 the nature and complexity of used heuristics. Such transparency addresses the
 problems stated above and, more importantly,  allows for useful evaluation of
 machine learning techniques by providing meaningful feedback.
 
-Even though this study does not attempt to reverse engineer any existing
-heuristics, the results can be applied to such an ambitious task.
-Moreover, such a framework is potentially more general and can be used for a
-range of problems.
-
 \section{Related Work}
-
-\newcommand\todo[1]{\textcolor{red}{\textbf{TODO: #1}}}
 
 \cleardoublepage
 \chapter{Preparation}
@@ -616,7 +615,11 @@ well as the libraries used.
 \cleardoublepage
 
 \chapter{Implementation}
+This chapter describes the implementation of the system that was implemented in this
+project. The outline of the overall architecture is followed by more detailed descriptions
+of the individual components.
 
+All components were implemented successfully and together form a working system.
 \section{System Architecture}
 
 To achieve the goal of the project, a machine learning techniques comparison framework was
@@ -673,9 +676,6 @@ a part of the parser that assigns true categories to the input pages. The search
 and the categorizer together are used to output the correct classification. This is then
 compared with the classifier's output. The classifier evaluation is further described in
 Section \ref{sec:eval_class} as well as the methodology adopted.
-
-\subsection{Prototypes}
-\label{sec:protos}
 
 The rest of this chapter outlines the implementation of the core parts of the system, the
 challenges faced and the optimizations conducted.
@@ -856,26 +856,95 @@ described by the Table \ref{tab}.
   \end{center}
 \end{table}
 
+\section{Optimizations}
+
+One characteristic peripheral requirement for the system implemented in this
+project is speed.  Even though it is not our direct goal to produce efficient
+implementations, optimization could not be overlooked, because significant
+amount of time is spent processing large quantities of data: indexing, PageRank
+and feature set computations all must complete in `feasible' time, i.e. in the
+final implementation the longest computation takes order of minutes and
+processes a few thousand pages. Various optimizations have been used to achieve
+this. 
+
+Both PageRank vector and the index are precomputed and kept in
+persistent storage. Incremental indexing feature allows us to edit parts of the
+index as opposed to recomputing the whole index from scratch. These
+precomputations provide certain speedups, but were not enough.  Because the
+system is fairly complex and a lot of library code is used in places, it was
+hard to determine which code most affects the speed. `Blind' attempts at
+optimization did not work well, which motivated the use of a profiling tool.
+
+Profiling the first prototype of the complete system revealed a surprising
+fact: most time was spent in the library code parsing pages. To mitigate this
+issue I have tried using custom parsers instead. Apart from speed, robustness
+was another important consideration, as a failure of a parser increases compute
+time. Two of the most renowned python parsers are\textit{html5lib} and
+\textit{lxml}.  Figure
+\ref{parsers} below shows visual representation of time profiling of 3
+different runs obtained using the \textit{RunSnakeRun}, each exploiting a
+different parser.  Despite \textit{html5lib} being quoted as the most
+robust/lenient, \textit{lxml} was sufficiently faster to be preferable.
+
+\begin{figure}[h!]
+\centering
+\begin{subfigure}[b]{.3\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figs/prof.png}
+  \caption{Default}
+  \label{def}
+\end{subfigure}
+\quad
+\begin{subfigure}[b]{.3\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figs/html5.png}
+  \caption{html5lib}
+  \label{html}
+\end{subfigure}
+\quad
+\begin{subfigure}[b]{.3\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figs/lxml.png}
+  \caption{lxml}
+  \label{lxml}
+\end{subfigure}
+\caption{Visual profiles of three parsers from left to right: default python
+html parser, html5lib and lxml. The internal boxes are sized in proportion to
+the time spent in each function. In all profiles three distinct major
+compartments can be seen, the leftmost being the compartment of interest: 
+time spent in parsing. Taking into consideration that the other modules are unaffected by changing the parser
+implementation, it can be observed that lxml (rightmost) is the fastest and
+html5lib is the slowest.\label{parsers}}
+\end{figure}
+
+Another useful limitation was discovered due to profiling. The PageRank vector
+was loaded into memory every time a page was parsed: once for each page. This
+clearly is undesirable. I used caching to ensure that each of the two possible
+PageRank vectors (corresponding to the test and train directories) is loaded
+from memory exactly once. This is achieved via a double singleton class, which
+loads the vectors lazily.
+
+\cleardoublepage
+
 \section{Parser}
 \label{sec:parser}
-So far we have looked at the two separate blocks -- the search engine and the
-machine learners. As a functional unit the parser must provide an interface
-between the two. The search engine simply retrieves pages in response to a
-query and the machine learner expects as its input a set of labelled features
-for training and unlabelled features for classification/regression.  The
-Parser, therefore, must hide the nature of the data we are dealing with by
-translating it into the universal language of machine learners. Hence, the
-primary function of the Parser is to compute feature vectors for pages.
-However, it is easy to outsource search engine heuristics into the Parser, too,
-as they require page parsing. 
+So far we have looked at the search engine. This section describes the parser -- a
+functional unit, which provides an interface from the search engine to the machine
+learners.  The search engine simply retrieves pages in response to a query and the machine
+learner expects as its input a set of labelled features for training and unlabelled
+features for classification/regression.  The Parser, therefore, must hide the nature of
+the data we are dealing with by translating it into the universal language of machine
+learners. Hence, the primary function of the Parser is to compute feature vectors for
+pages.  However, it is easy to outsource search engine heuristics into the Parser, too, as
+they require page parsing. 
 
 To accomplish these multiple goals, I have
 taken an object oriented approach to the design of the module. What I refer to
 as the Parser is a few classes, which together perform a series of tasks
 related to page parsing.  The module operates in two modes: rank and score and
-handles both classification and regression. The high level specification is
-that we create two objects: a \texttt{TestFeatureSetCollection} and a
-\texttt{LabelFeatureSetCollection} objects and they encapsulate all the data,
+handles both classification and regression. The high level specification two objects are
+created: a \texttt{TestFeatureSetCollection} and a
+\texttt{LabelFeatureSetCollection}. These objects encapsulate all the data,
 so can be passed around to the machine learners, as well as evaluation and
 plotting modules. These objects each operate within their own directories, to
 keep training and testing sufficiently separate.
@@ -898,15 +967,24 @@ illustrating the main structure of the module.
 \end{figure}
 
 The rest of this section talks about the specifics of the implementation, in
-particular, the features used and how html parsing is done.
+particular, the features used and how HTML parsing is done.
 
-\paragraph{Rank mode.}
+\subsection{Rank and Score}
 Conceptually a \texttt{FeatureSetCollection} is a dictionary of \texttt{LabeledFeatureSet}
-objects indexed by both path to page and  query term. After initialisation, all
+objects indexed by both path to page and query term. After initialisation, all
 the features are computed and `filled up' per query term per page.
+In the original prototype the search engine used to output ranks (the ordinal representing the position of the
+page in returns) as the target value for the machine learners to infer. This was fine for
+a prototype, however, there was an obvious flaw in this approach: the rank depends
+on the other web pages, which makes it impossible to infer from the features of a single
+page. 
 
-\paragraph{Score mode.}
-\paragraph{Features.}
+The later prototype assumed the existence of conversion between rank and score and passed
+scores directly to the machine learners. The score function was implemented as a class method on the
+\texttt{LabelledFeatureSet}, so that the scores could be computed ad hoc for a variety of
+heuristics.
+
+\subsection{Features}
 
 
 The requirements analysis does not prescribe the use of any particular
@@ -925,14 +1003,15 @@ computed on the string.
 
 A related but different feature -- stem count -- is the number of times the
 stem of the word occurs in the text. This is obtained using the \texttt{PorterStemmer}
-module in Nltk library.
+module in NLTK library.
 
 Boolean features are a slightly different variety of feature, so was worth
-putting in. An example of this is a presence of an image on the page.
+putting in. An example of this is a presence of an image on the page, compliance of the
+page to an existing HTML standard or presence of advertisements.
 
 The features have been added incrementally as the project progressed. All other
 features are similar to the ones described above and are obtained using the
-same methods.\todo{enumerate features here}
+same methods. 
 
 
 \section{Naive Bayes}
@@ -1157,9 +1236,9 @@ intuitive. For example, a linear kernel is perfect for linear heuristics and the
 is reduced to fitting a hyperplane.  Similarly, Radial Basis Kernel picks out hyperspheres
 and so on. However, when we have no expectation of data, we need a most general kernel.
 
-In this section I will examine a few kernels with various score functions: both intuitive
+In this section I examine a few kernels with various score functions: both intuitive
 and not to observe how performance of each degrades as we use less 
-Here we are using kernels with the parameters determined as shown in the precious section.
+The kernels used in this section have been tuned as described in Section \ref{sec:htun}.
 
 Kernel functions are the central component of support vector machines, and its
 choice is highly dependent on the application. I have considered a variety of
@@ -1187,23 +1266,33 @@ Product     & \texttt{Linear(x,y)*Gaussian(x,y,\(\gamma\))}\\
 \end{center}
 \caption{Kernel Functions \label{kfun}}
 \end{table}
-The simplest kernel function is the linear kernel. It is simply a dot product
-of two vectors. Its generalized version is the polynomial kernel, which takes
+
+The simplest kernel function is the Linear kernel. It is simply a dot product
+of two vectors. Its generalized version is the Polynomial kernel, which takes
 degree as a parameter. Intuitively, the polynomial kernel is a lot more
 flexible than linear, but the larger the degree, the less `smooth' it becomes,
-so it might overfit the training data.  The Radial Basis Function kernel is
-most popular in Support Vector Machines. We take \(||x-y||\) to denote the
+so it might overfit the training data.  
+
+The Gaussian kernel is an example of a family of the Radial Basis Function kernels, which
+are
+most popular in Support Vector Machines. \(||x-y||\) denotes the
 Euclidean distance of the two feature vectors. The \(\gamma\) parameter is
 equivalent to \(\frac{1}{2\sigma^2}\). The choice of \(\gamma\) has a major
-effect on the performance of the kernel and represents a tradeoff between over-
-and underfitting. To find the best parameter, cross validation is used.
-\todo{CROSS VALIDATION} The sigmoid kernel is commonly used in neural networks
+effect on the performance of the kernel and represents a trade off between over-
+and underfitting. 
+
+The Sigmoid kernel is commonly used in neural networks
 and in combination with an SVM classifier forms a two layer perceptron network,
 where the scale parameter \(a\) is usually set to 1/N, where N is the number of
-dimensions (features)\cite{sigmoid}. The Sum and Product kernels are both a
-combination of the linear and RBF kernels. In the Evaluation chapter we will discuss
-the relative performance of each of the kernels.
+dimensions (features)\cite{sigmoid}. This kernel is different from the rest described
+here, as it only satisfies Mercer conditions\footnote{} for some values of its parameters, which
+	means SVM can be constructed only for those values\cite{stat_learn}.
 
+The Sum and Product kernels are both an example of combination kernels, in this case a
+combination of the linear and Gaussian kernels. I found that in many situations combining
+kernels in various scenarious where just one kernel does not perform well.
+
+Figure \ref{kernels} shows four different kernels applied to their native two dimensional heuristics. 
 \begin{figure}[h!]
 \centering
 \begin{subfigure}[b]{.49\textwidth}
@@ -1231,146 +1320,110 @@ the relative performance of each of the kernels.
   \caption{Step}
   \label{step}
 \end{subfigure}
+\caption{Four different two dimensional heuristic functions are fitted by SVR with four
+	corresponding kernels: linear, polynomial degree 2, polynomial degree 3 and Gaussian.\label{kernels}}
 \end{figure}
-
+Clearly, the first three fits seem effortless, but fitting the step function with an RBF
+kernel was a lot more tricky. The $\gamma$ parameter was chosen by tuning described in the
+next section.
 \subsection{SVM Hyperparameter Tuning}
+\label{sec:htun}
 In comparison to Naive Bayes, the SVM has a lot of degrees of freedom. Kernel functions is
 one such degree of freedom and each kernel has more adjustable parameters. Selecting a kernel 
 itself is discussed in more detail in the next section. This section illustrates how
 kernel parameters might be tuned. 
 
 There are several ways of adjusting parameters of which Grid search is the simplest. In
-grid search we specify a range of parameters and note down the MSEs for each value (or
-combination of values). To chose the domain successfully, we will be analyzing at
+grid search we specify a range of parameters and note down the Mean Squared Errors for each value (or
+combination of values). To chose the domain successfully, the analysis has to happen at
 different scales, starting from coarser (wider spread) parameter values, each time only
-choosing the best for finer tuning. This method does not scale beyond a few variables.
+choosing the best for finer tuning, so the algorithm works in a tournament fashion.
+Essentially, it is hill climbing and does not scale beyond a few variables.
 
 As an example a combined product kernel will be used. The data used is deliberately noisy
-and non-injective. Given a positive sigma,The Gaussian component varies
-between one and zero
-We want to find out how perturbing with Gaussian can make a better fit. 
+and non-injective. We want to find out how perturbing the plane with Gaussian can provide a better fit. 
+Given a positive sigma, the Gaussian component varies between one and zero.
+Varying gamma determines the contribution of the linear the fit as well as overfitting.
+Varying the epsilon also controls overfitting.
 
+Figure \ref{coarse_fine} shows analysis at different scales on the training data: the coarsest and the finest.
+First it is found that the
+contribution of the $\epsilon$ affects the error a lot more in comparison to $\gamma$. As the
+problem is symmetric, further analyses are only performed with positive gamma. Looking
+further, it eventually becomes visible that the minima lie where $\gamma$ is small. 
 
 \begin{figure}[h!]
 \centering
 \begin{subfigure}[b]{.49\textwidth}
   \centering
   \includegraphics[width=\linewidth]{figs/coarse_tune2.png}
-  \caption{Increasing epsilon affects the fitting oftest data so greatly, that the changes
-  due to gamma variation are insignificant in comparison.}
-  \label{coarse}
+  \caption{Coarse analysis\label{coarse}}
 \end{subfigure}
 \begin{subfigure}[b]{.49\textwidth}
   \centering
   \includegraphics[width=0.9\linewidth]{figs/fine_tune_tr.png}
-  \caption{On a finer scale minimums are visible.}
-  \label{fine}
+  \caption{Fine analysis\label{fine}}
 \end{subfigure}
+\caption{It is clear from (a), that increasing epsilon affects the fitting
+	of the test data so greatly, that changing gamma is insignificant in comparison.
+	However, on the finer scale contour map (b), the minima can be found.\label{coarse_fine}}
 \end{figure}
 
-Varying gamma determines how far from linear the fit as well as overfitting.
+Figure \ref{overfit} demonstrates the effects of overfitting: the minima for training and
+test data do not coincide. Whereas the training data is best fit with the epsilon
+approaching zero, as might be expected, the test data is fit better when the error is
+non-zero.
 
-
-\begin{figure}[h!]
-\centering
-\begin{subfigure}[b]{.49\textwidth}
-  \centering
-  \caption{Gamma is zero, so  the fit is linear}
-  \includegraphics[width=\linewidth]{figs/lin_fit.png}
-  \label{coarse}
-\end{subfigure}
-\begin{subfigure}[b]{.49\textwidth}
-  \centering
-  \caption{Gamma is at its best: the surface slightly perturbed to fit best.}
-  \includegraphics[width=\linewidth]{figs/perf_fit.png}
-  \label{fine}
-\end{subfigure}
-\end{figure}
-
-\begin{figure}[h!]
+\begin{figure}[h]
 \centering
 \begin{subfigure}[b]{.49\textwidth}
   \centering
   \includegraphics[width=\linewidth]{figs/fine_tune_tr_zoom.png}
-  \caption{}
+  \caption{Training Data}
   \label{coarse}
 \end{subfigure}
 \begin{subfigure}[b]{.49\textwidth}
   \centering
   \includegraphics[width=\linewidth]{figs/fine_tune_ts.png}
-  \caption{}
+  \caption{Test Data}
   \label{fine}
 \end{subfigure}
+\caption{Effects of overfitting: non-zero epsilon allows for better fit of the test data.\label{overfit}}
 \end{figure}
-\section{Optimization}
 
-One characteristic peripheral requirement for the system implemented in this
-project is speed.  Even though it is not our direct goal to produce efficient
-implementations, optimization could not be overlooked, because significant
-amount of time is spent processing large quantities of data: indexing, PageRank
-and feature set computations all must complete in `feasible' time, i.e. in the
-final implementation the longest computation takes order of minutes and
-processes a few thousand pages. Various optimizations have been used to achieve
-this. 
+Now having found the best Gaussian and error parameters, the two different fittings are
+plotted in Figure \ref{fits}
 
-Both PageRank vector and the index are precomputed and kept in
-persistent storage. Incremental indexing feature allows us to edit parts of the
-index as opposed to recomputing the whole index from scratch. These
-precomputations provide certain speedups, but were not enough.  Because the
-system is fairly complex and a lot of library code is used in places, it was
-hard to determine which code most affects the speed. `Blind' attempts at
-optimization did not work well, which motivated the use of a profiling tool.
-
-Profiling the first prototype of the complete system revealed a surprising
-fact: most time was spent in the library code parsing pages. To mitigate this
-issue I have tried using custom parsers instead. Apart from speed, robustness
-was another important consideration, as a failure of a parser increases compute
-time. Two of the most renowned python parsers are\textit{html5lib} and
-\textit{lxml}.  Figure
-\ref{parsers} below shows visual representation of time profiling of 3
-different runs obtained using the \textit{RunSnakeRun}, each exploiting a
-different parser.  Despite \textit{html5lib} being quoted as the most
-robust/lenient, \textit{lxml} was sufficiently faster to be preferable.
-
-\begin{figure}[h!]
+\begin{figure}[h]
 \centering
-\begin{subfigure}[b]{.3\textwidth}
+\begin{subfigure}[b]{.49\textwidth}
   \centering
-  \includegraphics[width=\linewidth]{figs/prof.png}
-  \caption{Default}
-  \label{def}
+  \includegraphics[width=\linewidth]{figs/lin_fit.png}
+  \caption{Linear kernel fit\label{coarse}}
 \end{subfigure}
-\quad
-\begin{subfigure}[b]{.3\textwidth}
+\begin{subfigure}[b]{.49\textwidth}
   \centering
-  \includegraphics[width=\linewidth]{figs/html5.png}
-  \caption{html5lib}
-  \label{html}
+  \includegraphics[width=\linewidth]{figs/perf_fit.png}
+  \caption{Combined Product kernel fit\label{fine}}
 \end{subfigure}
-\quad
-\begin{subfigure}[b]{.3\textwidth}
-  \centering
-  \includegraphics[width=\linewidth]{figs/lxml.png}
-  \caption{lxml}
-  \label{lxml}
-\end{subfigure}
-\caption{Visual profiles of three parsers from left to right: default python
-html parser, html5lib and lxml. The internal boxes are sized in proportion to
-the time spent in each function. In all profiles three distinct major
-compartments can be seen, the leftmost being the compartment of interest: 
-time spent in parsing. Taking into consideration that the other modules are unaffected by changing the parser
-implementation, it can be observed that lxml (rightmost) is the fastest and
-html5lib is the slowest.\label{parsers}}
+\caption{Linear fit is improved by Gaussian: when gamma is tuned, the hyperplane is
+	perturbed to provide the best fit.\label{fits}}
 \end{figure}
 
-Another useful limitation was discovered due to profiling. The PageRank vector
-was loaded into memory every time a page was parsed: once for each page. This
-clearly is undesirable. I used caching to ensure that each of the two possible
-PageRank vectors (corresponding to the test and train directories) is loaded
-from memory exactly once. This is achieved via a double singleton class, which
-loads the vectors lazily.
+Hyperparameter tuning was, perhaps, the hardest part of SVM, which required both very good
+understanding of the kernel functions, as well as data at hand. Though in this section I
+described a primitive way of tuning, I would consider more advanced automated tuning
+schemes, perhaps, even using machine learning techniques to determine parameters.
 
-\cleardoublepage
+\section{Summary}
+In this chapter I have taken the reader from system architecture through the design and
+implementation of the various components which included the search engine, the parser as
+well as two machine learning modules.
+
+Work was split between theoretical and pure software engineering. The theoretical work
+included derivations of the PageRank algorithm and support vector regression, whereas the
+software engineering -- in assembling libraries and classes as well as optimizing
+throughout the various components.
 
 \chapter{Evaluation}
 This chapter presents an overview of the results of the work undertaken for the project
@@ -1848,12 +1901,39 @@ the two- and three-dimensional cases. The data was plotted alongside the hyperpl
 or the separating line (Naive Bayes). The data was altered to provoke change in the
 hyperplane/separator and the subsequent change was verified.
 \section{Summary}
-In this chapter I first the techniques implemented in the
-
+In this chapter I assessed the performance of classifiers with different heuristics and
+drew some comparisons between them with the means of hypotheses. I also illustrated the
+testing strategies adopted in this project and evaluated the quality of implementation of
+the slowest modules.
 \cleardoublepage
 \chapter{Conclusions}
+The exploratory nature of the project allowed me to learn a lot both in the field of
+information retrieval and machine learning. I have started with very little insight in
+either field and thoroughly enjoyed the discoveries I made throughout.
+
 \section{Lessons Learnt}
+The main lesson I have learnt from this project is that the importance of design cannot be
+underestimated. At the beginning I expected the programming to be the hardest part and,
+perhaps, rushed into implementation without having spent adequate time planning what
+should be done and how best to do it. This resulted in some redundant work that
+could have been avoided. If I were to do this project again, I would allocate a lot more time to
+design at the beginning.
+
+Another important observation that I am taking away is in tune with the previous point:
+writing loosely coupled and modular code pays off eventually. As code grew, refactoring
+often became unavoidable, but could have been made easier, had I programmed with
+reusability in mind.
+
 \section{Future Work}
+Although the implementation is complete in the sense that it fulfills the success criteria
+for the project, the greater goal of project is open ended. The framework developed can be
+used to further explore the machine learning techniques considered as well as to integrate
+the data from the real existing search engines. The machine learners can be used for a
+variety of different purposes unrelated to search engines.
+
+The implementation can be enhanced by a user interface and made available on the internet
+for anyone to download, use and improve.
+
 \cleardoublepage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
