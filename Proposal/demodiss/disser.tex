@@ -9,6 +9,7 @@
 \usepackage{pdfpages}
 \usepackage{amsmath}
 \usepackage{hyperref}
+\usepackage{url}
 \usepackage{bm}
 \setlength{\parindent}{0cm}
 \setlength{\parskip}{10pt plus 1pt minus 1pt}
@@ -69,9 +70,9 @@ Name:               & \bf Karina Palyutina                       \\
 College:            & \bf St Catharine's College                     \\
 Project Title:      & \bf Machine learning inference of search engine heuristics \\
 Examination:        & \bf Part II Project        \\
-Word Count:         & \bf      \\
-Project Originator: & Dr Jon Crowcroft                    \\
-Supervisor:         & Dr Jon Crowcroft                  \\ 
+Word Count:         & \bf 11,585 words     \\
+Project Originator: & \bf Dr Jon Crowcroft                    \\
+Supervisor:         & \bf Dr Jon Crowcroft                  \\ 
 \end{tabular}
 }
 
@@ -177,9 +178,6 @@ the nature and complexity of used heuristics. Such transparency addresses the
 problems stated above and, more importantly,  allows for useful evaluation of
 machine learning techniques by providing meaningful feedback.
 
-\section{Related Work}
-
-\cleardoublepage
 \chapter{Preparation}
 The original aims of the project were defined very broadly, so some further structuring and
 planning were crucial at the early stages to make sure the goals are understood and
@@ -233,7 +231,7 @@ Hence, we start with describing the principles of the two machine learning
 techniques used - Naive Bayes and Support Vector Machines.
 
 \subsection{Naive Bayes}
-
+\label{prep:nb}
 Naive Bayes is a probabilistic classifier based on the Bayes Theorem. The
 posterior probability \(P(C|\vec{F})\) denotes the probability that a sample
 page with a feature vector \(\vec{F}=(F_1,F_2,\dots,F_n)\) belongs to class C.
@@ -302,7 +300,7 @@ kernel function is problem specific and the best one is usually decided by
 experiment.
 
 We begin with the theoretical foundations of Support Vector
-Regression, which were first proposed by Vapnik \ref{vapnik}.\\ Define a
+Regression, which were first proposed by Vapnik \cite{vapnik}.\\ Define a
 training sequence as a set of training points \(D = \{ (\mathbf{x_1},t_1),
 (\mathbf{x_2},t_2), ... , (\mathbf{x_l},t_l) \}\) where \( \mathbf{x_i} \in R^n
 \) is a feature vector holding features of pages and \( \mathbf{t_i} \in R \)
@@ -354,7 +352,7 @@ as follows:
 \end{gather}
 
 This constraint problem can be transformed into its dual form  by introducing
-Lagrange multipliers \(a_n \geq 0, a_n^* \geq 0\).  The dual problem involves
+Lagrange multipliers \(a_n \geq 0, a_n^* \geq 0\)\cite{BISHOP}.  The dual problem involves
 maximizing
 
 \begin{gather} \label{eq:maxim}  L(\mathbf{a},\mathbf{a^*}) =
@@ -707,8 +705,7 @@ The existence of the search engine had twofold significance in the project: firs
 gave me an insight into how search engines work and secondly, it was a way of gathering
 data for the machine learners. The first prototype of the system was heavily reliant on
 the engine ranking the pages. In the following iterations, however, its importance was
-diminishing: scores were computed for all pages, making the queries irrelevant (see
-Section \ref{sec:protos}). 
+diminishing: scores were computed for all pages, making the queries irrelevant. 
 
 Because I had decided to concentrate on precision, as discussed in Section \ref{prep:se}
 of the Preparation chapter, it was assumed for simplicity that all relevant documents were
@@ -783,7 +780,7 @@ to one.
 
 Probabilities s and t=1-s are customizable and represent the willingness of the surfer to
 follow links as opposed to jump onto a random page. I used the values proposed in the
-original paper\cite{pr} with s=0.85.
+original paper\cite{pagerank} with s=0.85.
 
 I defined a stochastic matrix M representing the web surfer activity, such
 that \(M_i,j\) is the probability of going from page i to page j, 
@@ -1037,7 +1034,7 @@ same methods.
 
 
 \section{Naive Bayes}
-In Section \ref{prep} it has been shown that Naive Bayesian is a good learner
+In Section \ref{prep:nb} it has been shown that Naive Bayesian is a good learner
 to implement for the first prototype, so a very quick implementation was
 preferable to make sure the system can potentially function as intended. Due to
 its simplicity and popularity, Naive Bayesian is widely available in the
@@ -1062,7 +1059,7 @@ parametrized by the two probability distributions. P(features) is not
 computed explicitly, instead, a normalizing denominator \ref{normal} is used.
 
 \begin{equation} \sum_{l \in labels}(P(l)P(featureset_1|l)\cdots
-  P(featureset_N|l)) \end{equation}
+	P(featureset_N|l)) \label{normal} \end{equation}
 
 The \texttt{classify} method on the \texttt{NaiveBayesClassifier} object takes
 exactly one featureset and returns a label which maximizes the posterior
@@ -1075,7 +1072,7 @@ framework in which classification is done. This task is, however, achieved by
 the Parser.  To batch classify everything in the test directory, the classifier
 object is passed to the Parser, where the featuresets for the test directories
 are computed, classified and recorded for the evaluation stage later. The
-particulars of this process is described in section \ref{parser}.
+particulars of this process was described in section \ref{sec:parser}.
 
 \section{Support Vector Regression}
 \label{sec:svm}
@@ -1099,7 +1096,8 @@ trivially expressed as a minimization problem (equation \ref{eq:minim}).
   \sum_{i=1}^{l}(\alpha_i+\alpha_i^*)-\sum_{i=1}^{l}t_i(\alpha_i-\alpha_i^*)
 \end{gather}
 
-subject to constraints \ref{cns:a} and \ref{cns:b} below.
+subject to constraints \ref{cns:a} and \ref{cns:b} below. This derivation can be found in
+the LIBSVM paper\cite{SVMLIB}, however, the version in the paper contains an error.
 
 \begin{gather} \mathbf{e(\bm{\alpha}}-\bm{\alpha^*})=0 \label{cns:a}\\ 0\leq
   \alpha_i,\alpha_i^* \leq C, \;i=1,...,l \label{cns:b} \end{gather}
@@ -1260,7 +1258,7 @@ and so on. However, when we have no expectation of data, we need a most general 
 
 In this section I examine a few kernels with various score functions: both intuitive
 and not to observe how performance of each degrades as we use less 
-The kernels used in this section have been tuned as described in Section \ref{sec:htun}.
+The kernels used in this section have been tuned as described in Section \ref{sec:tuning}.
 
 Kernel functions are the central component of support vector machines, and its
 choice is highly dependent on the application. I have considered a variety of
@@ -1351,7 +1349,7 @@ Clearly, the first three fits seem effortless, but fitting the step function wit
 kernel was a lot more tricky. The $\gamma$ parameter was chosen by tuning described in the
 next section.
 \subsection{SVM Hyperparameter Tuning}
-\label{sec:htun}
+\label{sec:tuning}
 In comparison to Naive Bayes, the SVM has a lot of degrees of freedom. Kernel functions is
 one such degree of freedom and each kernel has more adjustable parameters. Selecting a kernel 
 itself is discussed in more detail in the next section. This section illustrates how
@@ -1701,7 +1699,7 @@ the squared error is minimimal.
   small, but is similar to the baseline case for all other heuristics. \label{lin_degrad}}
 \end{figure}
 
-Figure \ref{linear_degrad} shows a failure of the linear kernel to fit non-linear data.
+Figure \ref{lin_degrad} shows a failure of the linear kernel to fit non-linear data.
 The ceiling error due to numerical error in computation: this explains why the ceiling
 error in the exponential case is the largest of all. 
 
