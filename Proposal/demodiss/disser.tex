@@ -269,7 +269,8 @@ another approach to machine learning and the next learning technique we explore
 -- Support Vector Regression -- is non-probabilistic, to try something as distant
 from Naive Bayes as possible.
 
-\subsection{$\epsilon$-Support Vector Regression}
+ier. \subsection{$\epsilon$-Support Vector Regression}
+\label{prep:svm}
 While the binary classification problem has as its goal the maximization of the
 margin between the classes, regression is concerned with fitting a hyperplane
 through the given training sequence. 
@@ -351,7 +352,8 @@ subject to constraints
   0\leq a_n,\; a_n^*\leq C,\;\;    n=1,...,l 
 \end{gather}
 
-
+I come back to these derivations again in Section \ref{sec:svm} and further derivations
+will be constructed in order to implement the SVM.
 \section{Introduction to PageRank}
 The PageRank algorithm was originally described in a research paper
 by Page and Brin\cite{PageRank}. It was first introduced as a way `to measure
@@ -382,8 +384,8 @@ The teleportation vector determines whether the PageRank is personalized. For
 the non-personalized version the teleportation vector holds equal probabilities
 for all pages in the Web, whereas in a personalized approach the probabilities
 are distributed according the knowledge of the surfer's previous activity. In
-this project we are only concerned with nonpersonalized ranking, which
-simplifies things a little.
+this project we are only concerned with nonpersonalized ranking, which is simpler and
+enough for the purposes of the project.
 
 \section{Requirements Analysis} 
 \label{req_anal}
@@ -431,13 +433,6 @@ see the design at work and to avoid surprises at the end.
 	\centering
 	\includegraphics[width=0.7\textwidth]{figs/dep.pdf}
 	\caption{Summary of Main Dependencies\label{dep}}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[scale=0.5]{figs/eval.pdf}
-\caption{Evaluation process. }
-\label{eval}
 \end{figure}
 
 \section{Choice of Tools}
@@ -513,39 +508,68 @@ to focus on high precision at the expense of recall \cite{GOOGLE}. Therefore, I 
 concentrate primarily on precision when designing a search engine.
 
 
-\subsection{Programming Language}
+\subsection{Prograzomming Language}
 
 When choosing a programming language, main considerations reduced to library availability
 and simplicity. The project imposes no special  requirements on the language, apart from,
-perhaps, library infrastructure for parsing web pages.  Python is simple language with
-extensive library support. As for efficiency, all the mathematical operations in this
-project rely on python math libraries, which are implemented in C. I have not programmed
-in Python before the project, so a slight overhead was caused by having to learn a new
-language.
+perhaps, library infrastructure for parsing web pages, maths and natural language
+processing.  Python is a rapid development language with extensive library support. As for
+efficiency, all the mathematical operations in this project rely on python math libraries,
+which are implemented in C. I have not programmed in Python before the project, so a
+slight overhead was caused by having to learn a new language.
 
 \subsection{Libraries}
 The project makes extensive use of libraries, Figure \ref{libs} shows an abstract diagram
-of the main libraries.
+of the main libraries. As I mentioned earlier, library support was a major criterion when
+choosing a language and a lot of time was spent searching for and getting familiar with the
+relevant libraries. This section discusses some core libraries used in this project.
+
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\textwidth]{figs/libs.pdf}
 	\caption{Libraries required in the project\label{libs}}
 \end{figure}
 \subsubsection*{HTML parsing}
-BeautifulSoup
+Parsing HTML pages is crucial to the project and relies entirely on the library. I have
+chosen to use the \textbf{BeautifulSoup} library to build and navigate the parse tree.
+There are some simpler tools available for python, however, they do not have such a
+diverse functionality. For example, among the requirements were tag filtering and a
+variety of underlying parsers. The library was mainly used by the parsing module when
+constructing feature sets, as well as by the indexer.
 \subsubsection*{Maths}
-\paragraph{NumPy} linear algebra, arrays and matrices, random
-\paragraph{CvxOpt}
-used by SVM as a  Quadratic Programming Solver, -- the only one I could find.
-\paragraph{SciPy and Scikits} curve fitting facilities and bootstrapping
+\textbf{NumPy} is the most popular scientific Python library and was used throughout the
+project for various purposes including linear algebra, array and matrix manipulation,
+random number generation and many others.
+
+A library providing a Quadratic Programming Solver, required in order to implement the
+SVM, was the hardest to find. The \textbf{CvxOpt} library was one of very few with such
+functionality.
+
+Other maths libraries, such as \textbf{SciPy} and \textbf{Scikits}, were of secondary importance to
+the project and were needed primarily during evaluation for tasks like curve fitting and
+statistical bootstrapping.
 \subsubsection*{Plotting}
-Matplotlib and MatplotLib 3D for visual verification of SVM and Bayes
+Adequate plotting capabilities were essential to the implementation and evaluation of the
+machine learners. \textbf{Matplotlib} is the de facto standard for plotting in Python. It
+has a simple API and importantly supports 3D plots, which were used extensively for visual
+verification of SVM and Bayes.
 \subsubsection*{Indexing}
-Whoosh is simple, open source
+The choice of indexer was driven primarily by the ease of customisation. The
+\textbf{Whoosh} library is a powerful open source indexer with a purely Pythonic API and
+plentiful capabilities, a lot of which are highly
+customisable.
 
 \subsubsection*{Object Serialization}
-Marshal, Pickle, cPickle
+This functionality was required mainly to allow for precomputing of the PageRank vector
+and other static page features. \textbf{Marshal} and \textbf{Pickle} were the two
+alternatives considered in this project. \textbf{Pickle} has proved more robust and
+portable, and so was preferred.
 \subsubsection*{Naive Bayes}
+A Bayesian classifier is not hard to implement, so after some consideration I decided to use a library
+implementation, as a fast solution was desirable for the first prototype. There were
+surprisingly many implementations available, among which I chose the \textbf{Natural
+Language Toolkit Library (NLTK)}, as it had a concise and clear implementation as well as a
+simple input format.
 
 \subsection{Development Environment}
 All of the development was carried out on my personal machine running Ubuntu Linux 12.04.
@@ -588,103 +612,165 @@ implementation stage. In particular, the chapter provided brief introductions to
 learning techniques and the PageRank algorithm as well as shaping more detailed aims of
 the project. I also touched upon the development strategy followed during the project as
 well as the libraries used.
+
 \cleardoublepage
 
 \chapter{Implementation}
-This section describes parts of the system that I have implemented.
-\todo{overview}
 
 \section{System Architecture}
 
-To achieve the goal of the project, a machine learning techniques comparison
-framework was necessary. In the Introduction I mentioned the benefit of having
-a transparent system as an object of learning. To further justify this
-decision, it is worth mentioning that  generalisation using machine learning is
-different from most optimization problems in that the function that is being
-optimized is out of our reach, and all that is visible to the machine learner
-is the training error. Because our goal is not the correct classification of
-real data, but identifying the means to correct classification, it is important
-that informed choices are made towards improvement of the learner. Taking this
-into account, knowing the function that we want to learn and having direct
-control over it  will guide the improvement of the search engine. 
-
-This argument motivates a system in three parts: a search engine, a machine
-learner and a parser to mediate between the two.  Figure \ref{overview}
-illustrates the proposed learning system. Training data is a set of web pages
-set aside specifically for training purposes.  
-
-\begin{figure}
+To achieve the goal of the project, a machine learning techniques comparison framework was
+necessary. In the Introduction Chapter I mentioned the benefit of having a transparent
+system as an object of learning. To further justify this decision, it is worth mentioning
+that generalisation using machine learning is different from most optimization problems in
+that the function that is being optimized is out of our reach, and all that is visible to
+the machine learner is the training error. Because the goal of the project is not the
+correct classification of real data, but identifying the means to correct classification,
+it is important that informed choices were made towards the improvement of the learner.
+Taking this into account, knowing the function to be learned and having direct control
+over it, guided the improvement of the search engine. 
+\begin{figure}[h!]
 \centering
-\includegraphics[scale=0.5]{figs/overview.pdf}
+\includegraphics[width=\textwidth]{figs/overview.pdf}
 \caption{Overview of the system. Three major parts from left to right are search engine,
-parser and machine learner.}
-zo\label{overview}
-
+parser and machine learner. The colour coding indicates belonging to the same component:
+green for the learner, blue for the search engine, pink for the parser and peach for the
+data.\label{overview}}
 \end{figure}
 
+Following this argument, a system in three parts was designed: a search engine, a machine
+learner and a parser to mediate between the two.  Figure \ref{overview} illustrates the
+proposed learning system for the classifier case.
+
+The Training Data is the web pages gathered as described in Section \ref{prep:data} and
+set aside at the beginning specifically for the training purposes. The Queries are
+implicitly part of the Training Data, as they determine which pages are returned by the
+search engine. The pages in the Training directory are first indexed and the PageRank is
+computed for them. The queries are passed to the search engine, which outputs the returned
+pages and the order of importance. The parser computes feature sets for all the pages in
+the training directory and assigns a category to each page depending on the query and the
+output from the search engine. The feature sets are then used to train the learner. The
+trained classifier is the output of the whole system.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{figs/eval.pdf}
+\caption{Evaluation process. }
+\label{eval}
+\end{figure}
+
+In the course of this project two distinct machine learning algorithms have been used.
+Apart from speed and informal correctness, another important aspect of the design was the
+non-interference between the data gathering modules (search engine and parser) and the
+machine learners to avoid biased results. In addition, these parts had to be sufficiently
+decoupled for the purposes of scalability and code reuse: both machine learners must
+communicate with the system via the same interface. 
+
+Evaluation module is also an essential part of the developed system, as it facilitates the
+feedback loop that would help assess the performance of the classifiers. Figure \ref{eval}
+shows a high level diagram of th evaluation process for a classifier. The categorizer is
+a part of the parser that assigns true categories to the input pages. The search engine
+and the categorizer together are used to output the correct classification. This is then
+compared with the classifier's output. The classifier evaluation is further described in
+Section \ref{sec:eval_class} as well as the methodology adopted.
+
+\subsection{Prototypes}
+\label{sec:protos}
+
+The rest of this chapter outlines the implementation of the core parts of the system, the
+challenges faced and the optimizations conducted.
 \section{Search Engine}
 
-The first basic block of the system -- the search engine -- can be logically
-split into two main parts: an indexer and a sorter. Because we concentrate on
-precision, as discussed in the Preparation chapter, we will assume for
-simplicity that all relevant documents are returned. This allowed me to use an 
-existing library implementation of the indexer and focus on the sorter.
-This crude assumption also distinguishes the project's goals from Informational
-Retrieval: we can ignore the evaluation of the search engine itself and move
-away from the specifics of web pages towards the more general problem, so that
-the nature of features makes little difference and the existence of a hidden
-function is all that matters.
+The existence of the search engine had twofold significance in the project: firstly, it
+gave me an insight into how search engines work and secondly, it was a way of gathering
+data for the machine learners. The first prototype of the system was heavily reliant on
+the engine ranking the pages. In the following iterations, however, its importance was
+diminishing: scores were computed for all pages, making the queries irrelevant (see
+Section \ref{sec:protos}). 
 
-\section{Indexer}
+Because I had decided to concentrate on precision, as discussed in Section \ref{prep:se}
+of the Preparation chapter, it was assumed for simplicity that all relevant documents were
+returned by the searcher. This assumption also emphasizes secondary importance of the
+search engine to the project: evaluation of the search engine itself could be ignored. The
+project swiftly moved on from the specifics of web pages towards the more general goal,
+which is concerned a lot more with the nature of the hidden score function than the
+features themselves.
 
-The requirements on the indexer include flexibility, speed of indexing and
-retrieval as well as simplicity and usability.  The \textit{Whoosh} python
-library provides all of these, so I used it to build an indexer. Whoosh is an
-open source indexing library, so I had the option of modifying any part of it.
-It is  built in pure Python, so it has a clean pythonic API. Its primary
-advantage is fast indexing and retrieval, although we are mostly concerned with
-retrieval speed, as indexing is done rarely. The predecessors of Whoosh have
-served as the basis of well-known browsers such as \textit{Lucene}, so it is
-also a powerful indexing tool, should I have needed more sophistication.
+Even though the search engine capabilities were not used to the extent I had envisaged,
+this section will elaborate further on the implementation of the indexer, as it helped me
+gain a useful insight into the field.
 
-I have defined a very simple schema for indexing. Perhaps, one notable detail
-is that Whoosh can store timestamps with the index, which enabled me to provide
-both clean and incremental index methods. The incremental indexing relies on
-the time stamp stored with the index and compares it to the last-modified time
-provided by the file system. The user can specify whether indexing has to be
-done from scratch or updated to accommodate some document changes or document
-addition/deletion. I haven't originally expected to need an incremental
-indexing capability, but throughout the project it has permitted for a
+\subsection{Indexer and Searcher}
+
+The module requirements featured flexibility, speed of indexing and retrieval as well as
+simplicity and usability.  The \textit{Whoosh} python library provides all of these -- it
+is  an open source indexing library, so I had the option of modifying any part of it.  It
+is  built in pure Python, so it has a clean pythonic API. Its primary advantage is fast
+indexing and retrieval, although we are mostly concerned with retrieval speed, as indexing
+is done rarely. The predecessors of Whoosh have served as the basis of well-known browsers
+such as \textit{Lucene}, so it is also a powerful indexing tool, should I have needed more
+sophistication.
+
+I have defined a very simple indexing schema. Perhaps, one notable detail is that Whoosh
+can store timestamps with the index, which enabled me to provide both clean and
+incremental index methods. The incremental indexing relies on the time stamp stored with
+the index and compares it to the last-modified time provided by the file system. The user
+can specify whether indexing has to be done from scratch or updated to accommodate some
+document changes or document addition/deletion. Even though I haven't originally expected
+to need an incremental indexing capability, throughout the project it has permitted for a
 significant speedup.
 
-Previously, I have defined the sorter as a logical unit that provides ranking
-to the retrieved documents. For the first prototype, the sorter returned the
-pages in the order of decreasing PageRank.  Subsequently, the sorting has been
-decoupled from retrieval and incorporated into the Parser module, which is
-described later in detail.
+In the first prototype of the system, the search engine output the pages in the order of
+non-increasing PageRank. Subsequently, the sorting has been decoupled from retrieval and
+incorporated into the Parser module, which is described later in detail.
 
-\section{PageRank} 
+\section{Computing PageRank} 
 \label{impl:pr}
-The PageRank vector is computed using matrix inversion. All matrix operations
-were performed with the help of the python numerical library `numpy'.  Take t
-to be the teleportation probability, s=1-t is the probability of following a
-random link, E is the teleportation probability: equiprobable transitions, as
 
-using non-personalized PageRank (see Preparation), \(E_i,j = 1/N\) for all i,
-j. G is a stochastic matrix holding the link structure of the data, such that 
+Section \ref{prep:pr} of the Preparation chapter explains the principles of the PageRank
+algorithm. In this section the PageRank algorithm is implemented using matrix inversion.
+This is the simplest method to compute PageRank for a few thousands of pages and turned
+out to be reasonably fast. All matrix operations were performed using \textit{Numpy} --
+the Python numerical library. The implementation is derived in the rest of the section.
+
+First, a few variables need to be defined:
+
+\begin{tabular}[h!]{l l}
+	t & the teleportation probability \\
+	s & the probability of following a random link \\
+	E & the teleportation matrix \\
+	G & the matrix holding the link structure of the data \\
+\end{tabular}
+
+Matrix G can be defined as follows:
 \begin{equation*}
   G_i,j = \begin{cases}
     1/L & \text{there is a link from i to j and L = number of links from i}\\
     0   & \text{there is no link from i to j}
   \end{cases}
 \end{equation*}
-Then M is a stochastic matrix representing the web surfer activity, such
+G is computed by traversing the data, which is described in more detail in the next
+section. E is chosen to be:
+\begin{gather*}
+E_i,j = 1/N, 
+\end{gather*}
+which corresponds to a non-personalised PageRank computation: the teleportation
+probabilities are identical for all surfers and all transitions are equiprobable.
+Both G and E are stochastic matrices: their entries are non-negative and their columns sum
+to one.
+
+Probabilities s and t=1-s are customizable and represent the willingness of the surfer to
+follow links as opposed to jump onto a random page. I used the values proposed in the
+original paper\cite{pr} with s=0.85.
+
+I defined a stochastic matrix M representing the web surfer activity, such
 that \(M_i,j\) is the probability of going from page i to page j, 
 \begin{equation} \label{1}
   M = s*G +t*E
 \end{equation}
-In one step the new location of the surfer is described by the distribution Mp.
-We want to find a stationary distribution p, so must have
+In one step the new location of the surfer is described by the distribution \(Mp\).
+The objective is to find a stationary distribution p, so by definition p is unchanged by
+surfer's activity:
 \begin{equation}\label{2}
   p = M*p
 \end{equation}
@@ -696,27 +782,29 @@ Rearranging equation \ref{a} gives
 \begin{equation}
   p*(I-s*G) = t*E*p
 \end{equation}
-where I is the identity matrix
+where I is the identity matrix.
 
-We can express E*p as P where P is a vector
-\([\overbrace{1/N,1/N,\dots,1/N}^N].T\),as members of p must sum to one.
+Because members of p must sum to one, E*p can be expressed as P:
+\begin{gather*}
+	P = [\overbrace{1/N,1/N,\dots,1/N}^N].T
+\end{gather*}
+where T denoted matrix transpose operation.
 So computing PageRank amounts to
 \begin{equation}
 p  = t*(I-s*G)^{-1}*P
 \end{equation}
 where \((I-s*G)^{-1}\) denotes a matrix inverse operation.
 
-This solution is simple at the expense of being slow. Although computing
-inverse of a matrix is computationally expensive, we don't need to scale beyond
-a few thousands of pages.  To avoid recomputation, I used python object
-serialization module - Pickle to store the PageRank vector for each directory.
-The resultant performance was actually very reasonable, the time spent
-computing PageRank was insignificantly small in comparison to the time spent
+This solution is simple at the expense of speed. Although computing inverse of a matrix is
+computationally expensive, the project does not require the computation to scale beyond a
+few thousands of pages. The resultant performance was surprisingly pleasing, the time
+spent computing PageRank was insignificantly small in comparison to the time spent
 crawling the directory.
 
 The PageRank vector computation happens within the \texttt{Pagerank} class. The
-whole \texttt{Pagerank} object is written to memory using the python object
-serialization module \texttt{Pickle}. A \texttt{load} class method is defined
+whole \texttt{Pagerank} object is written to memory using the Python object
+serialization module \texttt{Pickle}. This allows the PageRank vector to be precomputed
+and stored for each directory. The \texttt{load} class method is defined
 on the \texttt{PageRank} class to retrieve the relevant object for a given
 directory. The class is instantiated with an instance of the \texttt{Crawler}
 class, which embodies the link structure of a directory and is described in the
@@ -728,11 +816,11 @@ The \texttt{Crawler} abstracts away the underlying data directories and
 computes their link structures as matrices.  The matrix G, used for the
 PageRank computation, represents random link following activity.  To obtain
 such a link structure each page has to be parsed, and all links recorded.
-Because our data is obtained from a single source page by recursive link
+Because the training and test data are obtained from a single source page by recursive link
 following, every page in a directory is guaranteed to be discovered by a
 spider.
 
-The Crawler class recursively traverses the pages depth first starting with the
+The \texttt{Crawler} class recursively traverses the pages depth first starting with the
 seed page, the same as the seed page used for recursively downloading the pages
 from the web. To make sure each page is only explored once, a dictionary is
 used to hold pairs of absolute path, which uniquely identifies the page, and a
@@ -745,8 +833,8 @@ used to encapsulate path complexity: all link paths are converted to absolute
 paths before addition to the dictionary.  All outbound links are stored with
 the page in a Set data structure, such that no link is added more than once. 
 
-To produce the stochastic matrix G, we start with an empty NxN matrix, where N
-is the total number of pages. We assume that whenever a surfer encounters a
+To produce the stochastic matrix G, an empty NxN matrix is initialised, where N
+is the total number of pages. I also assume that whenever a surfer encounters a
 dangling page -- a page that has no outbound links -- a teleportation step
 occurs. Therefore, every dangling page links to every page in the pool
 including itself with equal probability 1/N. For non-dangling pages, all links
@@ -768,16 +856,86 @@ described by the Table \ref{tab}.
   \end{center}
 \end{table}
 
-\section{Naive Bayes}
-In the course of this project two distinct machine learning algorithms have
-been used. The design goals for the implementations were as usual: speed and
-correctness. Another important aspect of the design is that the system and the
-machine learning modules must be sufficiently decoupled. This is an issue of
-scalability and code reuse. The implication on the machine learner
-implementations is that both must communicate with the system via the same
-interface. The rest of the section describes in detail how the two proposed
-machine learners were implemented.
+\section{Parser}
+\label{sec:parser}
+So far we have looked at the two separate blocks -- the search engine and the
+machine learners. As a functional unit the parser must provide an interface
+between the two. The search engine simply retrieves pages in response to a
+query and the machine learner expects as its input a set of labelled features
+for training and unlabelled features for classification/regression.  The
+Parser, therefore, must hide the nature of the data we are dealing with by
+translating it into the universal language of machine learners. Hence, the
+primary function of the Parser is to compute feature vectors for pages.
+However, it is easy to outsource search engine heuristics into the Parser, too,
+as they require page parsing. 
 
+To accomplish these multiple goals, I have
+taken an object oriented approach to the design of the module. What I refer to
+as the Parser is a few classes, which together perform a series of tasks
+related to page parsing.  The module operates in two modes: rank and score and
+handles both classification and regression. The high level specification is
+that we create two objects: a \texttt{TestFeatureSetCollection} and a
+\texttt{LabelFeatureSetCollection} objects and they encapsulate all the data,
+so can be passed around to the machine learners, as well as evaluation and
+plotting modules. These objects each operate within their own directories, to
+keep training and testing sufficiently separate.
+
+Both category and rank are
+treated as page features and hence are part of the \texttt{LabeledFeatureSet}
+class state.  The \texttt{LabeledFeatureSetCollection} class generates training
+sets from queries, whereas the \texttt{TestFeatureSetCollection} class computes
+predicted category given an instance of a classifier. Both, however, need to
+generate feature sets, one for the Training data and the other for the Test
+data. This common functionality is embodied in their abstract base class,
+\texttt{FeatureSetCollection}.  Figure \ref{uml} shows a UML class diagram
+illustrating the main structure of the module.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[scale=0.5]{figs/uml.png}
+\caption{A UML class diagram describing operation of the Parser.}
+\label{uml}
+\end{figure}
+
+The rest of this section talks about the specifics of the implementation, in
+particular, the features used and how html parsing is done.
+
+\paragraph{Rank mode.}
+Conceptually a \texttt{FeatureSetCollection} is a dictionary of \texttt{LabeledFeatureSet}
+objects indexed by both path to page and  query term. After initialisation, all
+the features are computed and `filled up' per query term per page.
+
+\paragraph{Score mode.}
+\paragraph{Features.}
+
+
+The requirements analysis does not prescribe the use of any particular
+features. However, it states that both dynamic (query dependent) and
+static(query independent) features must be used. PageRank is a dynamic feature
+that has quite special place among others: it takes into account all the pages
+in the pool and reflects on the structural hierarchy of the web pages. 
+The parser loads the pre-computed PageRank vector indexed by page name to
+extract the PageRank of any particular page.
+
+An example of a dynamic feature used in the project is query term count: the
+number of times the query term occurs on the page. This is obtained directly
+from the html files using the BeautifulSoup library, just like for the link
+parsing in the crawler. The html is parsed into clean text and the count is
+computed on the string.
+
+A related but different feature -- stem count -- is the number of times the
+stem of the word occurs in the text. This is obtained using the \texttt{PorterStemmer}
+module in Nltk library.
+
+Boolean features are a slightly different variety of feature, so was worth
+putting in. An example of this is a presence of an image on the page.
+
+The features have been added incrementally as the project progressed. All other
+features are similar to the ones described above and are obtained using the
+same methods.\todo{enumerate features here}
+
+
+\section{Naive Bayes}
 In Section \ref{prep} it has been shown that Naive Bayesian is a good learner
 to implement for the first prototype, so a very quick implementation was
 preferable to make sure the system can potentially function as intended. Due to
@@ -786,12 +944,14 @@ libraries. Because the implementation of this module is straightforward, not
 central to the project, I decided to use one of many existing python
 implementations. 
 
-The \textit{nltk} library implementation was particularly appealing as it offers a very
+The \textit{NLTK} library implementation was particularly appealing as it offers a very
 concise interface. A classifier object is initialised by the \texttt{train}
 method on the \texttt{NaiveBayesClassifier} class. The format of the training
 set is defined as a list of tuples of featuresets and labels, e.g.
-\\ \textit{[(\(featureset_1, label_1\)),\( \cdots\), (\(featureset_N,
-label_N\))]}. 
+\begin{gather*}
+[(featureset_1, label_1), \cdots, (featureset_N,
+label_N)]
+\end{gather*}
 
 The \texttt{train} method simply computes the prior -- the probability
 distribution over labels P(label) and the likelihood -- the conditional
@@ -816,17 +976,19 @@ object is passed to the Parser, where the featuresets for the test directories
 are computed, classified and recorded for the evaluation stage later. The
 particulars of this process is described in section \ref{parser}.
 
-\section{Support Vector Regression} In the Preparaion chapter we have looked at
-the theory of support vector machines as found in textbooks. This section
-builds on the theory described and explains further transformations that were
-an essential part of the implementation.
+\section{Support Vector Regression}
+\label{sec:svm}
+In Section \ref{prep:svm} I have introduced the theory of support vector machines.  This
+section starts off with the implementation, which builds on the theory described in
+Section \ref{prep:svm} and explains further transformations, which made up the essential
+part of the implementation. The section goes on to introduce some kernel functions and
+finishes off by explaining how hyperparameters might be tuned.
 
-To implement a support vector
-machine one must solve a problem of optimizing a quadratic function ssubject to
-linear constraints -- usually referred to as the \textit{Quadratic
-Programming} (QP) problem. Therefore, the first implementation task was to
-convert our existing optimization problem into a generic QP form to make use of
-the available solvers.
+\subsection{Implementation}
+To implement a support vector machine one must solve a problem of optimizing a quadratic
+function subject to linear constraints -- usually referred to as the \textit{Quadratic
+Programming} (QP) problem. Therefore, the first implementation task was to convert our
+existing optimization problem into a generic QP form to make use of the available solvers.
 
 The maximization problem \ref{eq:maxim} can be
 trivially expressed as a minimization problem (equation \ref{eq:minim}).
@@ -842,9 +1004,12 @@ subject to constraints \ref{cns:a} and \ref{cns:b} below.
   \alpha_i,\alpha_i^* \leq C, \;i=1,...,l \label{cns:b} \end{gather}
 
 where \(\mathbf{e}=[1,...,1],\;P_{ij}=K(x_i,x_j),\;t_i\) is the target output,
-\(C > 0\) and \(\epsilon > 0.\) \paragraph*{} At this point in the
-implementation, for the first time, python did not seem like an ideal choice.
-\textit{Cvxopt} is one of the few python libraries that implements a QP solver.
+\(C > 0\) and \(\epsilon > 0.\) 
+
+At this point in the
+implementation, for the first time, Python did not seem like the ideal choice fo
+programming language.
+\textit{Cvxopt} is one of the few Python libraries that implements a QP solver.
 The specification to the QP function is as follows:
 \texttt{cvxopt.solvers.qp(P,q,G,h,A,b)} solves a pair of primal and dual convex
 quadratic programs \begin{gather} \label{spec} \min \frac{1}{2} x^T P x + q^T x
@@ -972,14 +1137,17 @@ and
 b=0
 \end{gather*}
 Having worked out all the matrices, the rest of the implementation dealt simply
-with coding the matrices up. The Cvxopt library has its own matrix constructor,
+with coding the matrices up. The \textit{Cvxopt} library has its own matrix constructor,
 however, has generally limited functionality when it comes to matrix
-operations, so Numpy was used a lot for matrix manipulations. During the first
+operations, so \textit{Numpy} was used a lot for matrix manipulations. 
+
+During the first
 implementation attempt, the solver gave mostly unintelligible error messages,
-so for the prototype SVM I actually used Matlab. Matlab's \texttt{quadprog}
+so for the prototype of the SVM I actually used \texttt{Matlab}. Matlab's \texttt{quadprog}
 function had an identical specification to the Python solver I intended to use.
 Matrices in Matlab are a lot more straightforward to manipulate, which was also
-a good reason to first check the correctness of my matrices in Matlab.
+a good reason to use it to check the correctness of my matrices before porting the code to
+Python.
 
 \subsection{SVM Kernel Functions}
 \label{sec:kernels}
@@ -989,7 +1157,7 @@ intuitive. For example, a linear kernel is perfect for linear heuristics and the
 is reduced to fitting a hyperplane.  Similarly, Radial Basis Kernel picks out hyperspheres
 and so on. However, when we have no expectation of data, we need a most general kernel.
 
-In this section we will examine a few kernels with various score functions: both intuitive
+In this section I will examine a few kernels with various score functions: both intuitive
 and not to observe how performance of each degrades as we use less 
 Here we are using kernels with the parameters determined as shown in the precious section.
 
@@ -1118,8 +1286,7 @@ Varying gamma determines how far from linear the fit as well as overfitting.
   \label{fine}
 \end{subfigure}
 \end{figure}
-\section{Parser}
-\label{sec:parser}
+
 \begin{figure}[h!]
 \centering
 \begin{subfigure}[b]{.49\textwidth}
@@ -1135,83 +1302,6 @@ Varying gamma determines how far from linear the fit as well as overfitting.
   \label{fine}
 \end{subfigure}
 \end{figure}
-So far we have looked at the two separate blocks -- the search engine and the
-machine learners. As a functional unit the parser must provide an interface
-between the two. The search engine simply retrieves pages in response to a
-query and the machine learner expects as its input a set of labelled features
-for training and unlabelled features for classification/regression.  The
-Parser, therefore, must hide the nature of the data we are dealing with by
-translating it into the universal language of machine learners. Hence, the
-primary function of the Parser is to compute feature vectors for pages.
-However, it is easy to outsource search engine heuristics into the Parser, too,
-as they require page parsing. 
-
-To accomplish these multiple goals, I have
-taken an object oriented approach to the design of the module. What I refer to
-as the Parser is a few classes, which together perform a series of tasks
-related to page parsing.  The module operates in two modes: rank and score and
-handles both classification and regression. The high level specification is
-that we create two objects: a \texttt{TestFeatureSetCollection} and a
-\texttt{LabelFeatureSetCollection} objects and they encapsulate all the data,
-so can be passed around to the machine learners, as well as evaluation and
-plotting modules. These objects each operate within their own directories, to
-keep training and testing sufficiently separate.
-
-Both category and rank are
-treated as page features and hence are part of the \texttt{LabeledFeatureSet}
-class state.  The \texttt{LabeledFeatureSetCollection} class generates training
-sets from queries, whereas the \texttt{TestFeatureSetCollection} class computes
-predicted category given an instance of a classifier. Both, however, need to
-generate feature sets, one for the Training data and the other for the Test
-data. This common functionality is embodied in their abstract base class,
-\texttt{FeatureSetCollection}.  Figure \ref{uml} shows a UML class diagram
-illustrating the main structure of the module.
-
-\begin{figure}[h!]
-\centering
-\includegraphics[scale=0.5]{figs/uml.png}
-\caption{A UML class diagram describing operation of the Parser.}
-\label{uml}
-\end{figure}
-
-The rest of this section talks about the specifics of the implementation, in
-particular, the features used and how html parsing is done.
-
-\paragraph{Rank mode.}
-Conceptually a \texttt{FeatureSetCollection} is a dictionary of \texttt{LabeledFeatureSet}
-objects indexed by both path to page and  query term. After initialisation, all
-the features are computed and `filled up' per query term per page.
-
-\paragraph{Score mode.}
-\paragraph{Features.}
-
-
-The requirements analysis does not prescribe the use of any particular
-features. However, it states that both dynamic (query dependent) and
-static(query independent) features must be used. PageRank is a dynamic feature
-that has quite special place among others: it takes into account all the pages
-in the pool and reflects on the structural hierarchy of the web pages. 
-The parser loads the pre-computed PageRank vector indexed by page name to
-extract the PageRank of any particular page.
-
-An example of a dynamic feature used in the project is query term count: the
-number of times the query term occurs on the page. This is obtained directly
-from the html files using the BeautifulSoup library, just like for the link
-parsing in the crawler. The html is parsed into clean text and the count is
-computed on the string.
-
-A related but different feature -- stem count -- is the number of times the
-stem of the word occurs in the text. This is obtained using the \texttt{PorterStemmer}
-module in Nltk library.
-
-Boolean features are a slightly different variety of feature, so was worth
-putting in. An example of this is a presence of an image on the page.
-
-The features have been added incrementally as the project progressed. All other
-features are similar to the ones described above and are obtained using the
-same methods.\todo{enumerate features here}
-
-
 \section{Optimization}
 
 One characteristic peripheral requirement for the system implemented in this
