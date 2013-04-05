@@ -8,6 +8,7 @@
 \usepackage{subcaption}
 \usepackage{pdfpages}
 \usepackage{amsmath}
+\usepackage{hyperref}
 \usepackage{bm}
 \setlength{\parindent}{0cm}
 \setlength{\parskip}{10pt plus 1pt minus 1pt}
@@ -21,6 +22,11 @@
 
 \renewcommand{\baselinestretch}{1.1}    % adjust line spacing to make
 
+\hypersetup{colorlinks=true,
+	urlcolor=blue,
+	linkcolor=black,
+	pdfborder={0 0 0}
+}
 \begin{document}
 
 \bibliographystyle{plain}
@@ -75,12 +81,24 @@ Supervisor:         & Dr Jon Crowcroft                  \\
 
 
 \section*{Original Aims of the Project}
-
+Design and implementation of a framework that allows comparison of machine learning
+techniques. In order to gather data a toy search engine needs to be implemented together
+with two machine learners and an evaluation module. The search engine must take into account
+features of the pages that are likely to be found in real search engines, in particular,
+PageRank must be implemented. The search engine must support the use of various heuristic
+functions. Machine learners must be evaluated with respect to these heuristics and
+compared when possible. 
 
 \section*{Work Completed}
-
+The project has been successful: all objectives outlined in the proposal have been met. An
+effective evaluation framework has been implemented. The implemented search engine
+supports a few features, including PageRank. Two machine learning techniques --
+Naive Bayes and Support Vector Regression -- have been implemented and evaluated with
+various heuristic functions. As an extension, a variety of kernels have been implemented
+for the Support Vector Machine.
 
 \section*{Special Difficulties}
+None.
 
 \section*{Declaration of Originality}
 
@@ -268,7 +286,9 @@ another approach to machine learning and the next learning technique we explore
 -- Support Vector Regression -- is non-probabilistic, to try something as distant
 from Naive Bayes as possible.
 
-ier. \subsection{$\epsilon$-Support Vector Regression}
+ier.
+
+\subsection{$\epsilon$-Support Vector Regression}
 \label{prep:svm}
 While the binary classification problem has as its goal the maximization of the
 margin between the classes, regression is concerned with fitting a hyperplane
@@ -354,8 +374,9 @@ subject to constraints
 I come back to these derivations again in Section \ref{sec:svm} and further derivations
 will be constructed in order to implement the SVM.
 \section{Introduction to PageRank}
+\label{prep:pr}
 The PageRank algorithm was originally described in a research paper
-by Page and Brin\cite{PageRank}. It was first introduced as a way `to measure
+by Page and Brin\cite{pagerank}. It was first introduced as a way `to measure
 the relative importance of web pages'. PageRank is interesting to include in
 this project not only because it is a defining feature of the Google search
 engine, but because it is a unique feature of its type, as it depends on the link
@@ -437,6 +458,7 @@ see the design at work and to avoid surprises at the end.
 \section{Choice of Tools}
 
 \subsection{Data Gathering}
+\label{prep:data}
 Data gathering is of major importance, as data decisions have tremendous impact on the
 rest of the implementation and the success of the project. The rest of the system assumes
 the existence of a pool of web pages available offline for fast indexing and parsing.
@@ -471,7 +493,7 @@ data at the implementation stage. Also, its comparatively small size meant faste
 development.
 
 \subsection{Search Engine}
-
+\label{prep:se}
 Next important decision regarded the search engine.  Originally, I considered
 using open source existing engines, in particular, \textit{Lucene}. Even though I could
 freely modify it for the purposes of the project, the complexity of it was
@@ -507,7 +529,7 @@ to focus on high precision at the expense of recall \cite{GOOGLE}. Therefore, I 
 concentrate primarily on precision when designing a search engine.
 
 
-\subsection{Prograzomming Language}
+\subsection{Programming Language}
 
 When choosing a programming language, main considerations reduced to library availability
 and simplicity. The project imposes no special  requirements on the language, apart from,
@@ -1285,7 +1307,9 @@ The Sigmoid kernel is commonly used in neural networks
 and in combination with an SVM classifier forms a two layer perceptron network,
 where the scale parameter \(a\) is usually set to 1/N, where N is the number of
 dimensions (features)\cite{sigmoid}. This kernel is different from the rest described
-here, as it only satisfies Mercer conditions\footnote{} for some values of its parameters, which
+here, as it only satisfies Mercer's conditions\footnote{A real-valued kernel K(x,y) satisfies
+Mercer's conditions if for all square integrable functions g(x) \(\int\int
+K(x,y)g(x)g(y)dxdy\geq 0.\)} for some values of its parameters, which
 	means SVM can be constructed only for those values\cite{stat_learn}.
 
 The Sum and Product kernels are both an example of combination kernels, in this case a
@@ -1950,6 +1974,6 @@ for anyone to download, use and improve.
 \chapter{Project Proposal}
 \label{prop}
 
-%\input{propbody}
+\input{propbody}
 
 \end{document}
