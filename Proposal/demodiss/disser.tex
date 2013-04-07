@@ -17,7 +17,8 @@
 \sloppy
 \clubpenalty1000%
 \widowpenalty1000%
-
+\usepackage{perpage} %the perpage package
+\MakePerPage{footnote} %the perpage package command
 \addtolength{\oddsidemargin}{6mm}       % adjust margins
 \addtolength{\evensidemargin}{-8mm}
 
@@ -91,9 +92,9 @@ functions. Machine learners must be evaluated with respect to these heuristics a
 compared when possible. 
 
 \section*{Work Completed}
-The project has been successful: all objectives outlined in the proposal have been met. An
-effective evaluation framework has been implemented. The implemented search engine
-supports a few features, including PageRank. Two machine learning techniques --
+The project has been successful: all objectives outlined in the proposal have been met and
+an effective evaluation framework has been implemented. The implemented search engine
+supports a variety features, including PageRank, term and image count. Two machine learning techniques --
 Naive Bayes and Support Vector Regression -- have been implemented and evaluated with
 various heuristic functions. As an extension, a variety of kernels have been implemented
 for the Support Vector Machine.
@@ -132,20 +133,23 @@ extent for a comparable purpose.
 \pagestyle{headings}
 
 \chapter{Introduction}
+This project aims to explore the application of machine learning techniques to search
+engine heuristics. This chapter will outline the motivations and challenges in such a
+project as well as the work conducted in the area already.
+
 \section{Motivation}
 This project is inspired by increasing importance of search engine rankings.
 Today major search engines given a query return web pages in an order
 determined by secret algorithms. Such algorithms are believed 
 to incorporate multiple unknown factors.
 For instance, Google claims to have over 200 unique factors that influence a
-position of a webpage in the search results relative to a query
-\footnote{http://www.google.com/competition/howgooglesearchworks.html}. Only
+position of a web page in the search results relative to a query\footnote{http://www.google.com/competition/howgooglesearchworks.html}. Only
 a handful of these factors are disclosed to the webmasters  in the form of very
 general guidelines. Moreover, the Google algorithm in particular is updated
 frequently. However, most of the knowledge around the area amounts to
 speculation. Despite the fact that it is possible to pass a vast number of
 queries through the black box of any existing search engine, the immensity of
-the search space and instability of such algorithms make them impossible to
+the search space and instability of such algorithms make them difficult to
 reverse engineer.
 
 This project is concerned with application of machine learning techniques to
@@ -154,137 +158,149 @@ machine learning techniques can be used effectively to infer algorithms from
 search engines. 
 Even though this study does not attempt to reverse engineer any existing
 heuristics, the results can be applied to such an ambitious task.
-Moreover, such a framework is potentially more general and can be used for a
+Furthermore, such a framework is potentially more general and can be used to solve a
 range of problems.
 
 \section{Challenges}
-Machine learning is a natural approach to inferring the true algorithm from a
-subset of all possible observations. However, applying machine learning
-techniques to real search engines would be hardly effective, as the dynamic
-nature of the algorithms and the web as well as lack of meaningful feedback
-would prevent incremental improvement: when there are as many as 200 features
-in question, false assumptions made by a learner may have an unpredictable
-effect on its performance.
+Machine learning is a natural approach to heuristic inference. However, applying such
+techniques to real search engines would be potentially ineffective due to a number of
+factors. The variability of the  algorithms, the dynamic nature of the web and lack of
+meaningful feedback would prevent incremental improvement of the learner. For example,
+when there are as many as 200 features in question, false assumptions made by a learner
+may have an unpredictable effect on its performance.
 
-More generally, there are certain ambiguities associated with machine learning,
-which are 'problem-specific'. For example, it proves difficult to decide how
-much training data is necessary, as well as and selecting it to avoid
-over/under-fitting\cite{domingos}. Similarly, it is not straightforward which
-machine learning technique is best for a particular problem.
+More generally, there are certain ambiguities associated with machine learning, which are
+`problem-specific'. For example, it proves difficult to decide how much training data is
+necessary, as well as selecting it to avoid over/under-fitting\cite{domingos}. Similarly,
+it is not straightforward as to which machine learning technique is best for a particular
+problem.
 
-To address the limitations imposed by existing search engines,
-part of the task is to develop a toy search engine that allows me to control
-the nature and complexity of used heuristics. Such transparency addresses the
+In order to circumvent the limitations imposed by using existing search engines,
+part of this project is to develop a toy search engine that allows me to control
+the nature and complexity of heuristics used. Such transparency addresses the
 problems stated above and, more importantly,  allows for useful evaluation of
 machine learning techniques by providing meaningful feedback.
 
+\section{Related Work}
+Machine learning has recently become very popular: it has a variety of applications among
+which is search engine design itself. Due to the vast applicability of the field, a lot of
+research has been done to improve the learning techniques and plenty of resources are
+available. For example, the Naive Bayesian classifier, used in this project, is one of the
+most well-known machine learners. Support Vector Regression, on the other hand, is an
+up-and-coming technique. As a consequence, fewer papers are available and these are prone
+to errors and typographical mistakes.
+
+Despite the abundance of machine learning resources, I am not aware of any research
+conducted specifically in the field of search engine heuristics. There exist certain web
+site analytical tools, which claim to improve Google ranking\footnote{`SEOBook' and
+	`Woorank' are among the popular tools which offer website analysis to help improve
+ranking.}. Such tools are plentiful, but little is said about the methodology used. 
+
+Apart from the machine learning resources, the project relies on the availability of a variety of
+tools, among which are maths, indexing, natural language processing and html parsing tools. All of
+these are readily available in special purpose libraries, which are ubiquitous and well
+documented.
+
 \chapter{Preparation}
 The original aims of the project were defined very broadly, so some further structuring and
-planning were crucial at the early stages to make sure the goals are understood and
+planning was crucial at the early stages to make sure the goals are understood and
 subsequently achieved.
 
-The beginning of this chapter introduces the principles of machine learning and the particular
-techniques implemented during this project in order to familiarise the reader with the
-field and the research done at the beginning.
-The rest of the chapter describes the analysis undertaken before the development, in particular,
-formulating the goals and evaluating the relative importance of parts, as well as
-associated risks. 
+The beginning of this chapter introduces the principles of machine learning and the
+particular techniques implemented during this project in order to familiarise the reader
+with the field and the research I had conducted.  The rest of the chapter describes the
+analyses undertaken before the development, in particular, formulating the goals and
+evaluating the relative importance of system components, as well as their associated
+risks. 
 
 \section{Introduction to Machine Learning}
 
-Machine learning
-constitutes the central part of the project. The field was completely new to me
-to start with, so research of different techniques was a big part of the
-preparation.
+Machine learning constitutes the central part of the project. Initially, the field was new
+to me, so research of different techniques was a big part of the preparation.
 
-Machine learning is a vast field and very little is prescribed.
-The supervised learning approach, where the hidden function is
-inferred from the labelled training data, best fits our purposes for a number
-of reasons. Firstly, it applies well to the real-world problem of inferring the
-heuristics of the real search engines, as we can select training data and
-obtain the labels simply by querying. Secondly, supervised learning is widely
-used and offers a variety of flexible techniques.
+Machine learning techniques can be broadly split into two categories: supervised and
+unsupervised. The supervised learning approach, in which a hidden function is inferred
+from some labelled training data, best fits our purposes for a number of reasons. Firstly,
+it applies well to the problem of inferring the heuristics of a real search engine: one
+can select training data and obtain labels simply by performing queries. Secondly,
+supervised learning is widely used and offers a variety of flexible techniques.
 
-An interesting known problem with machine learning in general is referred to as
-the Curse of Dimensionality. In the real world scenario -- suppose if we were
-inferring an existing search engine from the observed query responses -- we
-could not be sure about which features are and which are not relevant to the
-hidden algorithm. Potentially, some features we might choose to use will
-increase the dimensionality, but would not actually be used by the real
-algorithm. Gathering more features can hurt, as it makes the learner infer
-nonexistent dependencies. Clearly within the scope of this project we will know
-at each point which features are or are not used. So observations can be made
-as to how using more features than the search engine will affect the
-classifier.
+The Curse of Dimensionality is a well-known problem with machine learning. Suppose we were
+inferring an existing search engine algorithm from the observed query responses. In this
+scenario, we could not be sure which features are and are not relevant to the hidden
+algorithm. Potentially, some features we might choose to use will increase the
+dimensionality, but would not actually be used by the real algorithm. Gathering more
+features can hurt, as it makes the learner infer nonexistent dependencies. Clearly, within
+the scope of this project we will know at each point which features are used, which allows
+us to circumvent this problem.
 
-Another major issue that is common to all machine learning methods is
-over/under-fitting. These refer to the problem of finding balance between the
-generalized model and the training data at hand. This is yet another source of
-interest to this project, as we can observe the behaviour of the learner when
-certain control parameters are changed.
+Another major issue that is common to all machine learning methods is over- and
+under-fitting. These refer to the problem of finding balance between generalizing the
+model and closely fitting the training data. This is yet another source of interest to
+this project, as we can observe the behaviour of the learner when certain control
+parameters are changed.
 
 It is generally recommended that the simplest learners are tried
 first\cite{domingos}. Of all learners Naive Bayesian is one of the most
-comprehensible.This in itself is a major advantage according to the Occam's
-razor principle, which finds ample application in machine learning.
+comprehensible. This in itself is a major advantage according to Occam's razor
+principle (which is a general guideline in machine learning).
 Hence, we start with describing the principles of the two machine learning
 techniques used - Naive Bayes and Support Vector Machines.
 
 \subsection{Naive Bayes}
 \label{prep:nb}
-Naive Bayes is a probabilistic classifier based on the Bayes Theorem. The
+Naive Bayes is a probabilistic classifier based on Bayes Theorem. The
 posterior probability \(P(C|\vec{F})\) denotes the probability that a sample
 page with a feature vector \(\vec{F}=(F_1,F_2,\dots,F_n)\) belongs to class C.
-The posterior probability is computed from the observable in the training data: the prior
+The posterior probability is computed from the prior
 probability \(P(C)\) -- the unconditional probability of a page belonging to
 the class C, the likelihood \(P(\vec{F}|C)\) and the evidence \(P(\vec{F})\):
 \begin{equation}
 P(C|\vec{F}) = \frac{P(C)P(\vec{F}|C)}{P(\vec{F})}
 \end{equation}
 
-The simplicity of Bayesian approach owes to the conditional independence
-assumption: each \(F_i\) in \(\vec{F}\) is assumed to be independent of one
-another to get \(P(\vec{F}|C)=P(F_1|C)*P(F_2|C)*\dots*P(F_n|C)\). This leads to a concise classifier definition:
+The right-hand side of the above equation is obtained from the training data.
+
+The simplicity of the Bayesian approach is due to the conditional independence
+assumption: each \(F_i\) in \(\vec{F}\) is assumed to be independent of every other
+to get \(P(\vec{F}|C)=P(F_1|C)*P(F_2|C)*\dots*P(F_n|C)\). This leads to a concise classifier definition:
 \begin{equation}
 \hat{C}= argmax_C P(C)\prod_{i=1}^{n}P(F_i|C)
 \end{equation}
 where \(C\) is the result of classification of a page with feature vector
 \(F_1,F_2,\dots,F_n\).
 
-In practice, the crude assumption rarely  holds and is likely to
-be violated by our data, as we expect features of pages to be interdependent.
-However, it has been shown that Naive Bayes performs well under zero-one loss
-function in presence of dependencies\cite{OPTIM}. This has a few
-implications for this project, particularly, on evaluation methods 
+In practice, the crude assumption rarely  holds and is likely to be violated by our data,
+as we expect features of pages to be interdependent.  However, it has been shown that
+Naive Bayes performs well under zero-one loss\footnote{The zero-one loss function
+	penalizes failure equally, but does not reward or penalize success.} in the
+	presence of dependencies\cite{OPTIM}. This has a few implications for the project,
+	particularly, on evaluation methods.
 
-As we have seen, Naive Bayes assigns probabilities to possible classifications
-in the process of classifying. Even though it generally performs well in
-classification tasks, these probability estimates are poor \cite{domingos96}.
-However, despite poor probability estimates, there exist several frameworks,
-which make use of Bayesian classification and achieve decent performance in
-ranking. For example, Zhang \cite{zhang04} experimentally found that Naive
-Bayes is locally optimal in ranking. The paper defines a classifier as locally
-optimal in ranking a positive example E if there is no negative example ranked
-after E and vice versa for a negative exaple. A classifier is global in ranking
-if it is locally optimal for all examples in the example set: in other words,
-it is optimal in pairwise ranking.  It is particularly interesting that the
-paper discovered that Naive Bayes is globally optimal in ranking on linear
-functions that have been shown as not learnable by Naive
-Bayes\footnote{\textit{M-of-N
-  Concepts} and \textit{Conjunctive Concepts} can't be learnt by Naive Bayes classifier but
-can be optimally ranked by it according to Zhang \cite{zhang04}.}.
-Another framework for ranking \cite{bayesrank} is based on Placket-Luce model, which reconciles
-the concepts of score and rank. This framework is based on minimizing the Bayes
-risk over possible permutations.Existence of such frameworks suggest that Naive Bayes is an adequate choice
-for a prototype learner.
+As we have seen, Naive Bayes assigns probabilities to possible classifications in the
+process of classifying. Even though it generally performs well in classification tasks,
+these probability estimates are poor \cite{domingos96}.  However, despite poor probability
+estimates, there exist several frameworks, which make use of Bayesian classification and
+achieve decent performance in ranking. For example, Zhang \cite{zhang04} experimentally
+found that Naive Bayes is locally optimal in ranking\footnote{The paper defines a
+	classifier as locally optimal in ranking a positive example E if there is no
+negative example ranked after E and vice versa for a negative example.}.  It is
+particularly interesting that the paper discovered that Naive Bayes is globally optimal in
+ranking\footnote{A classifier is globally optimal in ranking if it is locally optimal for
+all examples in the example set: in other words, it is optimal in pairwise ranking. } on
+linear functions that have been shown to not be learnable by Naive
+Bayes\footnote{\textit{M-of-N Concepts} and \textit{Conjunctive Concepts} cannot be learnt
+by Naive Bayes classifier but can be optimally ranked by it according to Zhang
+\cite{zhang04}.}.  Another framework for ranking \cite{bayesrank} is based on Placket-Luce
+model, which reconciles the concepts of score and rank. This framework is based on
+minimizing the Bayes risk over possible permutations.  Existence of such frameworks
+suggests that Naive Bayes is an adequate choice for a prototype learner.
 
 Although classification is a useful technique to try, it feels more natural to
-represent our score or rank as real numbers rather than classes. Regression is
-another approach to machine learning and the next learning technique we explore
--- Support Vector Regression -- is non-probabilistic, to try something as distant
-from Naive Bayes as possible.
-
-ier.
+represent score or rank as real numbers rather than classes. Regression is
+another approach to machine learning and the next learning technique I explored
+-- Support Vector Regression -- is non-probabilistic and has little in common
+with Naive Bayes.
 
 \subsection{$\epsilon$-Support Vector Regression}
 \label{prep:svm}
@@ -294,24 +310,25 @@ through the given training sequence.
 
 A great advantage of Support Vector machines is that they can perform
 non-linear classification or regression by using what is referred to as the
-\textit{Kernel Trick} - an implicit mapping of features into a higher
+\textit{``Kernel Trick''} -- an implicit mapping of features into a higher
 dimensional space, in which the data is linearly separable. The choice of a
 kernel function is problem specific and the best one is usually decided by
-experiment.
+trial and error.
 
-We begin with the theoretical foundations of Support Vector
-Regression, which were first proposed by Vapnik \cite{vapnik}.\\ Define a
-training sequence as a set of training points \(D = \{ (\mathbf{x_1},t_1),
-(\mathbf{x_2},t_2), ... , (\mathbf{x_l},t_l) \}\) where \( \mathbf{x_i} \in R^n
-\) is a feature vector holding features of pages and \( \mathbf{t_i} \in R \)
-is the corresponding ranking of each page.
+I begin with introducing the theoretical foundations of Support Vector
+Regression, which was first proposed by Vapnik \cite{stat_learn}.
+
+Define a training sequence as a set of training points \(D = \{ (\mathbf{x_1},t_1),
+(\mathbf{x_2},t_2), ... , (\mathbf{x_l},t_l) \}\) where \( \mathbf{x_i} \in R^n \) is a
+feature vector holding features of pages and \( \mathbf{t_i} \in R \) is the corresponding
+ranking of each page.
 
 \begin{figure}[h!]
   \centering 
   \begin{subfigure}[b]{0.49\textwidth}
   \includegraphics[width=\linewidth]{figs/loss.pdf}
   \caption{\(\epsilon\)-insensitive loss function}
-  \label{eps} 
+  \label{eps1} 
 \end{subfigure}
   \begin{subfigure}[b]{0.49\textwidth}
   \centering 
@@ -319,18 +336,19 @@ is the corresponding ranking of each page.
   \caption{Predictions with \(\epsilon\)-SVR}
   \label{eps2} 
 \end{subfigure}
+\caption{\label{eps}}
 \end{figure}
 
 In simple linear regression the aim is to minimize a regularized error
-function. We will be using an \(\epsilon\)-insensitive error function(see
-Figure \ref{eps} (a)).
+function. I will be using an \(\epsilon\)-insensitive error function (see
+Figure \ref{eps1}).
 
-\(E_\phi(y(\mathbf(x)-t)) = \left\{ \begin{array}{l l} 0 & \quad \text{if
-\(|y(\mathbf{x})-t)|<\epsilon\)}\\ |y(\mathbf{x})-t)|-\epsilon & \quad
+\(E_\phi(y(\mathbf{x})-t)) = \left\{ \begin{array}{l l} 0 & \quad \text{if
+\(|y(\mathbf{x})-t|<\epsilon\)}\\ |y(\mathbf{x})-t|-\epsilon & \quad
 \text{otherwise} \end{array} \right.\)
 
-where \(y(\mathbf(x) = \mathbf{w^T}\phi(\mathbf{x})+b\) is the hyperplane
-equation (and so \(y(\mathbf{x}) \) is the predicted output) and \(t_n\) is the
+where \(y(\mathbf{x}) = \mathbf{w^T}\phi(\mathbf{x})+b\) is the hyperplane
+equation (and so \(y(\mathbf{x}) \) is the predicted output) and \(t\) is the
 target (true) output.
 
 The regression tube then contains all the points for which \(
@@ -339,7 +357,7 @@ Figure \ref{eps}(b).
 
 To allow variables to lie outside of the tube, slack variables \(\xi_n \geq
 0\)and \(\xi_n^* \geq 0\) are introduced.  The standard formulation of the
-error function for support vector regression (ref Vapnik 1998) can be written
+error function for support vector regression \cite{vapnik} can be written
 as follows:
 
 \begin{gather} E= C\sum_{n=1}^{N}(\xi_n+\xi_n^*)+\frac{1}{2}\|\mathbf{w}\|^2
@@ -348,12 +366,12 @@ as follows:
 \(E\) must be minimized subject to four constraints:
 
 \begin{gather} \xi_n\geq 0,\\ \xi_n^*\geq 0,\\ t_n \leq
-  y(\mathbf{x_n})+\epsilon+\xi_n,\\ t_n \geq y(\mathbf{x_n})-\epsilon-\xi_n^*,
+  y(\mathbf{x_n})+\epsilon+\xi_n,\\ t_n \geq y(\mathbf{x_n})-\epsilon-\xi_n^*
 \end{gather}
 
 This constraint problem can be transformed into its dual form  by introducing
 Lagrange multipliers \(a_n \geq 0, a_n^* \geq 0\)\cite{BISHOP}.  The dual problem involves
-maximizing
+maximizing:
 
 \begin{gather} \label{eq:maxim}  L(\mathbf{a},\mathbf{a^*}) =
   -\frac{1}{2}\sum_{n=1}^{N}\sum_{m=1}^{N}(a_n-a_n^*)(a_m-a_m^*)K(\mathbf{x_n},\mathbf{x_m})
@@ -362,7 +380,7 @@ maximizing
 
 where \(K(x_n,x_m) \) is the kernel function, \(t_n\) is the target output,
 
-subject to constraints
+subject to constraints:
 
 \begin{gather}
   \sum_{n=1}^{N}(a_n-a_n^*)=0,\\
@@ -374,12 +392,11 @@ will be constructed in order to implement the SVM.
 \section{Introduction to PageRank}
 \label{prep:pr}
 The PageRank algorithm was originally described in a research paper
-by Page and Brin\cite{pagerank}. It was first introduced as a way `to measure
-the relative importance of web pages'. PageRank is interesting to include in
+by Page and Brin\cite{pagerank}. It was first introduced as a way ``to measure
+the relative importance of web pages''. PageRank is interesting to include in
 this project not only because it is a defining feature of the Google search
 engine, but because it is a unique feature of its type, as it depends on the link
-structure of the whole web as opposed to other  web features such as word count
-and alike.
+structure of the whole web.
 
 The basic idea is to capture the link structure of the web and provide a
 ranking of pages that is robust against manipulation. To achieve this, the
@@ -388,27 +405,28 @@ they link to. Such a simplified ranking of a set of pages can be expressed as an
 \begin{gather}
   R(u)=c\sum_{v\in B_u}\frac{R(v)}{N_v}
 \end{gather}
+
 An intuitive justification for such ranking is by analogy with a citation
 network, we are likely to find highly cited pages more important.
 The equation is recursive, so iterating until convergence results in a steady
 state distribution, which corresponds to the PageRank vector.
 Together with this intuition the paper introduces the \textit{Random Surfer
 Model}: we are interested in a steady state distribution of a random walk on
-the Web graph. At each step the surfer either follows a random link or
-`teleports' to a random page. The paper justifies the approach of ignoring the
-dangling links, as it doesn't have a significant affect on the ranking. 
+the web graph. At each step the surfer either follows a random link or
+``teleports'' to a random page. The paper justifies the approach of ignoring the
+dangling links, as it does not have a significant affect on the ranking. 
 
-The teleportation vector determines whether the PageRank is personalized. For
+The teleportation vector determines whether the PageRank is ``personalized''. For
 the non-personalized version the teleportation vector holds equal probabilities
-for all pages in the Web, whereas in a personalized approach the probabilities
+for all pages in the web, whereas in a personalized approach the probabilities
 are distributed according the knowledge of the surfer's previous activity. In
-this project we are only concerned with nonpersonalized ranking, which is simpler and
+this project we are only concerned with non-personalized ranking, which is simpler and
 enough for the purposes of the project.
 
 \section{Requirements Analysis} 
 \label{req_anal}
 The original aims of the project were very high level, so explicitly defining the goals in
-the early stages, was central to the success of the project. The main project goals are
+the early stages was central to the success of the project. The main project goals are
 summarized in Table \ref{req}. 
 
 \begin{table}[h!]
@@ -423,13 +441,13 @@ summarized in Table \ref{req}.
     Implement PageRank & Medium & Medium & Low \\ \hline
     \multicolumn{4}{ c }{\bf Non-Functional Requirements}\\\hline
     The search engine must be able to index a few \\ thousand pages in
-    reasonable\footnote{The project imposes no rigid speed requirements, however, it is
-    highly desirable that the computing time does not slow down the project.} time
+    reasonable\footnotemark[1]
+    time
     & Medium & High & Medium \\ \hline
     PageRank computation on a few thousand pages \\ must complete in reasonable time & Medium & High & Medium \\ \hline
     Machine learning modules must learn and classify \\ within reasonable time & High & High & High \\ \hline
   \end{tabular}
-  \caption{Project objecives\label{req}}
+  \caption{Project objectives\label{req}}
 \end{table}
 
 Along with the stated requirements, it is important to note that in this project I
@@ -438,15 +456,13 @@ project is result-oriented, therefore, quick implementation was prioritized over
 use. The system is only meant to be used by me, hence there was no need for documentation
 and user interface.
 
+\footnotetext[1]{The project imposes no rigid speed requirements, however, it is highly desirable that the computing time does not slow the project down.} 
 To effectively plan the development, I also evaluated the dependencies of the core modules
 of the project. Figure \ref{dep} shows the major dependencies present in the project. It
-can be seen that there was a lot of freedom as to the order of implementation. Another
-observation that was revealed during the dependencies evaluation relates the integration.
-All the parts of the project come together in the evaluation, and so it was important to
-make sure the input formats of machine learners match with the output of the parser and so
-on. It also became obvious that due to the apparent convergence of the modules integration
-would be a complex exercise. Therefore, a prototype had to be implemented very early on to
-see the design at work and to avoid surprises at the end.
+can be seen that there was a lot of freedom as to the order of implementation. It also
+became obvious that due to the apparent convergence of the modules, integration would be a
+complex exercise. Therefore, a prototype had to be implemented very early on to see the
+design at work and to avoid surprises.
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.7\textwidth]{figs/dep.pdf}
@@ -454,17 +470,19 @@ see the design at work and to avoid surprises at the end.
 \end{figure}
 
 \section{Choice of Tools}
-
+The project made use of a lot of existing technologies to speed up development. This
+section discusses the most important choices made prior to development, such as the
+programming language and library choices.
 \subsection{Data Gathering}
 \label{prep:data}
 Data gathering is of major importance, as data decisions have tremendous impact on the
 rest of the implementation and the success of the project. The rest of the system assumes
 the existence of a pool of web pages available offline for fast indexing and parsing.
-Ideally the corpus of web pages would be `representative' of the whole web, to make
+Ideally the corpus of web pages would be ``representative'' of the whole web, to make
 generalisations more accurate.  Originally, I was hoping to get such collection from a
-resource, namely, the web corpus of the \textit{Text Retrieval Conference} (TREC).
-However, such data is not easily available, so I had to retrieve pages using
-\textit{Wget}. To approach the similarity to the web, I restricted the corpus to one
+resource, for example, the web corpus of the \textit{Text Retrieval Conference} (TREC).
+However, such data is not easily available, so I had to retrieve pages using the
+\textit{Wget} tool. In order to enhance the link structure of the downloaded pages, I restricted the corpus to one
 semantic area by only downloading websites related to construction
 materials\footnote{There is no particular reason to choose this topic, except that it had
 been used by the external project originator in his experiment trying to infer Google's
@@ -482,27 +500,28 @@ there is no bias in data gathering, more data implies better generality. I have 
 with a training set spanning an order of a few thousands of pages, however, in practice, I
 found that there is no particular improvement beyond a thousand pages.
 
-To conform with machine learning guidelines I separated data for Test and Training at the
-very beginning. Different seed pages were used and the web pages were downloaded into
+To conform with machine learning guidelines I separated data for testing and training at the
+very beginning. Different seed pages were used\footnote{Overlapping of pages is unlikely
+to occur due to shallow recursion depth.} and the web pages were downloaded into
 different directories.  Each directory was estimated at around 3000 pages. In addition to
-this, I have taken the further precaution of setting aside small Development and
-Verification corpora to be used only while development to ensure no bias towards training
-data at the implementation stage. Also, its comparatively small size meant faster
+this, I have taken the further precaution of setting aside small development and
+verification corpora to be used only during development to ensure no bias towards training
+data at the implementation stage. Also, their comparatively small size meant faster
 development.
 
 \subsection{Search Engine}
 \label{prep:se}
-Next important decision regarded the search engine.  Originally, I considered
+The next important decision regarded the search engine.  Originally, I considered
 using open source existing engines, in particular, \textit{Lucene}. Even though I could
 freely modify it for the purposes of the project, the complexity of it was
-superfluous. I saw writing a simple search engine as a more beneficial
+unnecessary. I saw writing a simple search engine as a more beneficial
 exercise, as developing it in the first place potentially gives an insight into
 the problem.
 
 Functionally, the search engine is a black box that takes a set of web pages and a set of
 queries and outputs an order. The order is determined by the features of the page, which
 together make up a score. The score is the function that needs to be inferred using the
-ranking assigned by the search engine, however, we are only given the order as evidence.
+ranking assigned by the search engine. However, we are only given the order as evidence.
 For most of this project I have assumed an existence of conversion between rank and score,
 and so the machine learners interact directly with scores. I have looked in more detail at
 the issue of score and rank, however, I decided that implementation would be beyond the
@@ -519,21 +538,21 @@ retrieved.} \\
 \end{tabular}
 
 Even though both are important to make a good search engine, in practice, the
-web is very large, and so precision, or even \textit{precision at n}\footnote{`Precision
-at n' only evaluates precision with respect to n topmost returned pages.}) has become more
-prominent in defining a good search engine: very rarely the user actually browses returns
-that are not in the top few tens of returned pages. As a result, modern search engines tend
+web is very large, and so precision, or even \textit{precision at n}\footnote{``Precision
+at n'' only evaluates precision with respect to n topmost returned pages.} has become more
+prominent in defining a good search engine: very rarely the user actually browses results
+ranked below the first ten pages. As a result, modern search engines tend
 to focus on high precision at the expense of recall \cite{GOOGLE}. Therefore, I will
 concentrate primarily on precision when designing a search engine.
 
 
 \subsection{Programming Language}
 
-When choosing a programming language, main considerations reduced to library availability
-and simplicity. The project imposes no special  requirements on the language, apart from,
+When choosing a programming language, the main considerations amounted to library availability
+and simplicity. The project imposes no special requirements on the language, apart from,
 perhaps, library infrastructure for parsing web pages, maths and natural language
 processing.  Python is a rapid development language with extensive library support. As for
-efficiency, all the mathematical operations in this project rely on python math libraries,
+efficiency, all the mathematical operations in this project rely on Python math libraries,
 which are implemented in C. I have not programmed in Python before the project, so a
 slight overhead was caused by having to learn a new language.
 
@@ -551,26 +570,26 @@ relevant libraries. This section discusses some core libraries used in this proj
 \subsubsection*{HTML parsing}
 Parsing HTML pages is crucial to the project and relies entirely on the library. I have
 chosen to use the \textbf{BeautifulSoup} library to build and navigate the parse tree.
-There are some simpler tools available for python, however, they do not have such a
-diverse functionality. For example, among the requirements were tag filtering and a
-variety of underlying parsers. The library was mainly used by the parsing module when
-constructing feature sets, as well as by the indexer.
+There are some simpler tools available for Python, however, they do not have such a
+diverse functionality. For example, the project made use of tag filtering and a
+variety of underlying parsers. The library was mainly used by the parsing module (when
+constructing feature sets) and the indexer.
 \subsubsection*{Maths}
 \textbf{NumPy} is the most popular scientific Python library and was used throughout the
 project for various purposes including linear algebra, array and matrix manipulation,
-random number generation and many others.
+random number generation and others.
 
 A library providing a Quadratic Programming Solver, required in order to implement the
 SVM, was the hardest to find. The \textbf{CvxOpt} library was one of very few with such
 functionality.
 
 Other maths libraries, such as \textbf{SciPy} and \textbf{Scikits}, were of secondary importance to
-the project and were needed primarily during evaluation for tasks like curve fitting and
+the project and were needed primarily during evaluation for tasks such as curve fitting and
 statistical bootstrapping.
 \subsubsection*{Plotting}
 Adequate plotting capabilities were essential to the implementation and evaluation of the
 machine learners. \textbf{Matplotlib} is the de facto standard for plotting in Python. It
-has a simple API and importantly supports 3D plots, which were used extensively for visual
+has a simple API and importantly supports 3D plots, which were used extensively for the visual
 verification of SVM and Bayes.
 \subsubsection*{Indexing}
 The choice of indexer was driven primarily by the ease of customisation. The
@@ -579,14 +598,14 @@ plentiful capabilities, a lot of which are highly
 customisable.
 
 \subsubsection*{Object Serialization}
-This functionality was required mainly to allow for precomputing of the PageRank vector
+This functionality was required mainly to allow for the pre-computing of the PageRank vector
 and other static page features. \textbf{Marshal} and \textbf{Pickle} were the two
-alternatives considered in this project. \textbf{Pickle} has proved more robust and
+alternatives considered in the project. \textbf{Pickle} has proved more robust and
 portable, and so was preferred.
 \subsubsection*{Naive Bayes}
 A Bayesian classifier is not hard to implement, so after some consideration I decided to use a library
 implementation, as a fast solution was desirable for the first prototype. There were
-surprisingly many implementations available, among which I chose the \textbf{Natural
+surprisingly many implementations available, from which I chose the \textbf{Natural
 Language Toolkit Library (NLTK)}, as it had a concise and clear implementation as well as a
 simple input format.
 
@@ -605,20 +624,20 @@ service BitBucket.
 
 The backup of the code was twofold: every time a substantial change
 was made the remote repository was updated to hold the newest version. Regularly both the
-code and the data used and obtained during evaluation were also backed up onto an external
+code and the data gathered during evaluation were also backed up onto an external
 hard drive.
 
 \section{Software Engineering Techniques}
 \subsection{Iterative Development}
-While the set up of Part II projects encourages waterfall-like development model, the
-nature of this project motivated an iterative approach. The first iteration rendered a
-prototype: a primitive search engine with a Naive Bayesian baseline classifier.  The next
+While the set-up of Part II projects encourages a waterfall-like development model, the
+nature of this project required an iterative approach. The first iteration rendered a
+prototype: a primitive search engine with a Naive Bayesian baseline classifier. The next
 iteration modified each part of the system towards a more complex solution. Testing and
-debugging was performed at each iteration to ensure the system was improved. Main
+debugging was performed at each iteration to ensure the system was improved. The main
 advantage of iterative development to this project was the ability to verify validity of
 the proposed design early on by means of the first working prototype.
 \subsection{Incremental Build Model}
-Within each  iteration the development followed the evolved waterfall model -- the
+Within each  iteration the development followed the evolved waterfall model, also known as the
 incremental build model. The system was split into components (`builds'), such that each
 represents a functionally separate unit of the system: a search engine, a learner, a
 parser and an assessment module. Increments were developed sequentially and were tested
@@ -629,27 +648,27 @@ decompose a complex system into manageable chunks, which eased the development.
 In this chapter I have outlined the research and planning completed prior to the
 implementation stage. In particular, the chapter provided brief introductions to the machine
 learning techniques and the PageRank algorithm as well as shaping more detailed aims of
-the project. I also touched upon the development strategy followed during the project as
-well as the libraries used.
+the project. I also touched upon the development strategy followed during the project 
+and the libraries used.
 
 \cleardoublepage
 
 \chapter{Implementation}
-This chapter describes the implementation of the system that was implemented in this
+This chapter describes the implementation of the system that was developed in this
 project. The outline of the overall architecture is followed by more detailed descriptions
-of the individual components.
+of the individual components: the search engine, the parser and the machine learners.
 
 All components were implemented successfully and together form a working system.
 \section{System Architecture}
 
 To achieve the goal of the project, a machine learning techniques comparison framework was
 necessary. In the Introduction Chapter I mentioned the benefit of having a transparent
-system as an object of learning. To further justify this decision, it is worth mentioning
+system as the object to be learnt. To further justify this decision, it is worth mentioning
 that generalisation using machine learning is different from most optimization problems in
 that the function that is being optimized is out of our reach, and all that is visible to
 the machine learner is the training error. Because the goal of the project is not the
 correct classification of real data, but identifying the means to correct classification,
-it is important that informed choices were made towards the improvement of the learner.
+it was important that informed choices were made towards the improvement of the learner.
 Taking this into account, knowing the function to be learned and having direct control
 over it, guided the improvement of the search engine. 
 \begin{figure}[h!]
@@ -662,15 +681,15 @@ data.\label{overview}}
 \end{figure}
 
 Following this argument, a system in three parts was designed: a search engine, a machine
-learner and a parser to mediate between the two.  Figure \ref{overview} illustrates the
-proposed learning system for the classifier case.
+learner and a parser to mediate between the two. Figure \ref{overview} illustrates the
+proposed learning system.
 
 The Training Data is the web pages gathered as described in Section \ref{prep:data} and
 set aside at the beginning specifically for the training purposes. The Queries are
-implicitly part of the Training Data, as they determine which pages are returned by the
-search engine. The pages in the Training directory are first indexed and the PageRank is
+implicitly part of the training data, as they determine which pages are returned by the
+search engine. The pages in the training directory are first indexed and the PageRank is
 computed for them. The queries are passed to the search engine, which outputs the returned
-pages and the order of importance. The parser computes feature sets for all the pages in
+pages in the order of importance. The parser computes feature sets for all the pages in
 the training directory and assigns a category to each page depending on the query and the
 output from the search engine. The feature sets are then used to train the learner. The
 trained classifier is the output of the whole system.
@@ -682,23 +701,22 @@ trained classifier is the output of the whole system.
 \label{eval}
 \end{figure}
 
-In the course of this project two distinct machine learning algorithms have been used.
 Apart from speed and informal correctness, another important aspect of the design was the
 non-interference between the data gathering modules (search engine and parser) and the
 machine learners to avoid biased results. In addition, these parts had to be sufficiently
 decoupled for the purposes of scalability and code reuse: both machine learners must
 communicate with the system via the same interface. 
 
-Evaluation module is also an essential part of the developed system, as it facilitates the
+The evaluation module is also an essential part of the developed system, as it facilitates the
 feedback loop that would help assess the performance of the classifiers. Figure \ref{eval}
-shows a high level diagram of th evaluation process for a classifier. The categorizer is
+shows a high level diagram of the evaluation process for a classifier. The Categorizer is
 a part of the parser that assigns true categories to the input pages. The search engine
 and the categorizer together are used to output the correct classification. This is then
 compared with the classifier's output. The classifier evaluation is further described in
 Section \ref{sec:eval_class} as well as the methodology adopted.
 
 The rest of this chapter outlines the implementation of the core parts of the system, the
-challenges faced and the optimizations conducted.
+challenges faced and the optimizations applied.
 \section{Search Engine}
 
 The existence of the search engine had twofold significance in the project: firstly, it
@@ -724,105 +742,105 @@ gain a useful insight into the field.
 The module requirements featured flexibility, speed of indexing and retrieval as well as
 simplicity and usability.  The \textit{Whoosh} python library provides all of these -- it
 is  an open source indexing library, so I had the option of modifying any part of it.  It
-is  built in pure Python, so it has a clean pythonic API. Its primary advantage is fast
-indexing and retrieval, although we are mostly concerned with retrieval speed, as indexing
-is done rarely. The predecessors of Whoosh have served as the basis of well-known browsers
-such as \textit{Lucene}, so it is also a powerful indexing tool, should I have needed more
-sophistication.
+is  built in pure Python, hence it has a clean pythonic API. Its primary advantage is fast
+indexing and retrieval, although the project is mostly concerned with retrieval speed, as
+indexing is done rarely. The predecessors of Whoosh have served as the basis of well-known
+search engines such as \textit{Lucene}, so it is also a powerful indexing tool, should I
+have needed more sophistication.
 
 I have defined a very simple indexing schema. Perhaps, one notable detail is that Whoosh
-can store timestamps with the index, which enabled me to provide both clean and
+can store time stamps with the index, which enabled me to provide both clean and
 incremental index methods. The incremental indexing relies on the time stamp stored with
 the index and compares it to the last-modified time provided by the file system. The user
 can specify whether indexing has to be done from scratch or updated to accommodate some
-document changes or document addition/deletion. Even though I haven't originally expected
-to need an incremental indexing capability, throughout the project it has permitted for a
-significant speedup.
+page changes or page addition/deletion. Even though I had not originally expected
+to need the incremental indexing capabilities, throughout the project it has provided
+significant speedups.
 
 In the first prototype of the system, the search engine output the pages in the order of
 non-increasing PageRank. Subsequently, the sorting has been decoupled from retrieval and
-incorporated into the Parser module, which is described later in detail.
+incorporated into the Parser module, which is described in detail in Section
+\ref{sec:parser}.
 
 \section{Computing PageRank} 
 \label{impl:pr}
 
-Section \ref{prep:pr} of the Preparation chapter explains the principles of the PageRank
+Section \ref{prep:pr} of the Preparation Chapter explains the principles of the PageRank
 algorithm. In this section the PageRank algorithm is implemented using matrix inversion.
-This is the simplest method to compute PageRank for a few thousands of pages and turned
+This is the simplest method to compute PageRank for a few thousand pages and turned
 out to be reasonably fast. All matrix operations were performed using \textit{Numpy} --
 the Python numerical library. The implementation is derived in the rest of the section.
 
 First, a few variables need to be defined:
 
 \begin{tabular}[h!]{l l}
-	t & the teleportation probability \\
-	s & the probability of following a random link \\
-	E & the teleportation matrix \\
-	G & the matrix holding the link structure of the data \\
+	\(t\) & the teleportation probability \\
+	\(s\) & the probability of following a random link \\
+	\(\bm{E}\) & the teleportation matrix \\
+	\(\bm{G}\) & the matrix holding the link structure of the data \\
 \end{tabular}
 
-Matrix G can be defined as follows:
+Matrix \(G\) can be defined as follows:
 \begin{equation*}
-  G_i,j = \begin{cases}
-    1/L & \text{there is a link from i to j and L = number of links from i}\\
-    0   & \text{there is no link from i to j}
+	G_{i,j} = \begin{cases}
+    1/L & \text{if there is a link from i to j, where L = number of links from i}\\
+    0   & \text{otherwise}
   \end{cases}
 \end{equation*}
-G is computed by traversing the data, which is described in more detail in the next
-section. E is chosen to be:
+\(\bm{G}\) is computed by traversing the data, which is described in more detail in the next
+section. \(\bm{E}\) is chosen to be:
 \begin{gather*}
-E_i,j = 1/N, 
+	E_{i,j} = 1/N, 
 \end{gather*}
 which corresponds to a non-personalised PageRank computation: the teleportation
 probabilities are identical for all surfers and all transitions are equiprobable.
-Both G and E are stochastic matrices: their entries are non-negative and their columns sum
+Both \(\bm{G}\) and \(\bm{E}\) are stochastic matrices: their entries are non-negative and their columns sum
 to one.
 
-Probabilities s and t=1-s are customizable and represent the willingness of the surfer to
+Probabilities \(s\) and \(t=1-s\) are customizable and represent the willingness of the surfer to
 follow links as opposed to jump onto a random page. I used the values proposed in the
-original paper\cite{pagerank} with s=0.85.
+original paper\cite{pagerank} with \(s=0.85\).
 
-I defined a stochastic matrix M representing the web surfer activity, such
-that \(M_i,j\) is the probability of going from page i to page j, 
+I defined a stochastic matrix \(\bm{M}\) representing the web surfer activity, such
+that \(M_{i,j}\) is the probability of going from page \(i\) to page \(j\), 
 \begin{equation} \label{1}
-  M = s*G +t*E
+	\bm{M} = s \bm{G} +t \bm{E}
 \end{equation}
-In one step the new location of the surfer is described by the distribution \(Mp\).
-The objective is to find a stationary distribution p, so by definition p is unchanged by
+In one step the new location of the surfer is described by the distribution \(\bm{Mp}\).
+The objective is to find a stationary distribution \(\bm{p}\), so by definition \(\bm{p}\) is unchanged by
 surfer's activity:
 \begin{equation}\label{2}
-  p = M*p
+	\bm{p} = \bm{M}\bm{p}
 \end{equation}
 Substituting \ref{1} into \ref{2}
 \begin{equation} \label{a}
-  p = (s*G+t*E)*p = s*G*p + t*E*p
+	\bm{p} = (s\bm{G}+t\bm{E})\bm{p} = s\bm{G} \bm{p} + t\bm{E} \bm{p}
 \end{equation}
 Rearranging equation \ref{a} gives
 \begin{equation}
-  p*(I-s*G) = t*E*p
+	\bm{p}(\bm{I}-s\bm{G}) = t\bm{E} \bm{p}
 \end{equation}
-where I is the identity matrix.
+where \(\bm{I}\) is the identity matrix.
 
-Because members of p must sum to one, E*p can be expressed as P:
+Because members of \(\bm{p}\) must sum to one, \(\bm{E} \bm{p}\) can be expressed as \(\bm{P}\):
 \begin{gather*}
-	P = [\overbrace{1/N,1/N,\dots,1/N}^N].T
+	\bm{P} = [\overbrace{1/N,1/N,\dots,1/N}^N]^T
 \end{gather*}
-where T denoted matrix transpose operation.
 So computing PageRank amounts to
 \begin{equation}
-p  = t*(I-s*G)^{-1}*P
+	\bm{p}  = t(\bm{I}-s\bm{G})^{-1}\bm{P},
 \end{equation}
-where \((I-s*G)^{-1}\) denotes a matrix inverse operation.
+where \((\bm{I}-s\bm{G})^{-1}\) denotes a matrix inverse operation.
 
 This solution is simple at the expense of speed. Although computing inverse of a matrix is
 computationally expensive, the project does not require the computation to scale beyond a
-few thousands of pages. The resultant performance was surprisingly pleasing, the time
+few thousand pages. The resultant performance was surprisingly pleasing, the time
 spent computing PageRank was insignificantly small in comparison to the time spent
 crawling the directory.
 
 The PageRank vector computation happens within the \texttt{Pagerank} class. The
 whole \texttt{Pagerank} object is written to memory using the Python object
-serialization module \texttt{Pickle}. This allows the PageRank vector to be precomputed
+serialization module \textit{Pickle}. This allows the PageRank vector to be pre-computed
 and stored for each directory. The \texttt{load} class method is defined
 on the \texttt{PageRank} class to retrieve the relevant object for a given
 directory. The class is instantiated with an instance of the \texttt{Crawler}
@@ -832,7 +850,7 @@ next section.
 \section{Crawler} 
 
 The \texttt{Crawler} abstracts away the underlying data directories and
-computes their link structures as matrices.  The matrix G, used for the
+computes their link structures as matrices.  The matrix \(\bm{G}\), used for the
 PageRank computation, represents random link following activity.  To obtain
 such a link structure each page has to be parsed, and all links recorded.
 Because the training and test data are obtained from a single source page by recursive link
@@ -842,7 +860,7 @@ spider.
 The \texttt{Crawler} class recursively traverses the pages depth first starting with the
 seed page, the same as the seed page used for recursively downloading the pages
 from the web. To make sure each page is only explored once, a dictionary is
-used to hold pairs of absolute path, which uniquely identifies the page, and a
+used to hold pairs of absolute paths, which uniquely identify the page, and a
 numerical value corresponding to the time stamp when the page has been first
 discovered.
 
@@ -852,11 +870,11 @@ used to encapsulate path complexity: all link paths are converted to absolute
 paths before addition to the dictionary.  All outbound links are stored with
 the page in a Set data structure, such that no link is added more than once. 
 
-To produce the stochastic matrix G, an empty NxN matrix is initialised, where N
+To produce the stochastic matrix \(\bm{G}\), an empty \(N\times N\) matrix is initialised, where \(N\)
 is the total number of pages. I also assume that whenever a surfer encounters a
 dangling page -- a page that has no outbound links -- a teleportation step
 occurs. Therefore, every dangling page links to every page in the pool
-including itself with equal probability 1/N. For non-dangling pages, all links
+including itself with equal probability \(\frac{1}{N}\). For non-dangling pages, all links
 are assumed equiprobable and all pages that are not linked to have probability
 of 0. So if page A links to pages B and C, but not itself or D, its row in G is
 described by the Table \ref{tab}.
@@ -877,20 +895,19 @@ described by the Table \ref{tab}.
 
 \section{Optimizations}
 
-One characteristic peripheral requirement for the system implemented in this
-project is speed.  Even though it is not our direct goal to produce efficient
-implementations, optimization could not be overlooked, because significant
-amount of time is spent processing large quantities of data: indexing, PageRank
-and feature set computations all must complete in `feasible' time, i.e. in the
+Even though speed is not a direct goal of the project, efficient implementation
+was desirable and so, optimization could not be overlooked. Significant
+amount of time was spent processing large quantities of data: indexing, PageRank
+and feature set computations all must complete in `reasonable' time, i.e. in the
 final implementation the longest computation takes order of minutes and
 processes a few thousand pages. Various optimizations have been used to achieve
 this. 
 
 Both PageRank vector and the index are precomputed and kept in
-persistent storage. Incremental indexing feature allows us to edit parts of the
+persistent storage. The incremental indexing feature allows us to edit parts of the
 index as opposed to recomputing the whole index from scratch. These
 precomputations provide certain speedups, but were not enough.  Because the
-system is fairly complex and a lot of library code is used in places, it was
+system is fairly complex and a lot of library code is used throughout, it was
 hard to determine which code most affects the speed. `Blind' attempts at
 optimization did not work well, which motivated the use of a profiling tool.
 
@@ -898,12 +915,12 @@ Profiling the first prototype of the complete system revealed a surprising
 fact: most time was spent in the library code parsing pages. To mitigate this
 issue I have tried using custom parsers instead. Apart from speed, robustness
 was another important consideration, as a failure of a parser increases compute
-time. Two of the most renowned python parsers are\textit{html5lib} and
-\textit{lxml}.  Figure
-\ref{parsers} below shows visual representation of time profiling of 3
-different runs obtained using the \textit{RunSnakeRun}, each exploiting a
-different parser.  Despite \textit{html5lib} being quoted as the most
-robust/lenient, \textit{lxml} was sufficiently faster to be preferable.
+time. Two of the most renowned python parsers are \textit{Html5lib} and
+\textit{Lxml}. Figure
+\ref{parsers} below shows the visual representation for time profiling of 3
+different runs obtained using \textit{RunSnakeRun}, each exploiting a
+different parser.  Despite \textit{Html5lib} being quoted as the most
+robust and lenient, \textit{Lxml} was sufficiently faster to be preferable.
 
 \begin{figure}[h!]
 \centering
@@ -917,14 +934,14 @@ robust/lenient, \textit{lxml} was sufficiently faster to be preferable.
 \begin{subfigure}[b]{.3\textwidth}
   \centering
   \includegraphics[width=\linewidth]{figs/html5.png}
-  \caption{html5lib}
+  \caption{Html5lib}
   \label{html}
 \end{subfigure}
 \quad
 \begin{subfigure}[b]{.3\textwidth}
   \centering
   \includegraphics[width=\linewidth]{figs/lxml.png}
-  \caption{lxml}
+  \caption{Lxml}
   \label{lxml}
 \end{subfigure}
 \caption{Visual profiles of three parsers from left to right: default python
@@ -936,14 +953,13 @@ implementation, it can be observed that lxml (rightmost) is the fastest and
 html5lib is the slowest.\label{parsers}}
 \end{figure}
 
-Another useful limitation was discovered due to profiling. The PageRank vector
-was loaded into memory every time a page was parsed: once for each page. This
-clearly is undesirable. I used caching to ensure that each of the two possible
+Another limitation was discovered due to profiling: the PageRank vector
+was loaded into memory every time a page was parsed. The loading, therefore, happened once for each page, which
+is clearly undesirable. I used caching to ensure that each of the two possible
 PageRank vectors (corresponding to the test and train directories) is loaded
 from memory exactly once. This is achieved via a double singleton class, which
 loads the vectors lazily.
 
-\cleardoublepage
 
 \section{Parser}
 \label{sec:parser}
@@ -951,37 +967,37 @@ So far we have looked at the search engine. This section describes the parser --
 functional unit, which provides an interface from the search engine to the machine
 learners.  The search engine simply retrieves pages in response to a query and the machine
 learner expects as its input a set of labelled features for training and unlabelled
-features for classification/regression.  The Parser, therefore, must hide the nature of
+features for classification/regression.  The parser, therefore, must hide the nature of
 the data we are dealing with by translating it into the universal language of machine
-learners. Hence, the primary function of the Parser is to compute feature vectors for
+learners. Hence, the primary function of the parser is to compute feature vectors for
 pages.  However, it is easy to outsource search engine heuristics into the Parser, too, as
 they require page parsing. 
 
 To accomplish these multiple goals, I have
 taken an object oriented approach to the design of the module. What I refer to
-as the Parser is a few classes, which together perform a series of tasks
+as the parser is a few classes, which together perform a series of tasks
 related to page parsing.  The module operates in two modes: rank and score and
-handles both classification and regression. The high level specification two objects are
-created: a \texttt{TestFeatureSetCollection} and a
-\texttt{LabelFeatureSetCollection}. These objects encapsulate all the data,
-so can be passed around to the machine learners, as well as evaluation and
+handles both classification and regression. The most abstract interface to the module is through the two
+classes: a \texttt{TestFeatureSetCollection} and a
+\texttt{LabelledFeatureSetCollection}. Instances of these classes encapsulate all the data,
+so can be passed around to the machine learners, as well as the evaluation and
 plotting modules. These objects each operate within their own directories, to
 keep training and testing sufficiently separate.
 
-Both category and rank are
-treated as page features and hence are part of the \texttt{LabeledFeatureSet}
-class state.  The \texttt{LabeledFeatureSetCollection} class generates training
-sets from queries, whereas the \texttt{TestFeatureSetCollection} class computes
-predicted category given an instance of a classifier. Both, however, need to
-generate feature sets, one for the Training data and the other for the Test
-data. This common functionality is embodied in their abstract base class,
-\texttt{FeatureSetCollection}.  Figure \ref{uml} shows a UML class diagram
-illustrating the main structure of the module.
+Both category and rank are treated as page features and hence are part of the
+\texttt{LabelledFeatureSet} class state.  The
+\texttt{LabelledFeatureSetCollection} class is used for training the classifier,
+whereas the \texttt{TestFeatureSetCollection} class computes predicted is used
+for testing the classifier. Both, however, need to generate
+feature sets, one for the training data and the other for the test data. This
+common functionality is embodied in their abstract base class,
+\texttt{FeatureSetCollection}. Figure \ref{uml} shows a UML class diagram
+illustrating the main dependencies of the module.
 
 \begin{figure}[h!]
 \centering
 \includegraphics[scale=0.5]{figs/uml.png}
-\caption{A UML class diagram describing operation of the Parser.}
+\caption{A UML class diagram illustrating the structure of the parser.}
 \label{uml}
 \end{figure}
 
@@ -989,16 +1005,16 @@ The rest of this section talks about the specifics of the implementation, in
 particular, the features used and how HTML parsing is done.
 
 \subsection{Rank and Score}
-Conceptually a \texttt{FeatureSetCollection} is a dictionary of \texttt{LabeledFeatureSet}
-objects indexed by both path to page and query term. After initialisation, all
-the features are computed and `filled up' per query term per page.
+Conceptually a \texttt{FeatureSetCollection} is a dictionary of \texttt{LabelledFeatureSet}
+objects indexed by both page path and query term, as the features depend on both. After initialisation, all
+the features are computed and `filled up' per page and per query term.
 In the original prototype the search engine used to output ranks (the ordinal representing the position of the
-page in returns) as the target value for the machine learners to infer. This was fine for
+page in results) as the target value for the machine learners to infer. This was fine for
 a prototype, however, there was an obvious flaw in this approach: the rank depends
 on the other web pages, which makes it impossible to infer from the features of a single
 page. 
 
-The later prototype assumed the existence of conversion between rank and score and passed
+The later prototypes assumed the existence of conversion between rank and score and passed
 scores directly to the machine learners. The score function was implemented as a class method on the
 \texttt{LabelledFeatureSet}, so that the scores could be computed ad hoc for a variety of
 heuristics.
@@ -1008,38 +1024,37 @@ heuristics.
 
 The requirements analysis does not prescribe the use of any particular
 features. However, it states that both dynamic (query dependent) and
-static(query independent) features must be used. PageRank is a dynamic feature
-that has quite special place among others: it takes into account all the pages
-in the pool and reflects on the structural hierarchy of the web pages. 
-The parser loads the pre-computed PageRank vector indexed by page name to
-extract the PageRank of any particular page.
+static (query independent) features must be used. PageRank is a dynamic feature
+that stands out above the others: it takes into account all the pages
+in the pool and reflects on the link structure hierarchy of the web pages. 
+The parser loads the pre-computed PageRank vector indexed by the path to
+extract the PageRank for any page.
 
 An example of a dynamic feature used in the project is query term count: the
 number of times the query term occurs on the page. This is obtained directly
-from the html files using the BeautifulSoup library, just like for the link
-parsing in the crawler. The html is parsed into clean text and the count is
-computed on the string.
+from the HTML files using the BeautifulSoup library.
+The HTML is parsed into clean text and the count is
+computed on the resultant string.
 
 A related but different feature -- stem count -- is the number of times the
 stem of the word occurs in the text. This is obtained using the \texttt{PorterStemmer}
-module in NLTK library.
+module in the NLTK library.
 
-Boolean features are a slightly different variety of feature, so was worth
-putting in. An example of this is a presence of an image on the page, compliance of the
-page to an existing HTML standard or presence of advertisements.
+Boolean features are another variety, which  behave differently to the other
+features. Examples of boolean features include the presence of an image on a page, compliance
+of the page to an existing HTML standard and presence of advertisements.
 
 The features have been added incrementally as the project progressed. All other
 features are similar to the ones described above and are obtained using the
 same methods. 
 
-
 \section{Naive Bayes}
-In Section \ref{prep:nb} it has been shown that Naive Bayesian is a good learner
-to implement for the first prototype, so a very quick implementation was
-preferable to make sure the system can potentially function as intended. Due to
-its simplicity and popularity, Naive Bayesian is widely available in the
-libraries. Because the implementation of this module is straightforward, not
-central to the project, I decided to use one of many existing python
+In Section \ref{prep:nb} it has been shown that the Naive Bayesian Classifier (NBC) is a good learner
+to implement as the first prototype, so a very quick implementation was
+preferred to make sure that the system can function as intended. Due to
+its simplicity and popularity, the NBC is widely available in 
+libraries. Because the implementation of this module is straightforward and not
+central to the project, I decided to use one of many existing Python
 implementations. 
 
 The \textit{NLTK} library implementation was particularly appealing as it offers a very
@@ -1052,10 +1067,10 @@ label_N)]
 \end{gather*}
 
 The \texttt{train} method simply computes the prior -- the probability
-distribution over labels P(label) and the likelihood -- the conditional
-probability P(\(featureset=f|label\)) by simply counting and recording the
+distribution over labels \(P(label)\) and the likelihood -- the conditional
+probability \(P(featureset=f|label\) by simply counting and recording the
 relevant instances. The method outputs a \texttt{NaiveBayesClassifier} instance
-parametrized by the two probability distributions. P(features) is not
+parametrized by the two probability distributions. \(P(features)\) is not
 computed explicitly, instead, a normalizing denominator \ref{normal} is used.
 
 \begin{equation} \sum_{l \in labels}(P(l)P(featureset_1|l)\cdots
@@ -1063,20 +1078,20 @@ computed explicitly, instead, a normalizing denominator \ref{normal} is used.
 
 The \texttt{classify} method on the \texttt{NaiveBayesClassifier} object takes
 exactly one featureset and returns a label which maximizes the posterior
-probability P(label|featureset) over all labels.  Previously unseen features
-are ignored by the classifier, so that to avoid assigning zero probability to
+probability \(P(label|featureset)\) over all labels.  Previously unseen features
+are ignored by the classifier, in order to avoid assigning zero probability to
 everything.
 
 The only tangible difficulty with the implementation was the
 framework in which classification is done. This task is, however, achieved by
-the Parser.  To batch classify everything in the test directory, the classifier
-object is passed to the Parser, where the featuresets for the test directories
+the parser. To batch classify everything in the test directory, the classifier
+object is passed to the parser, where the featuresets for the test directories
 are computed, classified and recorded for the evaluation stage later. The
-particulars of this process was described in section \ref{sec:parser}.
+particulars of this process were described in Section \ref{sec:parser}.
 
 \section{Support Vector Regression}
 \label{sec:svm}
-In Section \ref{prep:svm} I have introduced the theory of support vector machines.  This
+In Section \ref{prep:svm} I have introduced the theory of support vector machines. This
 section starts off with the implementation, which builds on the theory described in
 Section \ref{prep:svm} and explains further transformations, which made up the essential
 part of the implementation. The section goes on to introduce some kernel functions and
@@ -1084,19 +1099,19 @@ finishes off by explaining how hyperparameters might be tuned.
 
 \subsection{Implementation}
 To implement a support vector machine one must solve a problem of optimizing a quadratic
-function subject to linear constraints -- usually referred to as the \textit{Quadratic
+function subject to linear constraints, usually referred to as the \textit{Quadratic
 Programming} (QP) problem. Therefore, the first implementation task was to convert our
 existing optimization problem into a generic QP form to make use of the available solvers.
 
-The maximization problem \ref{eq:maxim} can be
-trivially expressed as a minimization problem (equation \ref{eq:minim}).
+The maximization problem given in Equation \ref{eq:maxim} can be
+trivially expressed as the minimization problem in Equation \ref{eq:minim}.
 
 \begin{gather}\label{eq:minim} min_{\bm{\alpha},\bm{\alpha^*}}
   \frac{1}{2}(\bm{\alpha-\alpha^*})^T P (\bm{\alpha - \alpha^*})+\epsilon
   \sum_{i=1}^{l}(\alpha_i+\alpha_i^*)-\sum_{i=1}^{l}t_i(\alpha_i-\alpha_i^*)
 \end{gather}
 
-subject to constraints \ref{cns:a} and \ref{cns:b} below. This derivation can be found in
+Subject to constraints \ref{cns:a} and \ref{cns:b} below. This derivation can be found in
 the LIBSVM paper\cite{SVMLIB}, however, the version in the paper contains an error.
 
 \begin{gather} \mathbf{e(\bm{\alpha}}-\bm{\alpha^*})=0 \label{cns:a}\\ 0\leq
@@ -1106,9 +1121,9 @@ where \(\mathbf{e}=[1,...,1],\;P_{ij}=K(x_i,x_j),\;t_i\) is the target output,
 \(C > 0\) and \(\epsilon > 0.\) 
 
 At this point in the
-implementation, for the first time, Python did not seem like the ideal choice fo
+implementation, for the first time, Python did not seem like the ideal choice of
 programming language.
-\textit{Cvxopt} is one of the few Python libraries that implements a QP solver.
+\textit{CvxOpt} is one of the few Python libraries that implements a QP solver.
 The specification to the QP function is as follows:
 \texttt{cvxopt.solvers.qp(P,q,G,h,A,b)} solves a pair of primal and dual convex
 quadratic programs \begin{gather} \label{spec} \min \frac{1}{2} x^T P x + q^T x
@@ -1116,9 +1131,10 @@ quadratic programs \begin{gather} \label{spec} \min \frac{1}{2} x^T P x + q^T x
 
  subject to
 
-\begin{gather} G x \leq h\\ Ax = b \end{gather} Described in the next few pages
+\begin{gather} G x \leq h\\ Ax = b \end{gather} 
+Described in the next few pages
 are the transformations I devised to reconcile the minimization problem
-\ref{eq:minim} and the library specification \ref{spec} and their respective
+in Equation \ref{eq:minim} and the library specification in Equation \ref{spec} and their respective
 constraints.\\ We take \(x\) to encode both \(\bm{\alpha}\) and
 \(\bm{\alpha^*}\) simultaneously, treating the upper half of \(x\) as
 \(\bm{\alpha}\) and the lower half as \(\bm{\alpha^*}\):
@@ -1130,12 +1146,12 @@ constraints.\\ We take \(x\) to encode both \(\bm{\alpha}\) and
     \bm{ \alpha^*}
   \end{bmatrix}
 \]
-We will see later how this representation allows for elegant representation of
-the problem (\ref{eq:minim}).
+We will see later how this definition allows for elegant representation of
+the problem (Equation \ref{eq:minim}).
 \paragraph*{}
-First, we express the first term in \ref{spec} to hold \((\bm{\alpha-\alpha^*})^T
+First, we express the first term of Equation \ref{spec} to hold \((\bm{\alpha-\alpha^*})^T
 P (\bm{\alpha - \alpha^*})\).
-Take matrix P in equation \ref{spec} as 
+Take matrix P in Equation \ref{spec} as 
 \[P =
 \begin{bmatrix}
        K & -K           \\
@@ -1160,20 +1176,20 @@ x^T P x =
     \bm{ \alpha^*}
   \end{bmatrix}
 \end{gather*}
-is equivalent to the first term of equation (\ref{eq:maxim})
+and is equivalent to the first term of Equation \ref{eq:maxim}:
 \begin{gather*}
 \sum_{n=1}^{N}\sum_{m=1}^{N}(a_n-a_n^*)(a_m-a_m^*)K(x_n,x_m)
 \end{gather*}
 
-Now expressing the remaining two terms of \ref{eq:minim} by taking 
+Now expressing the remaining two terms in Equation \ref{eq:minim} by taking 
 \[q =
 \begin{bmatrix}
-  \epsilon*\mathbf{e}-t_0           \\
+  \epsilon\mathbf{e}-t_0           \\
   \vdots                                     \\
-  \epsilon*\mathbf{e}-t_{N-1}           \\
-   \epsilon*\mathbf{e}+t_0           \\
+  \epsilon\mathbf{e}-t_{N-1}           \\
+   \epsilon\mathbf{e}+t_0           \\
    \vdots                           \\
-  \epsilon*\mathbf{e}+t_{N-1}           \\
+  \epsilon\mathbf{e}+t_{N-1}           \\
      \end{bmatrix}
 \]
 
@@ -1183,7 +1199,8 @@ to achieve
 \epsilon \sum_{i=1}^{l}(\alpha_i+\alpha_i^*)-\sum_{i=1}^{l}t_i(\alpha_i-\alpha_i^*)
 \end{gather*}
 \paragraph*{}
-To encode constraint \ref{cns:b} consider the following pair of G and h.
+
+To encode constraint in Equation \ref{cns:b} consider the following pair of G and h.
 
 \[G =
 \begin{matrix} %This is the super matrix
@@ -1227,7 +1244,7 @@ To encode constraint \ref{cns:b} consider the following pair of G and h.
 
 \[h = [\overbrace{0 \dots 0}^{2N}|\overbrace{C \dots C}^{2N}]^T\]
 
-The final constraint \ref{cns:a} is trivial to adapt by simply taking 
+The final constraint in Equation \ref{cns:a} is trivial to adapt by simply taking 
 \begin{gather*}
 A=[\overbrace{1,\dots,1}^N,\overbrace{-1,\dots,-1}^N]
 \end{gather*}
@@ -1235,35 +1252,35 @@ and
 \begin{gather*}
 b=0
 \end{gather*}
-Having worked out all the matrices, the rest of the implementation dealt simply
-with coding the matrices up. The \textit{Cvxopt} library has its own matrix constructor,
+After the matrices were calculated, all that remained was to implement the
+transformations. The \textit{Cvxopt} library has its own matrix constructor,
 however, has generally limited functionality when it comes to matrix
-operations, so \textit{Numpy} was used a lot for matrix manipulations. 
+operations, so \textit{Numpy} was used much for matrix manipulation.
 
-During the first
-implementation attempt, the solver gave mostly unintelligible error messages,
-so for the prototype of the SVM I actually used \texttt{Matlab}. Matlab's \texttt{quadprog}
-function had an identical specification to the Python solver I intended to use.
-Matrices in Matlab are a lot more straightforward to manipulate, which was also
-a good reason to use it to check the correctness of my matrices before porting the code to
-Python.
+During the first implementation attempt, the solver gave mostly unintelligible
+error messages, so for the prototype of the SVM, I used the 
+\texttt{Matlab} programming language. Matlab's \texttt{quadprog} function had an identical
+specification to the Python solver I intended to use.  Matrices in Matlab are a
+lot more straightforward to manipulate, which was also a good reason for using it
+to check the correctness of my matrices before porting the code to Python.
 
 \subsection{SVM Kernel Functions}
 \label{sec:kernels}
-The kernel functions offer SVMs great flexibility, however, it can be difficult to pick an
+The kernel functions offer SVM great flexibility, however, it can be difficult to pick an
 appropriate one. If the expected pattern is well-defined, kernel selection might be
 intuitive. For example, a linear kernel is perfect for linear heuristics and the problem
-is reduced to fitting a hyperplane.  Similarly, Radial Basis Kernel picks out hyperspheres
-and so on. However, when we have no expectation of data, we need a most general kernel.
+is reduced to fitting a hyperplane.  Similarly, a radial basis kernel picks out
+hyperspheres. However, when we have no expectation of data, we need a most
+general kernel.
 
-In this section I examine a few kernels with various score functions: both intuitive
-and not to observe how performance of each degrades as we use less 
+In this section I examine a few kernels with various score functions. 
 The kernels used in this section have been tuned as described in Section \ref{sec:tuning}.
 
-Kernel functions are the central component of support vector machines, and its
+Kernel functions are the central component of SVM, and its
 choice is highly dependent on the application. I have considered a variety of
 kernel functions and experimented with their combinations to see how the
 performance differs. Table \ref{kfun} shows the kernel functions I have used.
+
 \begin{table}[h]
 \begin{center}
 \begin{tabular}{|l|c|}
@@ -1295,10 +1312,10 @@ so it might overfit the training data.
 
 The Gaussian kernel is an example of a family of the Radial Basis Function kernels, which
 are
-most popular in Support Vector Machines. \(||x-y||\) denotes the
+most popular in SVM. \(||x-y||\) denotes the
 Euclidean distance of the two feature vectors. The \(\gamma\) parameter is
 equivalent to \(\frac{1}{2\sigma^2}\). The choice of \(\gamma\) has a major
-effect on the performance of the kernel and represents a trade off between over-
+effect on the performance of the kernel and represents a trade-off between over-
 and underfitting. 
 
 The Sigmoid kernel is commonly used in neural networks
@@ -1311,8 +1328,8 @@ K(x,y)g(x)g(y)dxdy\geq 0.\)} for some values of its parameters, which
 	means SVM can be constructed only for those values\cite{stat_learn}.
 
 The Sum and Product kernels are both an example of combination kernels, in this case a
-combination of the linear and Gaussian kernels. I found that in many situations combining
-kernels in various scenarious where just one kernel does not perform well.
+combination of the Linear and Gaussian kernels. I found that in situations
+where one kernel alone does not perform well, combination kernels might improve performance.
 
 Figure \ref{kernels} shows four different kernels applied to their native two dimensional heuristics. 
 \begin{figure}[h!]
@@ -1350,28 +1367,28 @@ kernel was a lot more tricky. The $\gamma$ parameter was chosen by tuning descri
 next section.
 \subsection{SVM Hyperparameter Tuning}
 \label{sec:tuning}
-In comparison to Naive Bayes, the SVM has a lot of degrees of freedom. Kernel functions is
-one such degree of freedom and each kernel has more adjustable parameters. Selecting a kernel 
+In comparison to Naive Bayes, SVM has a lot of degrees of freedom. The choice of kernel function is
+one such degree of freedom and each kernel has more adjustable parameters of its own. Selecting a kernel 
 itself is discussed in more detail in the next section. This section illustrates how
 kernel parameters might be tuned. 
 
-There are several ways of adjusting parameters of which Grid search is the simplest. In
-grid search we specify a range of parameters and note down the Mean Squared Errors for each value (or
-combination of values). To chose the domain successfully, the analysis has to happen at
+There are several ways of adjusting parameters, of which grid search is the simplest. In
+grid search we specify a range of parameters and note down the Mean Squared Errors (MSE) for each value (or
+combination of values). To choose the domain successfully, the analysis has to happen at
 different scales, starting from coarser (wider spread) parameter values, each time only
 choosing the best for finer tuning, so the algorithm works in a tournament fashion.
 Essentially, it is hill climbing and does not scale beyond a few variables.
 
 As an example a combined product kernel will be used. The data used is deliberately noisy
-and non-injective. We want to find out how perturbing the plane with Gaussian can provide a better fit. 
-Given a positive sigma, the Gaussian component varies between one and zero.
-Varying gamma determines the contribution of the linear the fit as well as overfitting.
-Varying the epsilon also controls overfitting.
+and non-injective. We want to find out how perturbing the plane with the Gaussian kernel can provide a better fit. 
+Given a positive $\sigma$, the Gaussian component varies between one and zero.
+Varying $\gamma$, therefore, determines the contribution of the linear fit as well as overfitting.
+Varying the $\epsilon$ also controls overfitting.
 
-Figure \ref{coarse_fine} shows analysis at different scales on the training data: the coarsest and the finest.
+Figure \ref{coarse_fine} shows analyses at different scales on the training data: the coarsest and the finest.
 First it is found that the
 contribution of the $\epsilon$ affects the error a lot more in comparison to $\gamma$. As the
-problem is symmetric, further analyses are only performed with positive gamma. Looking
+problem is symmetric, further analyses are only performed with positive $\gamma$. Looking
 further, it eventually becomes visible that the minima lie where $\gamma$ is small. 
 
 \begin{figure}[h!]
@@ -1386,13 +1403,13 @@ further, it eventually becomes visible that the minima lie where $\gamma$ is sma
   \includegraphics[width=0.9\linewidth]{figs/fine_tune_tr.png}
   \caption{Fine analysis\label{fine}}
 \end{subfigure}
-\caption{It is clear from (a), that increasing epsilon affects the fitting
-	of the test data so greatly, that changing gamma is insignificant in comparison.
+\caption{It is clear from (a), that increasing $\epsilon$ affects the fitting
+	of the test data so greatly, that changing $\gamma$ is insignificant in comparison.
 	However, on the finer scale contour map (b), the minima can be found.\label{coarse_fine}}
 \end{figure}
 
 Figure \ref{overfit} demonstrates the effects of overfitting: the minima for training and
-test data do not coincide. Whereas the training data is best fit with the epsilon
+test data do not coincide. Whereas the training data is best fit with the $\epsilon$
 approaching zero, as might be expected, the test data is fit better when the error is
 non-zero.
 
@@ -1410,10 +1427,10 @@ non-zero.
   \caption{Test Data}
   \label{fine}
 \end{subfigure}
-\caption{Effects of overfitting: non-zero epsilon allows for better fit of the test data.\label{overfit}}
+\caption{Effects of overfitting: non-zero $\epsilon$ allows for better fit of the test data.\label{overfit}}
 \end{figure}
 
-Now having found the best Gaussian and error parameters, the two different fittings are
+Now having found the best Gaussian and $\epsilon$ parameters, the two different fittings are
 plotted in Figure \ref{fits}
 
 \begin{figure}[h]
@@ -1428,7 +1445,7 @@ plotted in Figure \ref{fits}
   \includegraphics[width=\linewidth]{figs/perf_fit.png}
   \caption{Combined Product kernel fit\label{fine}}
 \end{subfigure}
-\caption{Linear fit is improved by Gaussian: when gamma is tuned, the hyperplane is
+\caption{Linear fit is improved by Gaussian: when $\gamma$ is tuned, the hyperplane is
 	perturbed to provide the best fit.\label{fits}}
 \end{figure}
 
@@ -1447,15 +1464,17 @@ included derivations of the PageRank algorithm and support vector regression, wh
 software engineering -- in assembling libraries and classes as well as optimizing
 throughout the various components.
 
+
+\cleardoublepage
 \chapter{Evaluation}
 This chapter presents an overview of the results of the work undertaken for the project
-and a comparison of these results to the initial goals.  The results include both the
+and a comparison of these results to the initial goals. The results include both the
 evaluation of methods implemented as well as qualitative and quantitative assessment of
 the implementation itself. Furthermore, the chapter describes the measures undertaken to
 ensure a correct implementation.
 
 \section{Overall Results}
-The original success criteria for the project stated in the Proposal (see Appendix
+The original success criteria for the project stated in the proposal (see Appendix
 \ref{prop}) are summarized below:
 
 \paragraph{Criterion 1:}\textit{Implemented classifier can identify the importance of
@@ -1490,16 +1509,16 @@ Two machine learning techniques explored in this project -- regression and class
 -- are different in principle. The challenge in the evaluation is, therefore, to obtain
 results that can be compared despite the differences in implementation. To satisfy the
 comparability requirement, both SVM and Naive Bayes are run in the score mode: heuristic
-functions are used to output the score and the classifiers must predict the score. The
+functions are used to output the score and the classifiers must predict it. The
 regression case is straightforward, however, there are obvious difficulties in the case of
 the classifier. 
 
 Classes can be used to approximate the score as shown in Figure
 \ref{diag:quant}. Suppose there are two classes separated by a threshold value T. Then for
-training all the scores are trivially mapped to the right class depending whether they are
+training all the scores are trivially mapped to the correct class depending whether they are
 greater or smaller than the threshold T. During evaluation the conversion has to be from
-the class to the score. Because information is lost during the quantization stage, the
-every example classified into Class 1 is mapped to the median value of the scores -- M1
+the class to the score. Because information is lost during the quantization stage,
+every example classified into Class 1 is mapped to the median value of the scores -- M1 --
 in the hope to minimize the error due to quantization.
 \begin{figure}[h!]
 	\centering
@@ -1507,8 +1526,8 @@ in the hope to minimize the error due to quantization.
   \caption{Quantization into two classes\label{diag:quant}}
 \end{figure}
 
-The section starts by describing general methodology used throughout the evaluation. The
-rest is structured in the form of hypotheses and evaluation. 
+This section starts by describing general methodology used throughout the evaluation. The
+rest is structured in the form of hypothesis statements followed by their evaluations. 
 \subsection{Methodology}
 Evaluation and comparison of classifiers is largely unprescribed: there is no method
 that applies well to every case. A lot of ambiguity is due to the fact that results obtained are
@@ -1525,30 +1544,30 @@ representation. When Bayes assigns a class to a feature set, it is perceived as 
 the mean value of the scores present in the class. 
 
 \subsubsection{Data}
-To avoid biased results Development corpus was
-used during development, which is disjoint from the real Test corpus and is of
-smaller size. The development corpus is further subdivided into the Training
-corpus and the Validation corpus to mirror the Training and the Test corpora,
-which are used to obtain all the results presented in this chapter.
+To avoid biased results a development corpus was
+used during implementation, which was disjoint from the real test corpus and was of
+smaller size. The development corpus is further subdivided into the training
+corpus and the validation corpus to mirror the training and the test corpora,
+which were used to obtain all the results presented in this chapter.
 The evaluation was performed after the development of the whole system was
-complete and validated on the Development corpus.
+complete and validated on the development corpus.
 \subsubsection*{Mean Squared Error (MSE)}
 As a measure of classifier performance I have chosen to use mean squared error.
 It is computed as 
 \begin{gather*}
   MSE = \frac{1}{N}{\sum_{i=1}^{N}(Actual_i - Predicted_i)^2}
 \end{gather*}
-where \(Actual\) is an array of true values of size \(|Actual|\) and
+where \(Actual\) is an array of true values of size \(N\) and
 \(Predicted\) is the corresponding array of predictions made by the classifier.
-MSE is the second moment of the error and hence, incorporates both variance
-and bias of it. Squaring penalizes large errors heavily, but small errors vanish,
-therefore MSE is sensitive to outliers as opposed to Mean Absolute Error (MAE). On the other
+MSE is the second moment of the error and hence, incorporates both the variance
+and bias. Squaring penalizes large errors heavily, but small errors vanish,
+therefore, MSE is sensitive to outliers as opposed to Mean Absolute Error (MAE). On the other
 hand, MAE is more sensitive to noise, which we expect when predicting continuous scores.
 Altogether, MSE provides a good measure that is easily visualised.
 \subsubsection*{Tolerance intervals}
 As MSE already captures the variance of the squared error, computing error bars to be the
-standard deviation of the squared error would offer no new information. In contrast,
-tolerance interval of the mean error itself is a good visualisation of how spread the
+standard deviation of the squared error would offer no new information. However,
+the tolerance intervals for the mean error itself is a good measure of how spread the
 error is.  In the best case, the interval is tight, indicating the stability of the seen
 error. If the error is spread, the classifier is making inconsistent mistakes.
 It is particularly important to include these in our evaluation due to the presence of
@@ -1559,16 +1578,16 @@ To compute confidence intervals one could repeat the measurement on different da
 subsets. The number of subsets would have to be around 20 or more for the Central Limit Theorem to
 apply. In practice, the data is scarce and recomputing the errors is time consuming, so a
 way to compute the intervals with just one error measurement is desirable. Bootstrapping
-achieves exactly that by sampling randomly from the array of squared errors to recompute a
+achieves exactly that by sampling randomly from the array of squared errors to compute a
 new mean error.  Even though bootstrapping might be less reliable, it provides a simple
-way to check the stability of the results. 95\% confidence intervals are used throughout this
+way to check the stability of the results. 95\% confidence intervals were used throughout this
 chapter to compute error bars.
 \subsection{Linear and non-linear classification}
 \subsubsection*{Hypothesis: Naive Bayes performs better with linearly separable data.}
 
 Naive Bayes is a linear classifier and, therefore, linear separability of data is a
 premise of successful classification. To test this hypothesis, two minimal two-dimensional
-examples are constructed as shown in figures \ref{code:insep} and \ref{code:sep} below.
+examples are constructed as shown in Figures \ref{code:insep} and \ref{code:sep} below.
 Example \ref{code:insep} cannot be solved by fitting a separating line between the
 classes, so Bayes is expected to fail in this case. Example \ref{code:sep} illustrates a
 `cut-off sum' function and is trivially separable. Such a linear heuristic should be easy
@@ -1625,12 +1644,12 @@ threshold value T.  As before, T is chosen to be the median of the sum f1+f2 to 
 equally many training examples on either side of the line. \label{code:sep}}
 \end{figure}
 
-To evaluate the real Bayes behaviour the programs described above are ran with class 1
-score equal to 1 and class 2 score equal to 50. Mean squared errors are computed for both cases.
+To evaluate the real Bayes behaviour both programs are run with the score of class 1
+equal to 1 and the score of class 2 equal to 50. Mean squared errors are computed for both cases.
 Figures \ref{insep} and \ref{sep} show the mean squared errors within their corresponding
 confidence intervals.  Along with the actual Bayes classification error (denoted as
-`Actual' on the y axes) the Baseline and Ceiling errors are plotted for comparison. The
-Baseline performance is evaluated by randomly assigning classes, whereas the Ceiling error
+`Actual' on the y axes) the baseline and ceiling errors are plotted for comparison. The
+baseline performance is evaluated by randomly assigning classes, whereas the ceiling error
 illustrates the contribution of quantization error, inherent in classification of
 non-discrete scores.
 
@@ -1651,8 +1670,8 @@ non-discrete scores.
 
 The mean squared error in the inseparable case is significantly larger: in fact, its
 confidence interval overlaps with the one of the error in random classification (the
-Baseline error). Similarly, the standard deviation of the error is similar in width to the
-Baseline. This is due to the fact that the classifier is making mistakes as frequently. In
+baseline error). Similarly, the standard deviation of the error is similar in width to the
+baseline. This is due to the fact that the classifier is making mistakes as frequently as random choice. In
 contrast, the separable data case shows a convincing improvement in classification error,
 however, the classifier is still not perfect. This might be a result of insufficient
 or unbalanced training data. In this particular case and in general, adding more training
@@ -1666,7 +1685,7 @@ unusable for non-linear ones.}
 
 For comparison, SVM with a linear kernel is tested for linearly separable and
 non-separable data. In this particular experiment the number of features used is fixed at
-2 and the heuristics used are shown in the table \ref{linkern} below. 
+2 and the heuristics used are shown in the Table \ref{linkern} below. 
 
 \begin{table}[h!]
 	\centering
@@ -1682,25 +1701,25 @@ non-separable data. In this particular experiment the number of features used is
 		\label{linkern}}
 \end{table}
 
-The SVM with Linear Kernel is run with each of the heuristics shown above. The error
-parameter is tuned as described in Section \ref{sec:tuning}. The error that produces
-the best result is used in each case, for example, the error is zero in the
+The SVM with a linear kernel is run with each of the heuristics shown above. The error
+parameter is tuned as described in Section \ref{sec:tuning}. The value of $\epsilon$ that produces
+the best result is used in each case, for example, $\epsilon$ is zero in the
 case of a linear heuristic. The baseline performance is a hyperplane fitted through the
 mean score. The ceiling performance is computed as a least squares solution of an equation
 which has the form of the particular heuristic used. \textit{Numpy} provides a
 \textit{lstsq} function which finds the coefficients of a particular heuristic such that
-the squared error is minimimal.
+the squared error is minimal.
 
 \begin{figure}[h!]
 \centering
   \includegraphics[width=\linewidth]{figs/lin_degrad.png}
   \caption{SVM with a linear kernel is evaluated against four different heuristics (x
-  axis). Note than the MSE is in log scale. The error in the linear case is negligibly
+  axis). Note that the MSE is in log scale. The error in the linear case is negligibly
   small, but is similar to the baseline case for all other heuristics. \label{lin_degrad}}
 \end{figure}
 
 Figure \ref{lin_degrad} shows a failure of the linear kernel to fit non-linear data.
-The ceiling error due to numerical error in computation: this explains why the ceiling
+The ceiling error id due to the numerical error in computation: this explains why the ceiling
 error in the exponential case is the largest of all. 
 
 Clearly, as in the Bayes case, the degradation is rapid. In the cubic and exponential
@@ -1717,7 +1736,7 @@ classifier. In some sense, quantization is akin to a hyperparameter: the results
 specific to the heuristic and the data used.
 
 In this experiment, a linear heuristic is used with two features as before. The number of
-classes is varied starting with two classes. Classes are added until the maximum possible
+classes is varied starting with two. Classes are added until the maximum possible
 number is reached -- the number of distinct scores. 
 
 \begin{figure}[h!]
@@ -1753,12 +1772,12 @@ consistently misclassified a few particular examples, which lead to a gap in the
 \end{figure}
 
 The example chosen does not verify the hypothesis and proves the intuition wrong: the
-Bayes erformance depends solely on whether the data is separable or not.
+Bayes performance depends solely on whether the data is separable or not.
 
 \subsection{Curse of Dimensionality}
 \subsubsection*{Hypothesis: Bayes performance degrades rapidly as the number of features grows.}
 So far I have explored two dimensional cases where only two features were used for
-convenience of visualization. Dimensionality curse is one of the well-known issues with
+convenience of visualization. The Curse of Dimensionality is one of the well-known issues with
 classification: when new features are added, the size of the training set has to grow
 exponentially to cover all the new dimensions. Naive Bayes, however, lessens this problem
 a little due to the assumption of conditional independence. It is interesting to see how
@@ -1766,12 +1785,12 @@ rapidly its performance degrades when more features are added while the training
 unchanged. It is important that all the features used are conditionally independent, as
 otherwise, the results would not be valid. 
 
-The number of classes is fixed at a value of 7, at which the performance is reasonable but
-still has some quantization error. This is done to prevent the effects of the extremes of
-performance. We are only interested in relative performance, so it should not matter how
-many classes are used, however, it is important that the number of classes used produces a
-significantly better result than the baseline, to make sure a random guess could not
-produce a good result.
+The number of classes is fixed at a value of seven, at which the performance is
+reasonable but still has some quantization error. We are only interested in
+relative performance, so it should not matter how many classes are used,
+however, it is important that the number of classes used produces a
+significantly better result than the baseline, to make sure a random guess
+could not produce a good result.
 
 \begin{figure}[h!]
   \centering
@@ -1780,23 +1799,23 @@ produce a good result.
 \end{figure}
 
 The result for a few linearly separable functions is computed and the average errors are
-plotted in figure \ref{feats}. The actual classification diverges from the ceiling when
-the number of features is about 6. The rapid growth of the random classification curve is
-explained by the curse of dimensionality: degrees of freedom grow exponentially. The
+plotted in Figure \ref{feats}. The actual classification diverges from the ceiling when
+the number of features is about six. The rapid growth of the random classification curve is
+explained by the Curse of Dimensionality: degrees of freedom grow exponentially. The
 exponential growth is plotted in black for comparison: initially the baseline growth is
 near exponential, but less steep subsequently. This is due to the quality of training and
 test data: as the number of features grows, the number of training examples for each class
 is reduced, influencing the overall performance.
 
-The ceiling and the actual curves are growing almost monotonously, as is expected. The
+The ceiling and the actual curves are growing almost monotonically, as is expected. The
 flat regions at 5-6 and 7-8 are explained by the data specifics: the particular features added at
 those point appeared insignificant in the scores as they occurred infrequently and had
 small values.
 
 
 It has proven hard to pick many conditionally independent features. Among the ones used
-were pagerank, image count, word count, frequency of search term occurrence, quality of
-html, price information availability and alike.
+were PageRank, image count, word count, frequency of search term occurrence, quality of
+HTML and alike.
 
 The hypothesis is verified: the error grows as the number of features is increased. The
 growth, however, depends also on the quality of features -- how much the addition of a new
@@ -1820,23 +1839,23 @@ of linear heuristics.
 
 
 \section{Performance Evaluation}
-As stated in the Preparation, the project does not have any hard timing requirements.
+As stated in the Preparation chapter, the project does not have any hard timing requirements.
 PageRank computation, indexing and learning were envisaged as most time consuming. In the
-end, the time taken in learning and classifying was negligible and same can be said about
-parsing.
+end, the time taken in learning and classifying was negligible and same can be said for
+the parser module.
 Throughout the implementation, it has become obvious that the most time was spent in
 indexing and PageRank computation. Therefore, in this section, I am looking in more detail
-in the timings and scalability of the two modules.
+at the timings and scalability of the two modules.
 \begin{figure}[h!]
   \centering
     \includegraphics[width=\linewidth]{figs/pr.png}
     \caption{Time taken in computing PageRank for a growing set of pages. For convenience
-	    of comparison, a cubic and a quadratic curves are fitted.\label{pr}}
+	    of comparison, cubic and quadratic curves are fitted.\label{pr}}
 \end{figure}
 
-The plots were generated using a benchmark suite, which makes repeated measurements and
+The plots were generated using a benchmark suite, which makes repeat measurements and
 calculates means and confidence intervals. I have configured the suite to take a hundred
-repeat measurements for a range of page numbers. The 95\% confidence intervals are represented by
+repeat measurements for a range of page numbers. 95\% confidence intervals are represented by
 the error bars on the plots.
 
 The benchmarks were performed on my personal computer with the following specifications:
@@ -1844,52 +1863,52 @@ The benchmarks were performed on my personal computer with the following specifi
 \begin{tabular}[h!]{l l}
 Memory & 1.7 GB \\
 Cache Size & 3072 KB \\
-CPU & IntelCore2 Duo CPU \\
+CPU & Intel Core2 Duo CPU \\
 CPU Clock Frequency & 2.26 GHz \\
 \end{tabular}
 
 Both plots also display fitted cubic and quadratic curves. The curves are fitted using the
-\textit{Scipy} library curve fitting function, which uses Levenburg-Marquardt
+\textit{Scipy} library curve fitting function, which uses the Levenburg-Marquardt
 algorithm\footnote{Also known as Damped Least Squares method, the Levenburg-Marquardt
 algorithm works by minimizing a function over the space of its parameters.}. 
-\begin{figure}[h!]
+\begin{figure}[h!]zo
   \centering
     \includegraphics[width=\linewidth]{figs/ind.png}
     \caption{Time taken in indexing for a growing set of pages. For convenience
 	    of comparison, a cubic and a quadratic curves are fitted.\label{ind}}
 \end{figure}
 Figure \ref{pr} shows how the performance of the PageRank computation degrades with the
-number of pages. Although neither cubic nor quadratic curve fits well, it can be said that
+number of pages. Although both cubic and quadratic curves fit well, it can be said that
 up to around 5000 pages the growth is bound by \(O(n^2)\). The average number of pages
-used in the project was around 3000 for each directory, which means it took around seven
+used in the project was around 3000 for each directory, which meant it took around seven
 minutes to crawl and generate the PageRank vector.  However, it is expected that the
 growth is more rapid beyond the limit of 5000 pages. If dealing with more pages was within
 the scope of the project, the PageRank computation would have to be optimized further, as
 matrix inversion does not scale for a problem bigger than a few thousand pages.
 
 Indexing shows similar behaviour, although it seems a lot smoother and unambiguously exhibits cubic
-behaviour. Indexing 300 pages takes around two minutes, which is satisfactory considering
+behaviour. Indexing 300 pages (the size of the development and verification corpora) takes around two minutes, which is satisfactory considering
 that speed was not the primary objective of the project.
 
 Altogether, both modules could potentially become a bottleneck. However, as development
 was carried out on a comparatively small development corpus (only around 500 pages), and
-the verified program was then run on the actual data only once, which means the time loss
-was infrequent. Both the index and the PageRank vector were stored and reused to avoid
+the verified program was then run on the actual data only once, which means the slowest operating cases
+were infrequent. Both the index and the PageRank vector were stored and reused to avoid
 expensive recomputation. All things considered, it was not worth further optimizing the
 modules in question, as speed of implementation was prioritized over the speed of
-computation due to its apparent infrequency. 
+computation due to the infrequency of costly computations. 
 
 \section{Testing}
 Formal correctness proofs are neither within the aims of the project, nor would they be
 feasible in the time given. Therefore, the main purpose of the testing is to gain a degree
 of certainty in the correctness of the program. The system developed is in a sense a
 prototype: it only gets used one time in order to obtain certain results. Therefore, tests
-do not need to be run as often as for a system that would be used in production. In
+did not need to be run as often as for a system that would be used in production. In
 addition, human analysis was often required to assess the quality of the programs. These
 aspects of the system motivate the decision to use manual testing, which is described
 further in this section. 
 \subsection{High Level Test Plan}
-Table \ref{tab:test} summarizes the test plan used for manual testing. Each of these tests
+Table \ref{tab:test} summarizes the test plan used. Each of these tests
 was conducted at the end of module development and whenever a substantial change occurred
 that could potentially change the behaviour in the cases described.
 \begin{table}[h!]
@@ -1897,7 +1916,7 @@ that could potentially change the behaviour in the cases described.
 	\textbf{Module} & \textbf{Test Objectives}\\ \hline
 Crawler & The output matrix accurately reflects the link structure of the pages \\
 PageRank & The PageRank vector accurately reflects the hierarchy of the web pages \\
-Indexer & Clean indexing overwrites existent index \\
+Indexer & Clean indexing overwrites existing index \\
 Indexer & Incremental indexing adds/removes relevant index changes to reflect the changed
 web pages \\
 Parser & Parser is robust in the face of bad formatting and encodings \\
@@ -1913,44 +1932,54 @@ achieved.  \subsubsection{Indexer} Indexing is heavily reliant on the library, s
 implemented parts required extensive testing -- incremental and clean indexing
 capabilities. These were tested on the verification corpus.  To test incremental indexing,
 pages were added, removed and altered and the relevant queries executed to verify that the
-changes have taken effect. The clean index was build both without an existent index -- in
-which case a new index was created -- and with an existent index -- to verify that the old
+changes have taken effect. The clean index was built both without an existing index -- in
+which case a new index was created -- and with an existing index -- to verify that the old
 index is replaced by the new one.  \subsubsection{Parser} The objective of the Parser
-testing was mainly its resilience to failure: examples of malformatted html and pages with
+testing was mainly its resilience to failure: examples of malformatted HTML and pages with
 special characters in the address were used to verify the robustness. \subsubsection{SVM
 and Bayes} Machine Learning modules both were tested with the visual aid of plotting in
 the two- and three-dimensional cases. The data was plotted alongside the hyperplane (SVM)
 or the separating line (Naive Bayes). The data was altered to provoke change in the
 hyperplane/separator and the subsequent change was verified.
 \section{Summary}
-In this chapter I assessed the performance of classifiers with different heuristics and
-drew some comparisons between them with the means of hypotheses. I also illustrated the
-testing strategies adopted in this project and evaluated the quality of implementation of
-the slowest modules.
+In this chapter I assessed the performance of classifiers with different
+heuristics and drew some comparisons between them. I also benchmarked the
+performance of the slowest modules and illustrated the testing strategies
+adopted in this project.
+
 \cleardoublepage
 \chapter{Conclusions}
 The exploratory nature of the project allowed me to learn a lot both in the field of
 information retrieval and machine learning. I have started with very little insight in
 either field and thoroughly enjoyed the discoveries I made throughout.
 
+\section{Achievements}
+The project was successful in meeting all the requirements laid out both in the proposal
+and elaborated in the preparation stage. It is the first project to attempt to tackle search
+engine heuristics with a machine learning approach. The framework set in place 
+can be used as a stepping stone in this previously unexplored area.
+
+It is the largest project I have ever attempted and, perhaps, the most significant
+achievement has been the knowledge I have acquired during the process.
+
 \section{Lessons Learnt}
 The main lesson I have learnt from this project is that the importance of design cannot be
 underestimated. At the beginning I expected the programming to be the hardest part and,
 perhaps, rushed into implementation without having spent adequate time planning what
 should be done and how best to do it. This resulted in some redundant work that
-could have been avoided. If I were to do this project again, I would allocate a lot more time to
+could have been avoided. If I were to do this project again, I would allocate more time to
 design at the beginning.
 
 Another important observation that I am taking away is in tune with the previous point:
 writing loosely coupled and modular code pays off eventually. As code grew, refactoring
 often became unavoidable, but could have been made easier, had I programmed with
-reusability in mind.
+re-usability in mind.
 
 \section{Future Work}
 Although the implementation is complete in the sense that it fulfills the success criteria
-for the project, the greater goal of project is open ended. The framework developed can be
+for the project, the greater goal of the project is open ended. The framework developed can be
 used to further explore the machine learning techniques considered as well as to integrate
-the data from the real existing search engines. The machine learners can be used for a
+the data from existing search engines. Also the machine learners can be used for a
 variety of different purposes unrelated to search engines.
 
 The implementation can be enhanced by a user interface and made available on the internet
