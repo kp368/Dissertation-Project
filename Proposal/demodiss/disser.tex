@@ -135,8 +135,10 @@ extent for a comparable purpose.
 
 \chapter{Introduction}
 This project aims to explore the application of machine learning techniques to search
-engine heuristics. This chapter will outline the motivations and challenges in such a
-project as well as the work conducted in the area already.
+engine heuristics. The goal of the project is not the correct classification of real
+search engine data, but identifying the means to correct classification. This chapter will
+outline the motivations and challenges in such a project as well as the work conducted in
+the area already.
 
 \section{Motivation}
 This project is inspired by increasing importance of search engine rankings.
@@ -147,28 +149,28 @@ For instance, Google claims to have over 200 unique factors that influence a
 position of a web page in the search results relative to a query\footnote{http://www.google.com/competition/howgooglesearchworks.html}. Only
 a handful of these factors are disclosed to the webmasters  in the form of very
 general guidelines. Moreover, the Google algorithm in particular is updated
-frequently. However, most of the knowledge around the area amounts to
-speculation. Despite the fact that it is possible to pass a vast number of
+frequently. 
+Despite the fact that it is possible to pass a vast number of
 queries through the black box of any existing search engine, the immensity of
 the search space and instability of such algorithms make them difficult to
 reverse engineer.
 
-This project is concerned with application of machine learning techniques to
-search engines. The aim of the project, in particular,  is to explore how
-machine learning techniques can be used effectively to infer algorithms from
-search engines. 
-Even though this study does not attempt to reverse engineer any existing
-heuristics, the results can be applied to such an ambitious task.
-Furthermore, such a framework is potentially more general and can be used to solve a
-range of problems.
+This project is concerned with application of machine learning techniques to search
+engines. The aim of the project, in particular, is to explore how machine learning
+techniques can be used effectively to infer algorithms from search engines. The result
+will be an extensible learner evaluation framework, which can be used to assess the
+feasibility of a machine learning approach to search engine heuristic inference.  Even
+though this study does not attempt to reverse engineer any existing heuristics, the result
+can be applied to such an ambitious task. 
 
 \section{Challenges}
 Machine learning is a natural approach to heuristic inference. However, applying such
-techniques to real search engines would be potentially ineffective due to a number of
+techniques to real search engines would likely be ineffective due to a number of
 factors. The variability of the  algorithms, the dynamic nature of the web and lack of
 meaningful feedback would prevent incremental improvement of the learner. For example,
 when there are as many as 200 features in question, false assumptions made by a learner
-may have an unpredictable effect on its performance.
+may have an unpredictable effect on its performance. Moreover, a vast training set would
+be required to conduct the learning.
 
 More generally, there are certain ambiguities associated with machine learning, which are
 `problem-specific'. For example, it proves difficult to decide how much training data is
@@ -176,11 +178,11 @@ necessary, as well as selecting it to avoid over/under-fitting\cite{domingos}. S
 it is not straightforward as to which machine learning technique is best for a particular
 problem.
 
-In order to circumvent the limitations imposed by using existing search engines,
-part of this project is to develop a toy search engine that allows me to control
-the nature and complexity of heuristics used. Such transparency addresses the
-problems stated above and, more importantly,  allows for useful evaluation of
-machine learning techniques by providing meaningful feedback.
+In order to circumvent the limitations imposed by using existing search engines, part of
+this project is to develop a toy search engine. This will allow me to run the machine
+learners with the features used by the search engine to deduce the weightings. Such
+transparency addresses the problems stated above and, more importantly, allows for useful
+evaluation of machine learning techniques by providing meaningful feedback. 
 
 \section{Related Work}
 Machine learning has recently become very popular: it has a variety of applications among
@@ -192,7 +194,7 @@ up-and-coming technique. As a consequence, fewer papers are available and these 
 to errors and typographical mistakes.
 
 Despite the abundance of machine learning resources, I am not aware of any research
-conducted specifically in the field of search engine heuristics. There exist certain web
+aimed specifically at extracting search engine heuristics. There exist web
 site analytical tools, which claim to improve Google ranking\footnote{`SEOBook' and
 	`Woorank' are among the popular tools which offer website analysis to help improve
 ranking.}. Such tools are plentiful, but little is said about the methodology used. 
