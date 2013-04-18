@@ -229,25 +229,24 @@ To aid understanding of the upcoming sections, a few terms need to be defined:
 \end{tabular}
 
 Machine learning techniques can be broadly split into two categories: \textit{supervised}
-and \textit{unsupervised}. The supervised learning approach best fits our purposes for a
-number of reasons. Firstly, it applies well to the problem of inferring the heuristics of
-a real search engine: one can select training data and obtain labels simply by performing
-queries. Secondly, supervised learning is widely used and offers a variety of flexible
+and \textit{unsupervised}. The supervised learners are typically quicker to train and are
+more reliable provided test data is available. The supervised approach is a better fit for
+this project, as training data can be labeled simply by performing queries on the search
+engine. Also, supervised learning is more widely used and offers a broader variety of
 techniques.
 
-The Curse of Dimensionality is a well-known problem with machine learning. Suppose we were
-inferring an existing search engine algorithm from the observed query responses. In this
-scenario, we could not be sure which features are and are not relevant to the hidden
-algorithm. Potentially, some features we might choose to use will increase the
-dimensionality, but would not actually be used by the real algorithm. Gathering more
-features can hurt, as it makes the learner infer nonexistent dependencies. Clearly, within
-the scope of this project we will know at each point which features are used, which allows
-us to circumvent this problem.
+The Curse of Dimensionality is a well-known problem with machine learning: the amount of
+training data required to cover all possible combinations grows rapidly as features are
+added\footnote{The degrees of freedom are bounded by \(O(pages^{features})\).}. This
+phenomenon could negatively impact learning of the real search engines.  An advantage of
+having a toy search engine, therefore, is that the number of features given to the machine
+learner can be limited to the features actually used by the search engine. This would not
+be possible in a real world scenario where the features are unknown.
 
 Another major issue that is common to all machine learning methods is over- and
 under-fitting. These refer to the problem of finding balance between generalizing the
 model and closely fitting the training data. This is yet another source of interest to
-this project, as we can observe the behaviour of the learner when certain control
+this project, as we can observe the behaviour of the learner when the control
 parameters are changed.
 
 It is generally recommended that the simplest learners are tried
@@ -277,7 +276,7 @@ to get \(P(\vec{F}|C)=P(F_1|C)*P(F_2|C)*\dots*P(F_n|C)\). This leads to a concis
 \begin{equation}
 \hat{C}= argmax_C P(C)\prod_{i=1}^{n}P(F_i|C)
 \end{equation}
-where \(C\) is the result of classification of a page with feature vector
+where \(\hat{C}\) is the result of classification of a page with feature vector
 \(F_1,F_2,\dots,F_n\).
 
 In practice, the crude assumption rarely  holds and is likely to be violated by our data,
@@ -294,18 +293,14 @@ estimates, there exist several frameworks, which make use of Bayesian classifica
 achieve decent performance in ranking. For example, Zhang\cite{zhang04} experimentally
 found that Naive Bayes is locally optimal in ranking\footnote{The paper defines a
 	classifier as locally optimal in ranking a positive example E if there is no
-negative example ranked after E and vice versa for a negative example.}.  It is
-particularly interesting that the paper discovered that Naive Bayes is globally optimal in
-ranking\footnote{A classifier is globally optimal in ranking if it is locally optimal for
-all examples in the example set: in other words, it is optimal in pairwise ranking. } on
-linear functions that have been shown to not be learnable by Naive
-Bayes\footnote{\textit{M-of-N Concepts} and \textit{Conjunctive Concepts} cannot be learnt
-by Naive Bayes classifier but can be optimally ranked by it according to
-Zhang\cite{zhang04}.}.  Another framework for ranking\cite{bayesrank} is based on
-Placket-Luce
-model, which reconciles the concepts of score and rank. This framework is based on
-minimizing the Bayes risk over possible permutations.  Existence of such frameworks
-suggests that Naive Bayes is an adequate choice for a prototype learner.
+negative example ranked after E and vice versa for a negative example.}.  Another
+framework for ranking\cite{bayesrank} is based on Placket-Luce model, which reconciles the
+concepts of score and rank\footnote{Placket-Luce model is based on minimizing the Bayes risk over
+possible permutations.}.  Existence of such frameworks suggests that Naive Bayes is an
+adequate choice for a prototype learner.
+
+In this project in particular, the web pages can be classified according to their
+discretized score or rank. This will be discussed further in Section \ref{sec:eval_class}.
 
 Although classification is a useful technique to try, it feels more natural to
 represent score or rank as real numbers rather than classes. Regression is
@@ -326,13 +321,14 @@ dimensional space, in which the data is linearly separable. The choice of a
 kernel function is problem specific and the best one is usually decided by
 trial and error.
 
-I begin with introducing the theoretical foundations of Support Vector
+I begin by introducing the theoretical foundations of Support Vector
 Regression, which was first proposed by Vapnik\cite{stat_learn}.
 
 Define a training sequence as a set of training points \(D = \{ (\mathbf{x_1},t_1),
 (\mathbf{x_2},t_2), ... , (\mathbf{x_l},t_l) \}\) where \( \mathbf{x_i} \in R^n \) is a
 feature vector holding features of pages and \( \mathbf{t_i} \in R \) is the corresponding
-ranking of each page.
+ranking of each page. The training sequence \(D\) is defined per query for a set of chosen
+queries.
 
 \begin{figure}[h!]
   \centering 
@@ -354,7 +350,7 @@ In simple linear regression the aim is to minimize a regularized error
 function. I will be using an \(\epsilon\)-insensitive error function (see
 Figure \ref{eps1}).
 
-\(E_\phi(y(\mathbf{x})-t)) = \left\{ \begin{array}{l l} 0 & \quad \text{if
+\(E(y(\mathbf{x})-t)) = \left\{ \begin{array}{l l} 0 & \quad \text{if
 \(|y(\mathbf{x})-t|<\epsilon\)}\\ |y(\mathbf{x})-t|-\epsilon & \quad
 \text{otherwise} \end{array} \right.\)
 
@@ -367,7 +363,7 @@ y(\mathbf{x_n})-\epsilon \leq t_n \leq y(\mathbf{x_n})+\epsilon \) as shown in
 Figure \ref{eps}(b).
 
 To allow variables to lie outside of the tube, slack variables \(\xi_n \geq
-0\)and \(\xi_n^* \geq 0\) are introduced.  The standard formulation of the
+0\) and \(\xi_n^* \geq 0\) are introduced.  The standard formulation of the
 error function for support vector regression\cite{vapnik} can be written
 as follows:
 
@@ -409,10 +405,11 @@ this project not only because it is a defining feature of the Google search
 engine, but because it is a unique feature of its type, as it depends on the link
 structure of the whole web.
 
-The basic idea is to capture the link structure of the web and provide a
-ranking of pages that is robust against manipulation. To achieve this, the
-importance `flows' forward: the backlinks share their importance with the pages
-they link to. Such a simplified ranking of a set of pages can be expressed as an assignment
+The basic idea is to capture the link structure of the web and provide a ranking of pages
+that is robust against manipulation. The importance is proportional to the number of links
+from other important pages. Thus, the importance `flows' forward: the backlinks share
+their importance with the pages they link to. Such a simplified ranking of a set of pages
+can be expressed as an assignment
 \begin{gather}
   R(u)=c\sum_{v\in B_u}\frac{R(v)}{N_v}
 \end{gather}
