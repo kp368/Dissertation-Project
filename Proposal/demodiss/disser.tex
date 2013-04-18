@@ -45,7 +45,7 @@
 \vspace*{60mm}
 \begin{center}
 \Huge
-{\bf Machine learning inference of search engine heuristics} \\
+{\bf Machine learning inference of existing search engine heuristics} \\
 \vspace*{5mm}
 Part II Project \\
 \vspace*{5mm}
@@ -71,7 +71,7 @@ Name:               & \bf Karina Palyutina                       \\
 College:            & \bf St Catharine's College                     \\
 Project Title:      & \bf Machine learning inference of search engine heuristics \\
 Examination:        & \bf Part II Project        \\
-Word Count:         & \bf 11,585 words     \\
+Word Count:         & \bf 11,523 words     \\
 Project Originator: & \bf Dr Jon Crowcroft                    \\
 Supervisor:         & \bf Dr Jon Crowcroft                  \\ 
 \end{tabular}
@@ -100,7 +100,7 @@ various heuristic functions. As an extension, a variety of kernels have been imp
 for the Support Vector Machine.
 
 \section*{Special Difficulties}
-None.
+No special difficulties have been encountered.
 
 \section*{Declaration of Originality}
 
@@ -201,6 +201,7 @@ tools, among which are maths, indexing, natural language processing and html par
 these are readily available in special purpose libraries, which are ubiquitous and well
 documented.
 
+\cleardoublepage
 \chapter{Preparation}
 The original aims of the project were defined very broadly, so some further structuring and
 planning was crucial at the early stages to make sure the goals are understood and
@@ -217,13 +218,24 @@ risks.
 
 Machine learning constitutes the central part of the project. Initially, the field was new
 to me, so research of different techniques was a big part of the preparation.
+To aid understanding of the upcoming sections, a few terms need to be defined:
 
-Machine learning techniques can be broadly split into two categories: supervised and
-unsupervised. The supervised learning approach, in which a hidden function is inferred
-from some labelled training data, best fits our purposes for a number of reasons. Firstly,
-it applies well to the problem of inferring the heuristics of a real search engine: one
-can select training data and obtain labels simply by performing queries. Secondly,
-supervised learning is widely used and offers a variety of flexible techniques.
+\begin{tabular}{l l}
+	\bf Supervised learning & \it Inferring a function from labeled training data. \\
+	\bf Unsupervised learning & \it Inferring a function from unlabeled data.\\
+	\bf Learner & \it An algorithm that has not seen any data yet.\\
+	\bf Classifier & \it A learner that has been trained on the training data.\\
+	\bf Feature set & \it A list of features describing the object to be learned (a web
+	page).\\
+	\bf Training Set & \it A list of labeled feature sets used to train a learner.\\
+\end{tabular}
+
+Machine learning techniques can be broadly split into two categories: \textit{supervised}
+and \textit{unsupervised}. The supervised learning approach best fits our purposes for a
+number of reasons. Firstly, it applies well to the problem of inferring the heuristics of
+a real search engine: one can select training data and obtain labels simply by performing
+queries. Secondly, supervised learning is widely used and offers a variety of flexible
+techniques.
 
 The Curse of Dimensionality is a well-known problem with machine learning. Suppose we were
 inferring an existing search engine algorithm from the observed query responses. In this
@@ -279,9 +291,9 @@ Naive Bayes performs well under zero-one loss\footnote{The zero-one loss functio
 
 As we have seen, Naive Bayes assigns probabilities to possible classifications in the
 process of classifying. Even though it generally performs well in classification tasks,
-these probability estimates are poor \cite{domingos96}.  However, despite poor probability
+these probability estimates are poor\cite{domingos96}.  However, despite poor probability
 estimates, there exist several frameworks, which make use of Bayesian classification and
-achieve decent performance in ranking. For example, Zhang \cite{zhang04} experimentally
+achieve decent performance in ranking. For example, Zhang\cite{zhang04} experimentally
 found that Naive Bayes is locally optimal in ranking\footnote{The paper defines a
 	classifier as locally optimal in ranking a positive example E if there is no
 negative example ranked after E and vice versa for a negative example.}.  It is
@@ -290,8 +302,9 @@ ranking\footnote{A classifier is globally optimal in ranking if it is locally op
 all examples in the example set: in other words, it is optimal in pairwise ranking. } on
 linear functions that have been shown to not be learnable by Naive
 Bayes\footnote{\textit{M-of-N Concepts} and \textit{Conjunctive Concepts} cannot be learnt
-by Naive Bayes classifier but can be optimally ranked by it according to Zhang
-\cite{zhang04}.}.  Another framework for ranking \cite{bayesrank} is based on Placket-Luce
+by Naive Bayes classifier but can be optimally ranked by it according to
+Zhang\cite{zhang04}.}.  Another framework for ranking\cite{bayesrank} is based on
+Placket-Luce
 model, which reconciles the concepts of score and rank. This framework is based on
 minimizing the Bayes risk over possible permutations.  Existence of such frameworks
 suggests that Naive Bayes is an adequate choice for a prototype learner.
@@ -316,7 +329,7 @@ kernel function is problem specific and the best one is usually decided by
 trial and error.
 
 I begin with introducing the theoretical foundations of Support Vector
-Regression, which was first proposed by Vapnik \cite{stat_learn}.
+Regression, which was first proposed by Vapnik\cite{stat_learn}.
 
 Define a training sequence as a set of training points \(D = \{ (\mathbf{x_1},t_1),
 (\mathbf{x_2},t_2), ... , (\mathbf{x_l},t_l) \}\) where \( \mathbf{x_i} \in R^n \) is a
@@ -357,7 +370,7 @@ Figure \ref{eps}(b).
 
 To allow variables to lie outside of the tube, slack variables \(\xi_n \geq
 0\)and \(\xi_n^* \geq 0\) are introduced.  The standard formulation of the
-error function for support vector regression \cite{vapnik} can be written
+error function for support vector regression\cite{vapnik} can be written
 as follows:
 
 \begin{gather} E= C\sum_{n=1}^{N}(\xi_n+\xi_n^*)+\frac{1}{2}\|\mathbf{w}\|^2
@@ -492,7 +505,7 @@ appear sufficiently interlinked, so the corpus has a distinct structure (as web 
 similar in the field link to each other). All the links were converted, so that the link
 structure was preserved offline.
 
-As for the size of the training data, Domingos \cite{domingos} suggests that a primitive
+As for the size of the training data, Domingos\cite{domingos} suggests that a primitive
 learner given more data performs better than a more complex one with less data.  This, of
 course, is under certain assumptions of data quality, namely the assumption that the
 training data is a representative subset of all the possible data. Intuitively, provided
@@ -542,7 +555,7 @@ web is very large, and so precision, or even \textit{precision at n}\footnote{``
 at n'' only evaluates precision with respect to n topmost returned pages.} has become more
 prominent in defining a good search engine: very rarely the user actually browses results
 ranked below the first ten pages. As a result, modern search engines tend
-to focus on high precision at the expense of recall \cite{GOOGLE}. Therefore, I will
+to focus on high precision at the expense of recall\cite{GOOGLE}. Therefore, I will
 concentrate primarily on precision when designing a search engine.
 
 
@@ -1587,92 +1600,57 @@ chapter to compute error bars.
 
 Naive Bayes is a linear classifier and, therefore, linear separability of data is a
 premise of successful classification. To test this hypothesis, two minimal two-dimensional
-examples are constructed as shown in Figures \ref{code:insep} and \ref{code:sep} below.
-Example \ref{code:insep} cannot be solved by fitting a separating line between the
-classes, so Bayes is expected to fail in this case. Example \ref{code:sep} illustrates a
+examples are constructed as shown in Figure \ref{fig:example_probs} below.
+Example \ref{sf:insep} cannot be solved by fitting a separating line between the
+classes, so Bayes is expected to fail in this case. Example \ref{sf:sep} illustrates a
 `cut-off sum' function and is trivially separable. Such a linear heuristic should be easy
 for Bayes to pick up on.
 
-\begin{figure}[h!]
-\begin{minipage}[b]{0.55\linewidth}
-  \includegraphics[width=1.2\linewidth]{figs/gen_insep.png}
-\end{minipage}
-\hspace{0.5cm}
-\begin{minipage}[b]{0.4\linewidth}
-\begin{verbatim}
-  def score_inseparable:
-
-      if f1 > M(f1):
-          if f2 > M(f2):
-              return class2
-          else: return class1
-      elif f2 > M(f2): 
-          return class1
-      else: return class2
-
-
-
-\end{verbatim}
-\end{minipage}
-\caption{An example of inseparable data. M represents median points for corresponding
-features.  The red lines visualize the boundaries between the classes, separating four
-distinct quadrants. The M value is chosen to be a median, so that adequate number of
-training examples was available for all quadrants.  \label{code:insep}}
+\begin{figure}[h]
+\begin{subfigure}[b]{0.45\linewidth}
+  \includegraphics[width=\linewidth]{figs/gen_insep.png}
+  \caption{Linearly Inseparable Data \label{sf:insep}}
+\end{subfigure}
+\begin{subfigure}[b]{0.45\linewidth}
+  \includegraphics[width=1\linewidth]{figs/gen_sep.png}
+  \caption{Linearly Separable Data \label{sf:sep}}
+\end{subfigure}
+\caption{On both plots M represents median points for corresponding features (this ensures
+	adequate number of training examples for all quadrants).  The red lines visualize
+	the boundaries between the classes.  In (b) the sum of features is equal to the
+	threshold value T on the red line.\label{fig:example_probs}}
 \end{figure}
 
-\begin{figure}[h!]
-\begin{minipage}[b]{0.55\linewidth}
-  \includegraphics[width=1.2\linewidth]{figs/gen_sep.png}
-\end{minipage}
-\hspace{0.5cm}
-\begin{minipage}[b]{0.4\linewidth}
-\begin{verbatim}
-  def score_separable:
+To evaluate the Bayes behaviour, the learner is run with both heuristics and mean squared
+errors are computed for both cases.  Figure \ref{fig:bayes_perf} shows the mean squared
+errors within their corresponding confidence intervals.  Along with the actual Bayes
+classification error (denoted as `Actual' on the y axes) the baseline and ceiling errors
+are plotted for comparison. The baseline performance is evaluated by randomly assigning
+classes, whereas the ceiling error illustrates the contribution of quantization error,
+inherent in classification of non-discrete scores.
 
-      if f1 +f2 > T:
-          return class1
-      else:
-          return class2
-
-
-
-
-\end{verbatim}
-\end{minipage}
-\caption{An example of separable data. On the red line the sum of features is equal to the
-threshold value T.  As before, T is chosen to be the median of the sum f1+f2 to supply
-equally many training examples on either side of the line. \label{code:sep}}
-\end{figure}
-
-To evaluate the real Bayes behaviour both programs are run with the score of class 1
-equal to 1 and the score of class 2 equal to 50. Mean squared errors are computed for both cases.
-Figures \ref{insep} and \ref{sep} show the mean squared errors within their corresponding
-confidence intervals.  Along with the actual Bayes classification error (denoted as
-`Actual' on the y axes) the baseline and ceiling errors are plotted for comparison. The
-baseline performance is evaluated by randomly assigning classes, whereas the ceiling error
-illustrates the contribution of quantization error, inherent in classification of
-non-discrete scores.
-
-\begin{figure}[h!]
+\begin{figure}[h]
   \begin{subfigure}[b]{0.49\textwidth}
     \centering
  \includegraphics[width=\linewidth]{figs/insep.png}
  \caption{The mean error is near the baseline performance
  with similarly wide spread. \label{insep}}
 \end{subfigure}
+\quad
 \begin{subfigure}[b]{0.49\textwidth}
   \centering
   \includegraphics[width=\linewidth]{figs/sep.png}
-  \caption{The mean error is distinctly
-  better than the baseline and approaches the goal performance. \label{sep}}
+  \caption{The mean error
+  approaches the goal performance. \label{sep}}
 \end{subfigure}
+\caption{Naive Bayes Performance \label{fig:bayes_perf}}
 \end{figure}
 
-The mean squared error in the inseparable case is significantly larger: in fact, its
+The mean squared error in the inseparable case (Figure \ref{insep}) is significantly larger: in fact, its
 confidence interval overlaps with the one of the error in random classification (the
 baseline error). Similarly, the standard deviation of the error is similar in width to the
 baseline. This is due to the fact that the classifier is making mistakes as frequently as random choice. In
-contrast, the separable data case shows a convincing improvement in classification error,
+contrast, the separable data case (Figure \ref{sep}) shows a convincing improvement in classification error,
 however, the classifier is still not perfect. This might be a result of insufficient
 or unbalanced training data. In this particular case and in general, adding more training
 data improves the error up to a point when overfitting occurs. Nonetheless, it is rarely
@@ -1712,7 +1690,7 @@ the squared error is minimal.
 
 \begin{figure}[h!]
 \centering
-  \includegraphics[width=\linewidth]{figs/lin_degrad.png}
+  \includegraphics[width=0.8\linewidth]{figs/lin_degrad.png}
   \caption{SVM with a linear kernel is evaluated against four different heuristics (x
   axis). Note that the MSE is in log scale. The error in the linear case is negligibly
   small, but is similar to the baseline case for all other heuristics. \label{lin_degrad}}
@@ -1740,11 +1718,12 @@ classes is varied starting with two. Classes are added until the maximum possibl
 number is reached -- the number of distinct scores. 
 
 \begin{figure}[h!]
-  \includegraphics[width=\linewidth]{figs/quants.png}
-  \caption{Error response to varying number of classes.\label{quants}}
+	\centering
+  \includegraphics[width=0.8\linewidth]{figs/quants.png}
+  \caption{Bayes performance with varying number of classes.\label{quants}}
 \end{figure}
 Figure \ref{quants} shows a result inconsistent with the proposed hypothesis: the error is
-diminishing as rapidly as the quantization error (ceiling). It is visible from figure
+diminishing as rapidly as the quantization error (ceiling). It is visible from Figure
 \ref{separable} that the data remains separable (as expected) independently of the number
 of classes. Clearly, Bayes is very effective at classification with the given heuristic.
 It is worth noting, that the actual performance is still worse than the ceiling and does
@@ -1794,8 +1773,8 @@ could not produce a good result.
 
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=\linewidth]{figs/feats.png}
-  \caption{Error response with varying number of features.\label{feats}}
+  \includegraphics[width=0.8\linewidth]{figs/feats.png}
+  \caption{Bayes performancewith varying number of features.\label{feats}}
 \end{figure}
 
 The result for a few linearly separable functions is computed and the average errors are
@@ -1830,7 +1809,7 @@ of linear heuristics.
 
 \begin{figure}[h!]
 \centering
-  \includegraphics[width=\linewidth]{figs/svm_feats.png}
+  \includegraphics[width=0.8\linewidth]{figs/svm_feats.png}
   \caption{Both normal (upper figure) and logarithmic (lower figure)  scales are shown.
   The error grows too slow for the growth to be noticeable without the logarithmic scale.
   \label{svm_feats}}
@@ -1848,7 +1827,7 @@ indexing and PageRank computation. Therefore, in this section, I am looking in m
 at the timings and scalability of the two modules.
 \begin{figure}[h!]
   \centering
-    \includegraphics[width=\linewidth]{figs/pr.png}
+    \includegraphics[width=0.8\linewidth]{figs/pr.png}
     \caption{Time taken in computing PageRank for a growing set of pages. For convenience
 	    of comparison, cubic and quadratic curves are fitted.\label{pr}}
 \end{figure}
@@ -1873,7 +1852,7 @@ algorithm\footnote{Also known as Damped Least Squares method, the Levenburg-Marq
 algorithm works by minimizing a function over the space of its parameters.}. 
 \begin{figure}[h!]zo
   \centering
-    \includegraphics[width=\linewidth]{figs/ind.png}
+    \includegraphics[width=0.8\linewidth]{figs/ind.png}
     \caption{Time taken in indexing for a growing set of pages. For convenience
 	    of comparison, a cubic and a quadratic curves are fitted.\label{ind}}
 \end{figure}
