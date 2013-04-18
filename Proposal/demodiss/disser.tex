@@ -1,4 +1,4 @@
-\documentclass[12pt,notitlepage,twoside]{scrreprt}
+\documentclass[12pt,notitlepage,twoside]{scrbook}
 \usepackage{a4}
 \usepackage{verbatim}
 \usepackage{graphicx}
@@ -54,7 +54,6 @@ St Catharine's College \\
 \today  % today's date
 \end{center}
 
-\cleardoublepage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Proforma, table of contents and list of figures
@@ -118,7 +117,6 @@ extent for a comparable purpose.
 \medskip
 \leftline{Date }
 
-\cleardoublepage
 
 \tableofcontents
 
@@ -126,8 +124,6 @@ extent for a comparable purpose.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % now for the chapters
 
-\cleardoublepage        % just to make sure before the page numbering
-                        % is changed
 
 \setcounter{page}{1}
 \pagenumbering{arabic}
@@ -204,10 +200,9 @@ tools, among which are maths, indexing, natural language processing and html par
 these are readily available in special purpose libraries, which are ubiquitous and well
 documented.
 
-\cleardoublepage
 \chapter{Preparation}
 The original aims of the project were defined very broadly, so some further structuring and
-planning was crucial at the early stages to make sure the goals are understood and
+planning was crucial at the early stages to make sure the goals were understood and
 subsequently achieved.
 
 The beginning of this chapter introduces the principles of machine learning and the
@@ -667,7 +662,6 @@ learning techniques and the PageRank algorithm as well as shaping more detailed 
 the project. I also touched upon the development strategy followed during the project 
 and the libraries used.
 
-\cleardoublepage
 
 \chapter{Implementation}
 This chapter describes the implementation of the system that was developed in this
@@ -1481,7 +1475,6 @@ software engineering -- in assembling libraries and classes as well as optimizin
 throughout the various components.
 
 
-\cleardoublepage
 \chapter{Evaluation}
 This chapter presents an overview of the results of the work undertaken for the project
 and a comparison of these results to the initial goals. The results include both the
@@ -1929,7 +1922,6 @@ heuristics and drew some comparisons between them. I also benchmarked the
 performance of the slowest modules and illustrated the testing strategies
 adopted in this project.
 
-\cleardoublepage
 \chapter{Conclusions}
 The exploratory nature of the project allowed me to learn a lot both in the field of
 information retrieval and machine learning. I have started with very little insight in
@@ -1967,14 +1959,12 @@ variety of different purposes unrelated to search engines.
 The implementation can be enhanced by a user interface and made available on the internet
 for anyone to download, use and improve.
 
-\cleardoublepage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % the bibliography
 
 \addcontentsline{toc}{chapter}{Bibliography}
 \bibliography{refs}
-\cleardoublepage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % the appendices
