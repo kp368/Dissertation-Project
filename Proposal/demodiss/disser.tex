@@ -2017,25 +2017,73 @@ for anyone to download, use and improve.
 
 \chapter{Unit Test Code}
 \label{app:testing}
-\begin{lstlisting}[language=python]
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\lstset{commentstyle=\color{mygreen},keywordstyle=\color{blue},language=Python}
+Below is a snippet of unit tested code from a utility functions module. The unit tests are
+written inline within the comments. Lines starting with `>>>' are the testcases and
+subsequent lines define expected output.
+\lstinputlisting[firstline=4]{../../Code/src/util.py}
 
-def strip_punct(s):
-    """Take a string and return a unicode string with no punctuation symbols.
-    >>> strip_punct(u'remove.the.dots')
-    u'removethedots'
-    >>> strip_punct(u'a very &confusing* line$')
-    u'a very &confusing line$'
-    >>> strip_punct('a (non)-unicode/ +string!!!')
-    Traceback (most recent call last):
-        ...
-    TypeError: s must be unicode
-    """
-    if not isinstance(s,unicode):
-       raise TypeError('s must be unicode')
-    punctuation = u'!"#\'()*+,-./:;<=>?@[\]^_`{|}~'
-    table = dict((ord(char),None) for char in punctuation)
-    return s.translate(table)
+The tests are run when the main method is called.
+
+\chapter{Benchmarks code}
+The code below is an example of benchmark code for the Indexer and the PageRank modules.
+Each class benchmarks a different module. The page size is varied by supplying different
+sized directories. The example only shows the code for two distinct directories -- a and
+b.
+\begin{lstlisting}
+class Benchmark_Indexer(benchmark.Benchmark):
+
+    each = 100
+
+    def setUp(self):
+	    self.a = abspath('../A')
+	    self.b = abspath('../B')
+
+    def test_indexer_a(self):
+        index(self.a,True,True)
+
+    def test_indexer_b(self):
+        index(self.b,True,True)
+
+class Benchmark_Spider(benchmark.Benchmark):
+
+    each = 100
+
+    def setUp(self):
+        self.a = abspath('../A/start_page.html')
+        self.b = abspath('../B/start_page.html')
+
+    def test_pagerank_a(self):
+        PageRank(Crawler(self.a))
+
+    def test_pagerank_b(self):
+        PageRank(Crawler(self.b))
 
 \end{lstlisting}
+The result of running the benchmarks is presented below:
+\begin{lstlisting}
+Benchmark Report
+================
 
+Benchmark Indexer
+-----------------
+
+       name | rank | runs |  mean |     sd | timesBaseline
+------------|------|------|-------|--------|--------------
+indexer  a  |    1 |  100 |  35.7 | 0.4772 |           1.0
+indexer  b  |    2 |  100 |  63.4 | 0.8149 |   1.775910364
+
+Benchmark Spider
+----------------
+
+      name | rank | runs |  mean |      sd | timesBaseline
+-----------|------|------|-------|---------|--------------
+pagerank a |    1 |  100 | 45.6  | 0.3103  |           1.0
+pagerank b |    2 |  100 | 73.4  |  0.817  |   1.609649123
+
+Each of the above 400 runs were run in random, non-consecutive 
+order by `benchmark` v0.1.5 (http://jspi.es/benchmark) with 
+Python 2.7.3 Linux-3.2.0-40-generic-i686 on 2013-03-26 23:30:30.
+\end{lstlisting}
 \end{document}
