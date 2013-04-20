@@ -653,7 +653,7 @@ decompose a complex system into manageable chunks, which eased the development.
 Most functionality of the system developed in this project required some human analysis to
 be tested. Moreover, the system was frequently evolving, which made it difficult to write
 useful unit tests. Therefore, most testing was conducted manually. However, certain
-commonly reused functions were stable enough to easily unit test. I used Python's
+commonly reused functions were stable enough to easily unit test. I chose to use Python's
 \textit{Doctest} module for inline unit testing, which offers a lightweight solution
 with enough flexibility to provide the assurance required. Testing is discussed in more
 detail in Section \ref{sec:testing}.
@@ -1626,7 +1626,7 @@ examples are constructed as shown in Figure \ref{fig:example_probs} below.
 Example \ref{sf:insep} cannot be solved by fitting a separating line between the
 classes, so Bayes is expected to fail in this case. Example \ref{sf:sep} illustrates a
 `cut-off sum' function and is trivially separable. Such a linear heuristic should be easy
-for Bayes to pick up on.
+for Bayes to pick up.
 
 \begin{figure}[h]
 \begin{subfigure}[b]{0.45\linewidth}
@@ -1745,12 +1745,16 @@ number is reached -- the number of distinct scores.
   \caption{Bayes performance with varying number of classes.\label{quants}}
 \end{figure}
 Figure \ref{quants} shows a result inconsistent with the proposed hypothesis: the error is
-diminishing as rapidly as the quantization error (ceiling). It is visible from Figure
-\ref{separable} that the data remains separable (as expected) independently of the number
+diminishing as rapidly as the quantization error (ceiling). This likely indicates that
+even though the number of classes increased, there remained sufficiently many examples for
+each class, so Bayes had no difficulty classifying the data. Figure
+\ref{separable} visualizes the data quantized to two and seven classes. It is visible that
+in both cases the points remain separable (as expected) independently of the number
 of classes. Clearly, Bayes is very effective at classification with the given heuristic.
 It is worth noting, that the actual performance is still worse than the ceiling and does
 not converge to zero as opposed to quantization error. It is possible that Bayes
-consistently misclassified a few particular examples, which lead to a gap in the plot.
+consistently misclassified a few particular examples, which lead to the gap between the
+ceiling and the actual performance in Figure \ref{quants}.
 
  
 \begin{figure}[h!]
@@ -1773,9 +1777,14 @@ consistently misclassified a few particular examples, which lead to a gap in the
 \end{figure}
 
 The example chosen does not verify the hypothesis and proves the intuition wrong: the
-Bayes performance depends solely on whether the data is separable or not.
+Bayes performance depends only on whether the data is separable or not as on the training data.
 
-\subsection{Curse of Dimensionality}
+\subsection{Hughes phenomenon}
+Hughes phenomenon is closely related to the curse of dimensionality and is characterized
+by reduction of predictive power of a classifier as the dimensionality increases, provided
+the training data is fixed.
+In the next to experiments the training data is kept constant but the number of features
+is changed.
 \subsubsection*{Hypothesis: Bayes performance degrades rapidly as the number of features grows.}
 So far I have explored two dimensional cases where only two features were used for
 convenience of visualization. The Curse of Dimensionality is one of the well-known issues with
@@ -1786,7 +1795,7 @@ rapidly its performance degrades when more features are added while the training
 unchanged. It is important that all the features used are conditionally independent, as
 otherwise, the results would not be valid. 
 
-The number of classes is fixed at a value of seven, at which the performance is
+The number of classes is fixed at seven, at which the performance is
 reasonable but still has some quantization error. We are only interested in
 relative performance, so it should not matter how many classes are used,
 however, it is important that the number of classes used produces a
@@ -1909,6 +1918,8 @@ did not need to be run as often as for a system that would be used in production
 addition, human analysis was often required to assess the quality of the programs. These
 aspects of the system motivate the decision to use manual testing, which is described
 further in this section. 
+A small number of functions have also been unit tested using Python's Doctest module. Some
+examples of this are included in Appendix \ref{app:testing}.
 \subsection{High Level Test Plan}
 Table \ref{tab:test} summarizes the test plan used. Each of these tests
 was conducted at the end of module development and whenever a substantial change occurred
@@ -2001,5 +2012,29 @@ for anyone to download, use and improve.
 \label{prop}
 
 \input{propbody}
+
+\chapter{Unit Test Code}
+\label{app:testing}
+\usepackage{listings}
+\begin{lstlisting}[language=python]
+
+def strip_punct(s):
+    """Take a string and return a unicode string with no punctuation symbols.
+    >>> strip_punct(u'remove.the.dots')
+    u'removethedots'
+    >>> strip_punct(u'a very &confusing* line$')
+    u'a very &confusing line$'
+    >>> strip_punct('a (non)-unicode/ +string!!!')
+    Traceback (most recent call last):
+        ...
+    TypeError: s must be unicode
+    """
+    if not isinstance(s,unicode):
+       raise TypeError('s must be unicode')
+    punctuation = u'!"#\'()*+,-./:;<=>?@[\]^_`{|}~'
+    table = dict((ord(char),None) for char in punctuation)
+    return s.translate(table)
+
+\end{lstlisting}
 
 \end{document}
