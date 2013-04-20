@@ -1,10 +1,10 @@
-\documentclass[12pt,notitlepage,twoside]{scrbook}
-\usepackage{a4}
+\documentclass[12pt,a4paper,notitlepage,twoside]{scrbook}
+%\usepackage{a4}
 \usepackage{verbatim}
 \usepackage{graphicx}
 \usepackage{libertine}
 \usepackage[T1]{fontenc}
-\usepackage[font={small,it}]{caption}
+\usepackage[font={it}]{caption}
 \usepackage{subcaption}
 \usepackage{pdfpages}
 \usepackage{amsmath}
@@ -19,8 +19,8 @@
 \widowpenalty1000%
 \usepackage{perpage} %the perpage package
 \MakePerPage{footnote} %the perpage package command
-\addtolength{\oddsidemargin}{6mm}       % adjust margins
-\addtolength{\evensidemargin}{-8mm}
+%\addtolength{\oddsidemargin}{6mm}       % adjust margins
+%\addtolength{\evensidemargin}{-8mm}
 
 \renewcommand{\baselinestretch}{1.1}    % adjust line spacing to make
 
@@ -29,6 +29,8 @@
 	linkcolor=black,
 	pdfborder={0 0 0}
 }
+\usepackage{fancyhdr}
+\setlength{\headheight}{15.2pt}
 \begin{document}
 
 \bibliographystyle{plain}
@@ -36,10 +38,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Title
-
-
-\pagestyle{empty}
-
+\begin{titlepage}
 \hfill{\LARGE \bf Karina Palyutina}
 
 \vspace*{60mm}
@@ -53,14 +52,13 @@ St Catharine's College \\
 \vspace*{5mm}
 \today  % today's date
 \end{center}
-
+\end{titlepage}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Proforma, table of contents and list of figures
 
 \setcounter{page}{1}
 \pagenumbering{roman}
-\pagestyle{plain}
 
 \chapter*{Proforma}
 
@@ -79,7 +77,6 @@ Supervisor:         & \bf Dr Jon Crowcroft                  \\
 \stepcounter{footnote}
 
 \newpage
-
 
 \section*{Original Aims of the Project}
 Design and implementation of a framework that allows comparison of machine learning
@@ -127,8 +124,7 @@ extent for a comparable purpose.
 
 \setcounter{page}{1}
 \pagenumbering{arabic}
-\pagestyle{headings}
-
+\pagestyle{fancy}
 \chapter{Introduction}
 This project aims to explore the application of machine learning techniques to search
 engine heuristics. The goal of the project is not the correct classification of real
@@ -398,12 +394,11 @@ I come back to these derivations again in Section \ref{sec:svm} and further deri
 will be constructed in order to implement the SVM.
 \section{Introduction to PageRank}
 \label{prep:pr}
-The PageRank algorithm was originally described in a research paper
-by Page and Brin\cite{pagerank}. It was first introduced as a way ``to measure
-the relative importance of web pages''. PageRank is interesting to include in
-this project not only because it is a defining feature of the Google search
-engine, but because it is a unique feature of its type, as it depends on the link
-structure of the whole web.
+The PageRank algorithm was originally described by Brin et al.\cite{pagerank}.
+It was first introduced as a way ``to measure the relative importance of web
+pages''. PageRank is interesting to include in this project not only because it
+is a defining feature of the Google search engine, but because it is a unique
+feature of its type, as it depends on the link structure of the whole web.
 
 The basic idea is to capture the link structure of the web and provide a ranking of pages
 that is robust against manipulation. The importance is proportional to the number of links
@@ -415,14 +410,13 @@ can be expressed as an assignment
 \end{gather}
 
 An intuitive justification for such ranking is by analogy with a citation
-network, we are likely to find highly cited pages more important.
-The equation is recursive, so iterating until convergence results in a steady
-state distribution, which corresponds to the PageRank vector.
-Together with this intuition the paper introduces the \textit{Random Surfer
-Model}: we are interested in a steady state distribution of a random walk on
-the web graph. At each step the surfer either follows a random link or
-``teleports'' to a random page. The paper justifies the approach of ignoring the
-dangling links, as it does not have a significant affect on the ranking. 
+network: we are likely to find highly cited pages more important.  The equation
+is recursive, so iterating until convergence results in a steady state
+distribution, which corresponds to the PageRank vector.  The \textit{Random
+Surfer Model} is only interested in a steady state distribution of a random
+walk on the web graph: at each step the surfer either follows a random link or
+``teleports'' to a random page. Brin et al. justify ignoring the dangling
+links, as it does not have a significant effect on the ranking. 
 
 The teleportation vector determines whether the PageRank is ``personalized''. For
 the non-personalized version the teleportation vector holds equal probabilities
@@ -454,6 +448,7 @@ summarized in Table \ref{req}.
     & Medium & High & Medium \\ \hline
     PageRank computation on a few thousand pages \\ must complete in reasonable time & Medium & High & Medium \\ \hline
     Machine learning modules must learn and classify \\ within reasonable time & High & High & High \\ \hline
+    Clear interface definition between modules & High & Medium & Medium \\ \hline 
   \end{tabular}
   \caption{Project objectives\label{req}}
 \end{table}
@@ -465,16 +460,19 @@ use. The system is only meant to be used by me, hence there was no need for docu
 and user interface.
 
 \footnotetext[1]{The project imposes no rigid speed requirements, however, it is highly desirable that the computing time does not slow the project down.} 
+\subsection{Dependency analysis}
 To effectively plan the development, I also evaluated the dependencies of the core modules
-of the project. Figure \ref{dep} shows the major dependencies present in the project. It
+of the project(see Figure \ref{dep}). It
 can be seen that there was a lot of freedom as to the order of implementation. It also
 became obvious that due to the apparent convergence of the modules, integration would be a
-complex exercise. Therefore, a prototype had to be implemented very early on to see the
-design at work and to avoid surprises.
+complex exercise. As a result, a prototype had to be implemented very early on to see the
+design at work and to avoid surprises. This meant the implementation of Naive Bayes
+classifier, the parser and the indexer was on the high priority path.
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.7\textwidth]{figs/dep.pdf}
-	\caption{Summary of Main Dependencies\label{dep}}
+	\caption{Summary of Main Dependencies. Colour groups functionally related modules,
+		high priority paths are shown in red.\label{dep}}
 \end{figure}
 
 \section{Choice of Tools}
@@ -487,7 +485,7 @@ Data gathering is of major importance, as data decisions have tremendous impact 
 rest of the implementation and the success of the project. The rest of the system assumes
 the existence of a pool of web pages available offline for fast indexing and parsing.
 Ideally the corpus of web pages would be ``representative'' of the whole web, to make
-generalisations more accurate.  Originally, I was hoping to get such collection from a
+generalisations more accurate.  Originally, I was hoping to get such a collection from a
 resource, for example, the web corpus of the \textit{Text Retrieval Conference} (TREC).
 However, such data is not easily available, so I had to retrieve pages using the
 \textit{Wget} tool. In order to enhance the link structure of the downloaded pages, I restricted the corpus to one
@@ -527,13 +525,11 @@ exercise, as developing it in the first place potentially gives an insight into
 the problem.
 
 Functionally, the search engine is a black box that takes a set of web pages and a set of
-queries and outputs an order. The order is determined by the features of the page, which
+queries and outputs an order. The order is determined by the features of the pages, which
 together make up a score. The score is the function that needs to be inferred using the
 ranking assigned by the search engine. However, we are only given the order as evidence.
 For most of this project I have assumed an existence of conversion between rank and score,
-and so the machine learners interact directly with scores. I have looked in more detail at
-the issue of score and rank, however, I decided that implementation would be beyond the
-scope of the project due to time limitations.
+and so the machine learners interact directly with scores. 
 
 In general, there are two aspects of information retrieval that have to be accounted for:
 precision and recall.  
@@ -576,7 +572,8 @@ relevant libraries. This section discusses some core libraries used in this proj
 	\caption{Libraries required in the project\label{libs}}
 \end{figure}
 \subsubsection*{HTML parsing}
-Parsing HTML pages is crucial to the project and relies entirely on the library. I have
+Parsing HTML pages is crucial to the project and relies entirely on the library. Forgiving
+HTML parsing is a hard problem and I have
 chosen to use the \textbf{BeautifulSoup} library to build and navigate the parse tree.
 There are some simpler tools available for Python, however, they do not have such a
 diverse functionality. For example, the project made use of tag filtering and a
@@ -608,7 +605,7 @@ customisable.
 \subsubsection*{Object Serialization}
 This functionality was required mainly to allow for the pre-computing of the PageRank vector
 and other static page features. \textbf{Marshal} and \textbf{Pickle} were the two
-alternatives considered in the project. \textbf{Pickle} has proved more robust and
+alternatives considered in the project. \textbf{Pickle} is more widely used and has proved more robust and
 portable, and so was preferred.
 \subsubsection*{Naive Bayes}
 A Bayesian classifier is not hard to implement, so after some consideration I decided to use a library
@@ -652,6 +649,14 @@ parser and an assessment module. Increments were developed sequentially and were
 separately before integration at the end of the iteration. This approach allowed to
 decompose a complex system into manageable chunks, which eased the development.
 
+\subsection{Testing}
+Most functionality of the system developed in this project required some human analysis to
+be tested. Moreover, the system was frequently evolving, which made it difficult to write
+useful unit tests. Therefore, most testing was conducted manually. However, certain
+commonly reused functions were stable enough to easily unit test. I used Python's
+\textit{Doctest} module for inline unit testing, which offers a lightweight solution
+with enough flexibility to provide the assurance required. Testing is discussed in more
+detail in Section \ref{sec:testing}.
 \section{Summary}
 In this chapter I have outlined the research and planning completed prior to the
 implementation stage. In particular, the chapter provided brief introductions to the machine
@@ -678,6 +683,7 @@ correct classification of real data, but identifying the means to correct classi
 it was important that informed choices were made towards the improvement of the learner.
 Taking this into account, knowing the function to be learned and having direct control
 over it, guided the improvement of the search engine. 
+
 \begin{figure}[h!]
 \centering
 \includegraphics[width=\textwidth]{figs/overview.pdf}
@@ -686,7 +692,6 @@ parser and machine learner. The colour coding indicates belonging to the same co
 green for the learner, blue for the search engine, pink for the parser and peach for the
 data.\label{overview}}
 \end{figure}
-
 Following this argument, a system in three parts was designed: a search engine, a machine
 learner and a parser to mediate between the two. Figure \ref{overview} illustrates the
 proposed learning system.
@@ -699,7 +704,7 @@ computed for them. The queries are passed to the search engine, which outputs th
 pages in the order of importance. The parser computes feature sets for all the pages in
 the training directory and assigns a category to each page depending on the query and the
 output from the search engine. The feature sets are then used to train the learner. The
-trained classifier is the output of the whole system.
+trained learner is the output of the whole system.
 
 \begin{figure}[h]
 \centering
@@ -749,15 +754,15 @@ gain a useful insight into the field.
 The module requirements featured flexibility, speed of indexing and retrieval as well as
 simplicity and usability.  The \textit{Whoosh} python library provides all of these -- it
 is  an open source indexing library, so I had the option of modifying any part of it.  It
-is  built in pure Python, hence it has a clean pythonic API. Its primary advantage is fast
+is  built in pure Python, hence it has a clean Pythonic API. Its primary advantage is fast
 indexing and retrieval, although the project is mostly concerned with retrieval speed, as
 indexing is done rarely. The predecessors of Whoosh have served as the basis of well-known
 search engines such as \textit{Lucene}, so it is also a powerful indexing tool, should I
 have needed more sophistication.
 
 I have defined a very simple indexing schema. Perhaps, one notable detail is that Whoosh
-can store time stamps with the index, which enabled me to provide both clean and
-incremental index methods. The incremental indexing relies on the time stamp stored with
+can store timestamps with the index, which enabled me to provide both clean and
+incremental index methods. The incremental indexing relies on the timestamp stored with
 the index and compares it to the last-modified time provided by the file system. The user
 can specify whether indexing has to be done from scratch or updated to accommodate some
 page changes or page addition/deletion. Even though I had not originally expected
@@ -775,7 +780,7 @@ incorporated into the Parser module, which is described in detail in Section
 Section \ref{prep:pr} of the Preparation Chapter explains the principles of the PageRank
 algorithm. In this section the PageRank algorithm is implemented using matrix inversion.
 This is the simplest method to compute PageRank for a few thousand pages and turned
-out to be reasonably fast. All matrix operations were performed using \textit{Numpy} --
+out to be reasonably fast. All matrix operations were performed using \textit{NumPy} --
 the Python numerical library. The implementation is derived in the rest of the section.
 
 First, a few variables need to be defined:
@@ -845,8 +850,8 @@ few thousand pages. The resultant performance was surprisingly pleasing, the tim
 spent computing PageRank was insignificantly small in comparison to the time spent
 crawling the directory.
 
-The PageRank vector computation happens within the \texttt{Pagerank} class. The
-whole \texttt{Pagerank} object is written to memory using the Python object
+The PageRank vector computation happens within the \texttt{PageRank} class. The
+whole \texttt{PageRank} object is written to disk using the Python object
 serialization module \textit{Pickle}. This allows the PageRank vector to be pre-computed
 and stored for each directory. The \texttt{load} class method is defined
 on the \texttt{PageRank} class to retrieve the relevant object for a given
@@ -868,7 +873,7 @@ The \texttt{Crawler} class recursively traverses the pages depth first starting 
 seed page, the same as the seed page used for recursively downloading the pages
 from the web. To make sure each page is only explored once, a dictionary is
 used to hold pairs of absolute paths, which uniquely identify the page, and a
-numerical value corresponding to the time stamp when the page has been first
+numerical value corresponding to the timestamp when the page has been first
 discovered.
 
 Although every page has a unique path, the links to other pages are relative.
@@ -903,7 +908,7 @@ described by the Table \ref{tab}.
 \section{Optimizations}
 
 Even though speed is not a direct goal of the project, efficient implementation
-was desirable and so, optimization could not be overlooked. Significant
+was desirable and so, optimization could not be overlooked. A significant
 amount of time was spent processing large quantities of data: indexing, PageRank
 and feature set computations all must complete in `reasonable' time, i.e. in the
 final implementation the longest computation takes order of minutes and
@@ -951,13 +956,13 @@ robust and lenient, \textit{Lxml} was sufficiently faster to be preferable.
   \caption{Lxml}
   \label{lxml}
 \end{subfigure}
-\caption{Visual profiles of three parsers from left to right: default python
-html parser, html5lib and lxml. The internal boxes are sized in proportion to
+\caption{Visual profiles of three parsers from left to right: default Python
+HTML parser, Html5lib and Lxml. The internal boxes are sized in proportion to
 the time spent in each function. In all profiles three distinct major
 compartments can be seen, the leftmost being the compartment of interest: 
 time spent in parsing. Taking into consideration that the other modules are unaffected by changing the parser
-implementation, it can be observed that lxml (rightmost) is the fastest and
-html5lib is the slowest.\label{parsers}}
+implementation, it can be observed that Lxml (rightmost) is the fastest and
+Html5lib is the slowest.\label{parsers}}
 \end{figure}
 
 Another limitation was discovered due to profiling: the PageRank vector
@@ -972,29 +977,29 @@ loads the vectors lazily.
 \label{sec:parser}
 So far we have looked at the search engine. This section describes the parser -- a
 functional unit, which provides an interface from the search engine to the machine
-learners.  The search engine simply retrieves pages in response to a query and the machine
+learners. The search engine simply retrieves pages in response to a query and the machine
 learner expects as its input a set of labelled features for training and unlabelled
-features for classification/regression.  The parser, therefore, must hide the nature of
+features for classification/regression. The parser, therefore, must hide the nature of
 the data we are dealing with by translating it into the universal language of machine
 learners. Hence, the primary function of the parser is to compute feature vectors for
-pages.  However, it is easy to outsource search engine heuristics into the Parser, too, as
+pages. However, it is easy to outsource search engine heuristics into the Parser, too, as
 they require page parsing. 
 
 To accomplish these multiple goals, I have
 taken an object oriented approach to the design of the module. What I refer to
 as the parser is a few classes, which together perform a series of tasks
-related to page parsing.  The module operates in two modes: rank and score and
+related to page parsing. The module operates in two modes: rank and score; and
 handles both classification and regression. The most abstract interface to the module is through the two
 classes: a \texttt{TestFeatureSetCollection} and a
-\texttt{LabelledFeatureSetCollection}. Instances of these classes encapsulate all the data,
+\texttt{LabeledFeatureSetCollection}. Instances of these classes encapsulate all the data,
 so can be passed around to the machine learners, as well as the evaluation and
 plotting modules. These objects each operate within their own directories, to
 keep training and testing sufficiently separate.
 
 Both category and rank are treated as page features and hence are part of the
-\texttt{LabelledFeatureSet} class state.  The
-\texttt{LabelledFeatureSetCollection} class is used for training the classifier,
-whereas the \texttt{TestFeatureSetCollection} class computes predicted is used
+\texttt{LabeledFeatureSet} class state.  The
+\texttt{LabeledFeatureSetCollection} class is used for training the classifier,
+whereas the \texttt{TestFeatureSetCollection} class computes predicted category and is used
 for testing the classifier. Both, however, need to generate
 feature sets, one for the training data and the other for the test data. This
 common functionality is embodied in their abstract base class,
@@ -1003,7 +1008,7 @@ illustrating the main dependencies of the module.
 
 \begin{figure}[h!]
 \centering
-\includegraphics[scale=0.5]{figs/uml.png}
+\includegraphics[scale=0.7]{figs/uml.png}
 \caption{A UML class diagram illustrating the structure of the parser.}
 \label{uml}
 \end{figure}
@@ -1012,7 +1017,7 @@ The rest of this section talks about the specifics of the implementation, in
 particular, the features used and how HTML parsing is done.
 
 \subsection{Rank and Score}
-Conceptually a \texttt{FeatureSetCollection} is a dictionary of \texttt{LabelledFeatureSet}
+Conceptually a \texttt{FeatureSetCollection} is a dictionary of \texttt{LabeledFeatureSet}
 objects indexed by both page path and query term, as the features depend on both. After initialisation, all
 the features are computed and `filled up' per page and per query term.
 In the original prototype the search engine used to output ranks (the ordinal representing the position of the
@@ -1023,7 +1028,7 @@ page.
 
 The later prototypes assumed the existence of conversion between rank and score and passed
 scores directly to the machine learners. The score function was implemented as a class method on the
-\texttt{LabelledFeatureSet}, so that the scores could be computed ad hoc for a variety of
+\texttt{LabeledFeatureSet}, so that the scores could be computed ad hoc for a variety of
 heuristics.
 
 \subsection{Features}
@@ -1031,7 +1036,7 @@ heuristics.
 
 The requirements analysis does not prescribe the use of any particular
 features. However, it states that both dynamic (query dependent) and
-static (query independent) features must be used. PageRank is a dynamic feature
+static (query independent) features must be used. PageRank is a static feature
 that stands out above the others: it takes into account all the pages
 in the pool and reflects on the link structure hierarchy of the web pages. 
 The parser loads the pre-computed PageRank vector indexed by the path to
@@ -1075,10 +1080,10 @@ label_N)]
 
 The \texttt{train} method simply computes the prior -- the probability
 distribution over labels \(P(label)\) and the likelihood -- the conditional
-probability \(P(featureset=f|label\) by simply counting and recording the
+probability \(P(featureset=f|label)\) by simply counting and recording the
 relevant instances. The method outputs a \texttt{NaiveBayesClassifier} instance
-parametrized by the two probability distributions. \(P(features)\) is not
-computed explicitly, instead, a normalizing denominator \ref{normal} is used.
+parametrized by the two probability distributions. To avoid having to calculate
+\(P(features)\) explicitly, a normalizing denominator \ref{normal} is used.
 
 \begin{equation} \sum_{l \in labels}(P(l)P(featureset_1|l)\cdots
 	P(featureset_N|l)) \label{normal} \end{equation}
@@ -1188,7 +1193,7 @@ and is equivalent to the first term of Equation \ref{eq:maxim}:
 \sum_{n=1}^{N}\sum_{m=1}^{N}(a_n-a_n^*)(a_m-a_m^*)K(x_n,x_m)
 \end{gather*}
 
-Now expressing the remaining two terms in Equation \ref{eq:minim} by taking 
+Now express the remaining two terms in Equation \ref{eq:minim} by taking 
 \[q =
 \begin{bmatrix}
   \epsilon\mathbf{e}-t_0           \\
@@ -1279,15 +1284,8 @@ intuitive. For example, a linear kernel is perfect for linear heuristics and the
 is reduced to fitting a hyperplane.  Similarly, a radial basis kernel picks out
 hyperspheres. However, when we have no expectation of data, we need a most
 general kernel.
-
 In this section I examine a few kernels with various score functions. 
 The kernels used in this section have been tuned as described in Section \ref{sec:tuning}.
-
-Kernel functions are the central component of SVM, and its
-choice is highly dependent on the application. I have considered a variety of
-kernel functions and experimented with their combinations to see how the
-performance differs. Table \ref{kfun} shows the kernel functions I have used.
-
 \begin{table}[h]
 \begin{center}
 \begin{tabular}{|l|c|}
@@ -1302,44 +1300,26 @@ Sigmoid   &   \(\tanh(ax \cdot y^T + c)\)\\
 \hline
 Polynomial& \(a(x\cdot y^T)^d\)  \\
 \hline
-Weighted Sum&  \texttt{a*Gaussian(x,y,\(\gamma\))+(1-a)*Linear(x,y)}\\
+Weighted Sum&  \(a*Gaussian(x,y,\gamma)+(1-a)*Linear(x,y)\)\\
 \hline
-Product     & \texttt{Linear(x,y)*Gaussian(x,y,\(\gamma\))}\\
+Product     & \(Linear(x,y)*Gaussian(x,y,\gamma)\)\\
 \hline
 \end{tabular}
 \end{center}
 \caption{Kernel Functions \label{kfun}}
 \end{table}
 
+Kernel functions are the central component of SVM, and its
+choice is highly dependent on the application. I have considered a variety of
+kernel functions and experimented with their combinations to see how the
+performance differs. Table \ref{kfun} shows the kernel functions I have used.
+
 The simplest kernel function is the Linear kernel. It is simply a dot product
 of two vectors. Its generalized version is the Polynomial kernel, which takes
 degree as a parameter. Intuitively, the polynomial kernel is a lot more
 flexible than linear, but the larger the degree, the less `smooth' it becomes,
 so it might overfit the training data.  
-
-The Gaussian kernel is an example of a family of the Radial Basis Function kernels, which
-are
-most popular in SVM. \(||x-y||\) denotes the
-Euclidean distance of the two feature vectors. The \(\gamma\) parameter is
-equivalent to \(\frac{1}{2\sigma^2}\). The choice of \(\gamma\) has a major
-effect on the performance of the kernel and represents a trade-off between over-
-and underfitting. 
-
-The Sigmoid kernel is commonly used in neural networks
-and in combination with an SVM classifier forms a two layer perceptron network,
-where the scale parameter \(a\) is usually set to 1/N, where N is the number of
-dimensions (features)\cite{sigmoid}. This kernel is different from the rest described
-here, as it only satisfies Mercer's conditions\footnote{A real-valued kernel K(x,y) satisfies
-Mercer's conditions if for all square integrable functions g(x) \(\int\int
-K(x,y)g(x)g(y)dxdy\geq 0.\)} for some values of its parameters, which
-	means SVM can be constructed only for those values\cite{stat_learn}.
-
-The Sum and Product kernels are both an example of combination kernels, in this case a
-combination of the Linear and Gaussian kernels. I found that in situations
-where one kernel alone does not perform well, combination kernels might improve performance.
-
-Figure \ref{kernels} shows four different kernels applied to their native two dimensional heuristics. 
-\begin{figure}[h!]
+\begin{figure}[b!]
 \centering
 \begin{subfigure}[b]{.49\textwidth}
   \centering
@@ -1369,9 +1349,33 @@ Figure \ref{kernels} shows four different kernels applied to their native two di
 \caption{Four different two dimensional heuristic functions are fitted by SVR with four
 	corresponding kernels: linear, polynomial degree 2, polynomial degree 3 and Gaussian.\label{kernels}}
 \end{figure}
-Clearly, the first three fits seem effortless, but fitting the step function with an RBF
-kernel was a lot more tricky. The $\gamma$ parameter was chosen by tuning described in the
-next section.
+
+The Gaussian kernel is an example of a family of the Radial Basis Function kernels, which
+are
+most popular in SVM. \(||x-y||\) denotes the
+Euclidean distance of the two feature vectors. The \(\gamma\) parameter is
+equivalent to \(\frac{1}{2\sigma^2}\). The choice of \(\gamma\) has a major
+effect on the performance of the kernel and represents a trade-off between over-
+and underfitting. 
+
+The Sigmoid kernel is commonly used in neural networks
+and in combination with an SVM classifier forms a two layer perceptron network,
+where the scale parameter \(a\) is usually set to 1/N, where N is the number of
+dimensions (features)\cite{sigmoid}. This kernel is different from the rest described
+here, as it only satisfies Mercer's conditions\footnote{A real-valued kernel K(x,y) satisfies
+Mercer's conditions if for all square integrable functions g(x) \(\int\int
+K(x,y)g(x)g(y)dxdy\geq 0.\)} for some values of its parameters, which
+	means SVM can be constructed only for those values\cite{stat_learn}.
+
+The Sum and Product kernels are both an example of combination kernels, in this case a
+combination of the Linear and Gaussian kernels. I found that in situations
+where one kernel alone does not perform well, combination kernels might improve performance.
+
+Figure \ref{kernels} shows four different kernels (Linear, Polynomial of degrees 2 and 3
+and Gaussian) applied to four distinct two dimensional heuristic functions (Linear, Quadratic,
+Cubic and Step). Clearly, the first three fits seem effortless, but fitting the step
+function with a Gaussian kernel was a lot more tricky. The Gaussian $\gamma$ parameter was chosen
+by tuning as described in the next section.
 \subsection{SVM Hyperparameter Tuning}
 \label{sec:tuning}
 In comparison to Naive Bayes, SVM has a lot of degrees of freedom. The choice of kernel function is
@@ -1380,13 +1384,21 @@ itself is discussed in more detail in the next section. This section illustrates
 kernel parameters might be tuned. 
 
 There are several ways of adjusting parameters, of which grid search is the simplest. In
-grid search we specify a range of parameters and note down the Mean Squared Errors (MSE) for each value (or
-combination of values). To choose the domain successfully, the analysis has to happen at
-different scales, starting from coarser (wider spread) parameter values, each time only
-choosing the best for finer tuning, so the algorithm works in a tournament fashion.
-Essentially, it is hill climbing and does not scale beyond a few variables.
+grid search a range of values for each parameter is specified and the Mean Squared Errors
+(MSE) for each value is recorded. To choose the domain successfully, the analysis has to
+happen at different scales, starting from coarser (wider spread) parameter values, each
+time only choosing the best for finer tuning, so the algorithm works in a tournament
+fashion. Essentially, it is hill climbing and does not scale beyond a few variables. The
+rest of the section illustrates working through an example problem.
 
-As an example a combined product kernel will be used. The data used is deliberately noisy
+\textbf{Example: given noisy data, find the values of the Product kernel
+hyperparameters, such that MSE is minimized.}
+
+Recall the Product kernel defined in Section \ref{sec:kernels}: 
+\begin{gather*}
+Product(x,y,\gamma) = Linear(x,y)*Gaussian(x,y,\gamma)
+\end{gather*}
+The data used is deliberately noisy
 and non-injective. We want to find out how perturbing the plane with the Gaussian kernel can provide a better fit. 
 Given a positive $\sigma$, the Gaussian component varies between one and zero.
 Varying $\gamma$, therefore, determines the contribution of the linear fit as well as overfitting.
@@ -1871,6 +1883,7 @@ modules in question, as speed of implementation was prioritized over the speed o
 computation due to the infrequency of costly computations. 
 
 \section{Testing}
+\label{sec:testing}
 Formal correctness proofs are neither within the aims of the project, nor would they be
 feasible in the time given. Therefore, the main purpose of the testing is to gain a degree
 of certainty in the correctness of the program. The system developed is in a sense a
