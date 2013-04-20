@@ -1378,37 +1378,60 @@ function with a Gaussian kernel was a lot more tricky. The Gaussian $\gamma$ par
 by tuning as described in the next section.
 \subsection{SVM Hyperparameter Tuning}
 \label{sec:tuning}
-In comparison to Naive Bayes, SVM has a lot of degrees of freedom. The choice of kernel function is
-one such degree of freedom and each kernel has more adjustable parameters of its own. Selecting a kernel 
-itself is discussed in more detail in the next section. This section illustrates how
-kernel parameters might be tuned. 
+In comparison to Naive Bayes, SVM has a lot of degrees of freedom. The choice
+of kernel function was discussed in the previous section, however, each kernel has more
+adjustable parameters of its own. This section illustrates how kernel
+parameters might be tuned to minimize Mean Squared Error (MSE) to achieve a better fit.
+
+\textbf{Example: Given noisy data, find the hyperparameter values of the Product kernel
+which minimise MSE.}
+
+Recall the Product kernel definition from Section \ref{sec:kernels}: 
+\begin{gather*}
+Product(x,y,\gamma) = Linear(x,y)*Gaussian(x,y,\gamma) = x\cdot y^T \exp^{-\gamma ||x-y||^2}
+\end{gather*}
+
+The \(\gamma\) parameter determines how much effect the Gaussian component has: when
+\(\gamma\) is zero, the fit is purely linear.
+In this example I have chosen to use noisy non-injective data to show how complex fitting
+can be achieved. Two parameters $\gamma$ and $\epsilon$ are varied
+until MSE is minimised. Figure \ref{fits} shows how the product kernel fit is improved by
+hyperparameter tuning.
+The rest of the section describes how this result was obtained.
+\begin{figure}[hb]
+\centering
+\begin{subfigure}[b]{.49\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figs/lin_fit.png}
+  \caption{\(\gamma=0\)\label{linear_kernel_fit}}
+\end{subfigure}
+\begin{subfigure}[b]{.49\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{figs/perf_fit.png}
+  \caption{\(\gamma=-0.23\) \label{product_kernel_fit}}
+\end{subfigure}
+\caption{The same data is fit by the product kernel with different hyperparameters. Purely
+	linear fit is improved by the Gaussian: when $\gamma$ is tuned, the hyperplane is
+	perturbed to provide the best fit.\label{fits}}
+\end{figure}
+\subsubsection*{Grid search}
 
 There are several ways of adjusting parameters, of which grid search is the simplest. In
-grid search a range of values for each parameter is specified and the Mean Squared Errors
-(MSE) for each value is recorded. To choose the domain successfully, the analysis has to
-happen at different scales, starting from coarser (wider spread) parameter values, each
-time only choosing the best for finer tuning, so the algorithm works in a tournament
-fashion. Essentially, it is hill climbing and does not scale beyond a few variables. The
-rest of the section illustrates working through an example problem.
+grid search a range of values for each parameter is specified and the 
+MSE for each value is recorded. To choose the domain successfully, the analysis has to
+happen at different scales. Starting from coarser (wider spread) parameter values, each
+time only the best ranges are analysed in finer detail.
 
-\textbf{Example: given noisy data, find the values of the Product kernel
-hyperparameters, such that MSE is minimized.}
-
-Recall the Product kernel defined in Section \ref{sec:kernels}: 
-\begin{gather*}
-Product(x,y,\gamma) = Linear(x,y)*Gaussian(x,y,\gamma)
-\end{gather*}
-The data used is deliberately noisy
-and non-injective. We want to find out how perturbing the plane with the Gaussian kernel can provide a better fit. 
-Given a positive $\sigma$, the Gaussian component varies between one and zero.
-Varying $\gamma$, therefore, determines the contribution of the linear fit as well as overfitting.
-Varying the $\epsilon$ also controls overfitting.
-
-Figure \ref{coarse_fine} shows analyses at different scales on the training data: the coarsest and the finest.
-First it is found that the
-contribution of the $\epsilon$ affects the error a lot more in comparison to $\gamma$. As the
-problem is symmetric, further analyses are only performed with positive $\gamma$. Looking
-further, it eventually becomes visible that the minima lie where $\gamma$ is small. 
+Figure \ref{coarse_fine} shows analyses at different scales on the training data: the
+coarsest and the finest (the intermediate results are omitted). Both $\epsilon$ and
+$\gamma$ are varied, however, the $\epsilon$ parameter is expected to be best at 0. This is because we
+are fitting the training data directly, as opposed to learning from the training data and
+fitting previously unseen test data (recall that $\epsilon$ controls the degree of
+generalisation). At the coarsest scale (Figure \ref{coarse}) it is
+observed that the contribution of $\epsilon$ affects the error a lot more in
+comparison to $\gamma$: the plot appears constant with respect to $\gamma$. After a number
+of stages, each time reducing the range of $\gamma$, it eventually becomes visible that the
+minima lie where $\gamma$ is small (Figure \ref{fine}). 
 
 \begin{figure}[h!]
 \centering
@@ -1424,13 +1447,19 @@ further, it eventually becomes visible that the minima lie where $\gamma$ is sma
 \end{subfigure}
 \caption{It is clear from (a), that increasing $\epsilon$ affects the fitting
 	of the test data so greatly, that changing $\gamma$ is insignificant in comparison.
-	However, on the finer scale contour map (b), the minima can be found.\label{coarse_fine}}
+	However, on the finer scale contour map (b), the minima can be found. As expected, MSE grows
+	monotonically with $\epsilon$ in both plots.\label{coarse_fine}}
 \end{figure}
-
-Figure \ref{overfit} demonstrates the effects of overfitting: the minima for training and
+\subsubsection*{Overfitting}
+In the previous section I found the best $\gamma$ and $\epsilon$ which fit the training
+data directly.
+The values found, however, are not guaranteed to be optimal for the unseen test data due
+to possible overfitting. 
+Figure \ref{overfit} demonstrates that the minima for training and
 test data do not coincide. Whereas the training data is best fit with the $\epsilon$
-approaching zero, as might be expected, the test data is fit better when the error is
-non-zero.
+approaching zero, the test data is fit better when the $\epsilon$ is
+non-zero, as it prevents sensitivity to the noise in the training
+data. 
 
 \begin{figure}[h]
 \centering
@@ -1446,42 +1475,30 @@ non-zero.
   \caption{Test Data}
   \label{fine}
 \end{subfigure}
-\caption{Effects of overfitting: non-zero $\epsilon$ allows for better fit of the test data.\label{overfit}}
+\caption{Non-zero $\epsilon$ allows for better fit of the test data.\label{overfit}}
 \end{figure}
 
-Now having found the best Gaussian and $\epsilon$ parameters, the two different fittings are
-plotted in Figure \ref{fits}
-
-\begin{figure}[h]
-\centering
-\begin{subfigure}[b]{.49\textwidth}
-  \centering
-  \includegraphics[width=\linewidth]{figs/lin_fit.png}
-  \caption{Linear kernel fit\label{coarse}}
-\end{subfigure}
-\begin{subfigure}[b]{.49\textwidth}
-  \centering
-  \includegraphics[width=\linewidth]{figs/perf_fit.png}
-  \caption{Combined Product kernel fit\label{fine}}
-\end{subfigure}
-\caption{Linear fit is improved by Gaussian: when $\gamma$ is tuned, the hyperplane is
-	perturbed to provide the best fit.\label{fits}}
-\end{figure}
 
 Hyperparameter tuning was, perhaps, the hardest part of SVM, which required both very good
-understanding of the kernel functions, as well as data at hand. Though in this section I
+understanding of the kernel functions, as well as the data used. Though in this section I
 described a primitive way of tuning, I would consider more advanced automated tuning
 schemes, perhaps, even using machine learning techniques to determine parameters.
 
 \section{Summary}
 In this chapter I have taken the reader from system architecture through the design and
-implementation of the various components which included the search engine, the parser as
-well as two machine learning modules.
+implementation of the various components which included the search engine, the parser and
+two machine learning modules.
 
 Work was split between theoretical and pure software engineering. The theoretical work
-included derivations of the PageRank algorithm and support vector regression, whereas the
-software engineering -- in assembling libraries and classes as well as optimizing
-throughout the various components.
+included derivations of the PageRank algorithm and support vector regression, which
+constituted an essential part of the implementation. Some software engineering involved
+integrating libraries: a library implementation of the Naive Bayes classifier was
+used; the core of the search engine also relies on the existing
+indexing tools.  Most of the work was in writing original code: implementing a crawler to
+explore the link structure of the pages; implementing SVM regression and computing PageRank
+(using my derivations); implementing various kernel support for the SVM; designing and
+implementing a class-based structure to produce feature sets for both training and
+testing. The various components were also optimized throughout.
 
 
 \chapter{Evaluation}
