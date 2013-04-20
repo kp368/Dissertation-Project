@@ -752,7 +752,7 @@ gain a useful insight into the field.
 \subsection{Indexer and Searcher}
 
 The module requirements featured flexibility, speed of indexing and retrieval as well as
-simplicity and usability.  The \textit{Whoosh} python library provides all of these -- it
+simplicity and usability.  The \textit{Whoosh} Python library provides all of these -- it
 is  an open source indexing library, so I had the option of modifying any part of it.  It
 is  built in pure Python, hence it has a clean Pythonic API. Its primary advantage is fast
 indexing and retrieval, although the project is mostly concerned with retrieval speed, as
@@ -927,7 +927,7 @@ Profiling the first prototype of the complete system revealed a surprising
 fact: most time was spent in the library code parsing pages. To mitigate this
 issue I have tried using custom parsers instead. Apart from speed, robustness
 was another important consideration, as a failure of a parser increases compute
-time. Two of the most renowned python parsers are \textit{Html5lib} and
+time. Two of the most renowned Python parsers are \textit{Html5lib} and
 \textit{Lxml}. Figure
 \ref{parsers} below shows the visual representation for time profiling of 3
 different runs obtained using \textit{RunSnakeRun}, each exploiting a
@@ -1855,7 +1855,7 @@ Both plots also display fitted cubic and quadratic curves. The curves are fitted
 \textit{Scipy} library curve fitting function, which uses the Levenburg-Marquardt
 algorithm\footnote{Also known as Damped Least Squares method, the Levenburg-Marquardt
 algorithm works by minimizing a function over the space of its parameters.}. 
-\begin{figure}[h!]zo
+\begin{figure}[h!]
   \centering
     \includegraphics[width=0.8\linewidth]{figs/ind.png}
     \caption{Time taken in indexing for a growing set of pages. For convenience
