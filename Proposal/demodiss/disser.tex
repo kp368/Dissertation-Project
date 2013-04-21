@@ -568,7 +568,7 @@ of the main libraries. As I mentioned earlier, library support was a major crite
 choosing a language and a lot of time was spent searching for and getting familiar with the
 relevant libraries. This section discusses some core libraries used in this project.
 
-\begin{figure}[h]
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=\textwidth]{figs/libs.pdf}
 	\caption{Libraries required in the project\label{libs}}
@@ -687,7 +687,7 @@ it was important that informed choices were made towards the improvement of the 
 Taking this into account, knowing the function to be learned and having direct control
 over it, guided the improvement of the search engine. 
 
-\begin{figure}[h!]
+\begin{figure}[ht]
 \centering
 \includegraphics[width=\textwidth]{figs/overview.pdf}
 \caption{Overview of the system. Three major parts from left to right are search engine,
@@ -709,7 +709,7 @@ the training directory and assigns a category to each page depending on the quer
 output from the search engine. The feature sets are then used to train the learner. The
 trained learner is the output of the whole system.
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \centering
 \includegraphics[width=\textwidth]{figs/eval.pdf}
 \caption{Evaluation process. }
@@ -937,7 +937,7 @@ different runs obtained using \textit{RunSnakeRun}, each exploiting a
 different parser.  Despite \textit{Html5lib} being quoted as the most
 robust and lenient, \textit{Lxml} was sufficiently faster to be preferable.
 
-\begin{figure}[h!]
+\begin{figure}[ht]
 \centering
 \begin{subfigure}[b]{.3\textwidth}
   \centering
@@ -1009,7 +1009,7 @@ common functionality is embodied in their abstract base class,
 \texttt{FeatureSetCollection}. Figure \ref{uml} shows a UML class diagram
 illustrating the main dependencies of the module.
 
-\begin{figure}[h!]
+\begin{figure}[ht]
 \centering
 \includegraphics[scale=0.7]{figs/uml.png}
 \caption{A UML class diagram illustrating the structure of the parser.}
@@ -1322,7 +1322,7 @@ of two vectors. Its generalized version is the Polynomial kernel, which takes
 degree as a parameter. Intuitively, the polynomial kernel is a lot more
 flexible than linear, but the larger the degree, the less `smooth' it becomes,
 so it might overfit the training data.  
-\begin{figure}[b!]
+\begin{figure}[hb]
 \centering
 \begin{subfigure}[b]{.49\textwidth}
   \centering
@@ -1436,7 +1436,7 @@ comparison to $\gamma$: the plot appears constant with respect to $\gamma$. Afte
 of stages, each time reducing the range of $\gamma$, it eventually becomes visible that the
 minima lie where $\gamma$ is small (Figure \ref{fine}). 
 
-\begin{figure}[h!]
+\begin{figure}[ht]
 \centering
 \begin{subfigure}[b]{.49\textwidth}
   \centering
@@ -1464,7 +1464,7 @@ approaching zero, the test data is fit better when the $\epsilon$ is
 non-zero, as it prevents sensitivity to the noise in the training
 data. 
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \centering
 \begin{subfigure}[b]{.49\textwidth}
   \centering
@@ -1558,7 +1558,7 @@ greater or smaller than the threshold T. During evaluation the conversion has to
 the class to the score. Because information is lost during the quantization stage,
 every example classified into Class 1 is mapped to the median value of the scores -- M1 --
 in the hope to minimize the error due to quantization.
-\begin{figure}[h!]
+\begin{figure}[ht]
 	\centering
   \includegraphics[width=0.6\linewidth]{figs/quantiz.pdf}
   \caption{Quantization into two classes\label{diag:quant}}
@@ -1631,7 +1631,7 @@ classes, so Bayes is expected to fail in this case. Example \ref{sf:sep} illustr
 `cut-off sum' function and is trivially separable. Such a linear heuristic should be easy
 for Bayes to pick up.
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \begin{subfigure}[b]{0.45\linewidth}
   \includegraphics[width=\linewidth]{figs/gen_insep.png}
   \caption{Linearly Inseparable Data \label{sf:insep}}
@@ -1654,7 +1654,7 @@ are plotted for comparison. The baseline performance is evaluated by randomly as
 classes, whereas the ceiling error illustrates the contribution of quantization error,
 inherent in classification of non-discrete scores.
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \begin{subfigure}[b]{0.49\textwidth}
     \centering
  \includegraphics[width=\linewidth]{figs/insep.png}
@@ -1713,7 +1713,7 @@ which has the form of the particular heuristic used. \textit{Numpy} provides a
 \textit{lstsq} function which finds the coefficients of a particular heuristic such that
 the squared error is minimal.
 
-\begin{figure}[h!]
+\begin{figure}[ht]
 \centering
   \includegraphics[width=0.8\linewidth]{figs/lin_degrad.png}
   \caption{SVM with a linear kernel is evaluated against four different heuristics (x
@@ -1742,7 +1742,7 @@ In this experiment, a linear heuristic is used with two features as before. The 
 classes is varied starting with two. Classes are added until the maximum possible
 number is reached -- the number of distinct scores. 
 
-\begin{figure}[h!]
+\begin{figure}[ht]
 	\centering
   \includegraphics[width=0.8\linewidth]{figs/quants.png}
   \caption{Bayes performance with varying number of classes.\label{quants}}
@@ -1760,7 +1760,7 @@ consistently misclassified a few particular examples, which lead to the gap betw
 ceiling and the actual performance in Figure \ref{quants}.
 
  
-\begin{figure}[h!]
+\begin{figure}[ht]
 \centering
 \begin{subfigure}[b]{.49\textwidth}
   \centering
@@ -1805,7 +1805,7 @@ however, it is important that the number of classes used produces a
 significantly better result than the baseline, to make sure a random guess
 could not produce a good result.
 
-\begin{figure}[h!]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.8\linewidth]{figs/feats.png}
   \caption{Bayes performancewith varying number of features.\label{feats}}
@@ -1841,7 +1841,7 @@ As before, linear kernel is used in combination with a linear heuristic. Figure
 logarithmic scale. Hyperplane fitting is more resilient to more dimensions in the presence
 of linear heuristics.
 
-\begin{figure}[h!]
+\begin{figure}[ht]
 \centering
   \includegraphics[width=0.8\linewidth]{figs/svm_feats.png}
   \caption{Both normal (upper figure) and logarithmic (lower figure)  scales are shown.
@@ -1859,7 +1859,7 @@ the parser module.
 Throughout the implementation, it has become obvious that the most time was spent in
 indexing and PageRank computation. Therefore, in this section, I am looking in more detail
 at the timings and scalability of the two modules.
-\begin{figure}[h!]
+\begin{figure}[H]
   \centering
     \includegraphics[width=0.8\linewidth]{figs/pr.png}
     \caption{Time taken in computing PageRank for a growing set of pages. For convenience
@@ -1885,7 +1885,7 @@ Both plots also display fitted cubic and quadratic curves. The curves are fitted
 \textit{Scipy} library curve fitting function, which uses the Levenburg-Marquardt
 algorithm\footnote{Also known as Damped Least Squares method, the Levenburg-Marquardt
 algorithm works by minimizing a function over the space of its parameters.}. 
-\begin{figure}[h!]
+\begin{figure}[H]
   \centering
     \includegraphics[width=0.8\linewidth]{figs/ind.png}
     \caption{Time taken in indexing for a growing set of pages. For convenience
