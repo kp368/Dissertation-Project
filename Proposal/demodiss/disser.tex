@@ -46,7 +46,7 @@
 \vspace*{60mm}
 \begin{center}
 \Huge
-{\bf Machine learning inference of existing search engine heuristics} \\
+{\bf Machine Learning Inference of Existing Search Engine Heuristics} \\
 \vspace*{5mm}
 Part II Project \\
 \vspace*{5mm}
@@ -61,25 +61,21 @@ St Catharine's College \\
 
 \setcounter{page}{1}
 \pagenumbering{roman}
+\stepcounter{footnote}
 
 \chapter*{Proforma}
-
 {\large
 \begin{tabular}{ll}
 Name:               & \bf Karina Palyutina                       \\
 College:            & \bf St Catharine's College                     \\
-Project Title:      & \bf Machine learning inference of search engine heuristics \\
+Project Title:      & \bf Machine Learning Inference of \\& \bf Existing  Search Engine Heuristics \\
 Examination:        & \bf Part II Project        \\
-Word Count:         & \bf 11,523 words     \\
-Project Originator: & \bf Dr Jon Crowcroft                    \\
-Supervisor:         & \bf Dr Jon Crowcroft                  \\ 
+Word Count:         & \bf 11,687 words     \\
+Project Originator: & Dr Jon Crowcroft                    \\
+Supervisor:         & Dr Jon Crowcroft                  \\ 
 \end{tabular}
 }
-
-\stepcounter{footnote}
-
 \newpage
-
 \section*{Original Aims of the Project}
 Design and implementation of a framework that allows comparison of machine learning
 techniques. In order to gather data a toy search engine needs to be implemented together
@@ -100,7 +96,7 @@ for the Support Vector Machine.
 \section*{Special Difficulties}
 No special difficulties have been encountered.
 
-\pagebreak
+\newpage
 \section*{Declaration of Originality}
 
 I, Karina Palyutina of St Catharine's College, being a candidate for Part II of the Computer
@@ -564,58 +560,17 @@ slight overhead was caused by having to learn a new language.
 
 \subsection{Libraries}
 The project makes extensive use of libraries, Figure \ref{libs} shows an abstract diagram
-of the main libraries. As I mentioned earlier, library support was a major criterion when
+of the main libraries used in the project. As I mentioned earlier, library support was a major criterion when
 choosing a language and a lot of time was spent searching for and getting familiar with the
-relevant libraries. This section discusses some core libraries used in this project.
+relevant libraries. A detailed discussion of main library choices can be found in Appendix
+\ref{app:libs}. 
 
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=\textwidth]{figs/libs.pdf}
-	\caption{Libraries required in the project\label{libs}}
+	\caption{Libraries required in the project. The colour scheme groups functionally related
+		modules.\label{libs}}
 \end{figure}
-\subsubsection*{HTML parsing}
-Parsing HTML pages is crucial to the project and relies entirely on the library. Forgiving
-HTML parsing is a hard problem and I have
-chosen to use the \textbf{BeautifulSoup} library to build and navigate the parse tree.
-There are some simpler tools available for Python, however, they do not have such a
-diverse functionality. For example, the project made use of tag filtering and a
-variety of underlying parsers. The library was mainly used by the parsing module (when
-constructing feature sets) and the indexer.
-\subsubsection*{Maths}
-\textbf{NumPy} is the most popular scientific Python library and was used throughout the
-project for various purposes including linear algebra, array and matrix manipulation,
-random number generation and others.
-
-A library providing a Quadratic Programming Solver, required in order to implement the
-SVM, was the hardest to find. The \textbf{CvxOpt} library was one of very few with such
-functionality.
-
-Other maths libraries, such as \textbf{SciPy} and \textbf{Scikits}, were of secondary importance to
-the project and were needed primarily during evaluation for tasks such as curve fitting and
-statistical bootstrapping.
-\subsubsection*{Plotting}
-Adequate plotting capabilities were essential to the implementation and evaluation of the
-machine learners. \textbf{Matplotlib} is the de facto standard for plotting in Python. It
-has a simple API and importantly supports 3D plots, which were used extensively for the visual
-verification of SVM and Bayes.
-\subsubsection*{Indexing}
-The choice of indexer was driven primarily by the ease of customisation. The
-\textbf{Whoosh} library is a powerful open source indexer with a purely Pythonic API and
-plentiful capabilities, a lot of which are highly
-customisable.
-
-\subsubsection*{Object Serialization}
-This functionality was required mainly to allow for the pre-computing of the PageRank vector
-and other static page features. \textbf{Marshal} and \textbf{Pickle} were the two
-alternatives considered in the project. \textbf{Pickle} is more widely used and has proved more robust and
-portable, and so was preferred.
-\subsubsection*{Naive Bayes}
-A Bayesian classifier is not hard to implement, so after some consideration I decided to use a library
-implementation, as a fast solution was desirable for the first prototype. There were
-surprisingly many implementations available, from which I chose the \textbf{Natural
-Language Toolkit Library (NLTK)}, as it had a concise and clear implementation as well as a
-simple input format.
-
 \subsection{Development Environment}
 All of the development was carried out on my personal machine running Ubuntu Linux 12.04.
 Code was written primarily in the \textit{Vim} editor in concert with the Python shell for
@@ -658,7 +613,7 @@ useful unit tests. Therefore, most testing was conducted manually. However, cert
 commonly reused functions were stable enough to easily unit test. I chose to use Python's
 \textit{Doctest} module for inline unit testing, which offers a lightweight solution
 with enough flexibility to provide the assurance required. All the libraries used came
-with their own unit tests, which gave me extra assurance of their implementation. Testing
+with their own unit tests, which gave me assurance of their implementation. Testing
 is discussed in more detail in Section \ref{sec:testing}.
 \section{Summary}
 In this chapter I have outlined the research and planning completed prior to the
@@ -1120,18 +1075,14 @@ existing optimization problem into a generic QP form to make use of the availabl
 
 The maximization problem given in Equation \ref{eq:maxim} can be
 trivially expressed as the minimization problem in Equation \ref{eq:minim}.
-
 \begin{gather}\label{eq:minim} min_{\bm{\alpha},\bm{\alpha^*}}
   \frac{1}{2}(\bm{\alpha-\alpha^*})^T P (\bm{\alpha - \alpha^*})+\epsilon
   \sum_{i=1}^{l}(\alpha_i+\alpha_i^*)-\sum_{i=1}^{l}t_i(\alpha_i-\alpha_i^*)
 \end{gather}
-
 Subject to constraints \ref{cns:a} and \ref{cns:b} below. This derivation can be found in
 the LIBSVM paper\cite{SVMLIB}, however, the version in the paper contains an error.
-
 \begin{gather} \mathbf{e(\bm{\alpha}}-\bm{\alpha^*})=0 \label{cns:a}\\ 0\leq
   \alpha_i,\alpha_i^* \leq C, \;i=1,...,l \label{cns:b} \end{gather}
-
 where \(\mathbf{e}=[1,...,1],\;P_{ij}=K(x_i,x_j),\;t_i\) is the target output,
 \(C > 0\) and \(\epsilon > 0.\) 
 
@@ -1143,9 +1094,7 @@ The specification to the QP function is as follows:
 \texttt{cvxopt.solvers.qp(P,q,G,h,A,b)} solves a pair of primal and dual convex
 quadratic programs \begin{gather} \label{spec} \min \frac{1}{2} x^T P x + q^T x
 \end{gather}
-
- subject to
-
+subject to
 \begin{gather} G x \leq h\\ Ax = b \end{gather} 
 Described in the next few pages
 are the transformations I devised to reconcile the minimization problem
@@ -1153,7 +1102,6 @@ in Equation \ref{eq:minim} and the library specification in Equation \ref{spec} 
 constraints.\\ We take \(x\) to encode both \(\bm{\alpha}\) and
 \(\bm{\alpha^*}\) simultaneously, treating the upper half of \(x\) as
 \(\bm{\alpha}\) and the lower half as \(\bm{\alpha^*}\):
-
 
 \[x =
   \begin{bmatrix}
@@ -1163,7 +1111,7 @@ constraints.\\ We take \(x\) to encode both \(\bm{\alpha}\) and
 \]
 We will see later how this definition allows for elegant representation of
 the problem (Equation \ref{eq:minim}).
-\paragraph*{}
+
 First, we express the first term of Equation \ref{spec} to hold \((\bm{\alpha-\alpha^*})^T
 P (\bm{\alpha - \alpha^*})\).
 Take matrix P in Equation \ref{spec} as 
@@ -1173,9 +1121,7 @@ Take matrix P in Equation \ref{spec} as
        -K & K            
      \end{bmatrix}
 \]
-where \(K_{ij} = K(x_i,x_j)\) is the kernel.
-\\
-Observe that now
+where \(K_{ij} = K(x_i,x_j)\) is the kernel. Observe that now
 \begin{gather*}
 x^T P x =
   \begin{bmatrix}
@@ -1195,7 +1141,6 @@ and is equivalent to the first term of Equation \ref{eq:maxim}:
 \begin{gather*}
 \sum_{n=1}^{N}\sum_{m=1}^{N}(a_n-a_n^*)(a_m-a_m^*)K(x_n,x_m)
 \end{gather*}
-
 Now express the remaining two terms in Equation \ref{eq:minim} by taking 
 \[q =
 \begin{bmatrix}
@@ -1207,7 +1152,6 @@ Now express the remaining two terms in Equation \ref{eq:minim} by taking
   \epsilon\mathbf{e}+t_{N-1}           \\
      \end{bmatrix}
 \]
-
 to achieve 
 \begin{gather*}
   q^T x =
@@ -1312,17 +1256,12 @@ Product     & \(Linear(x,y)*Gaussian(x,y,\gamma)\)\\
 \caption{Kernel Functions \label{kfun}}
 \end{table}
 
-Kernel functions are the central component of SVM, and its
+Kernel functions are the central component of SVM, and their
 choice is highly dependent on the application. I have considered a variety of
 kernel functions and experimented with their combinations to see how the
 performance differs. Table \ref{kfun} shows the kernel functions I have used.
 
-The simplest kernel function is the Linear kernel. It is simply a dot product
-of two vectors. Its generalized version is the Polynomial kernel, which takes
-degree as a parameter. Intuitively, the polynomial kernel is a lot more
-flexible than linear, but the larger the degree, the less `smooth' it becomes,
-so it might overfit the training data.  
-\begin{figure}[hb]
+\begin{figure}[ht]
 \centering
 \begin{subfigure}[b]{.49\textwidth}
   \centering
@@ -1352,6 +1291,11 @@ so it might overfit the training data.
 \caption{Four different two dimensional heuristic functions are fitted by SVR with four
 	corresponding kernels: linear, polynomial degree 2, polynomial degree 3 and Gaussian.\label{kernels}}
 \end{figure}
+The simplest kernel function is the Linear kernel. It is simply a dot product
+of two vectors. Its generalized version is the Polynomial kernel, which takes
+degree as a parameter. Intuitively, the polynomial kernel is a lot more
+flexible than linear, but the larger the degree, the less `smooth' it becomes,
+so it might overfit the training data.  
 
 The Gaussian kernel is an example of a family of the Radial Basis Function kernels, which
 are
@@ -1386,22 +1330,7 @@ of kernel function was discussed in the previous section, however, each kernel h
 adjustable parameters of its own. This section illustrates how kernel
 parameters might be tuned to minimize Mean Squared Error (MSE) to achieve a better fit.
 
-\textbf{Example: Given noisy data, find the hyperparameter values of the Product kernel
-which minimise MSE.}
-
-Recall the Product kernel definition from Section \ref{sec:kernels}: 
-\begin{gather*}
-Product(x,y,\gamma) = Linear(x,y)*Gaussian(x,y,\gamma) = x\cdot y^T \exp^{-\gamma ||x-y||^2}
-\end{gather*}
-
-The \(\gamma\) parameter determines how much effect the Gaussian component has: when
-\(\gamma\) is zero, the fit is purely linear.
-In this example I have chosen to use noisy non-injective data to show how complex fitting
-can be achieved. Two parameters $\gamma$ and $\epsilon$ are varied
-until MSE is minimised. Figure \ref{fits} shows how the product kernel fit is improved by
-hyperparameter tuning.
-The rest of the section describes how this result was obtained.
-\begin{figure}[hb]
+\begin{figure}[h!]
 \centering
 \begin{subfigure}[b]{.49\textwidth}
   \centering
@@ -1417,6 +1346,21 @@ The rest of the section describes how this result was obtained.
 	linear fit is improved by the Gaussian: when $\gamma$ is tuned, the hyperplane is
 	perturbed to provide the best fit.\label{fits}}
 \end{figure}
+\textbf{Example: Given noisy data, find the hyperparameter values of the Product kernel
+which minimise MSE.}
+
+Recall the Product kernel definition from Section \ref{sec:kernels}: 
+\begin{gather*}
+Product(x,y,\gamma) = Linear(x,y)*Gaussian(x,y,\gamma) = x\cdot y^T \exp^{-\gamma ||x-y||^2}
+\end{gather*}
+
+The \(\gamma\) parameter determines how much effect the Gaussian component has: when
+\(\gamma\) is zero, the fit is purely linear.
+In this example I have chosen to use noisy non-injective data to show how complex fitting
+can be achieved. Two parameters $\gamma$ and $\epsilon$ are varied
+until MSE is minimised. Figure \ref{fits} shows how the product kernel fit is improved by
+hyperparameter tuning.
+The rest of the section describes how this result was obtained.
 \subsubsection*{Grid search}
 
 There are several ways of adjusting parameters, of which grid search is the simplest. In
@@ -1425,18 +1369,7 @@ MSE for each value is recorded. To choose the domain successfully, the analysis 
 happen at different scales. Starting from coarser (wider spread) parameter values, each
 time only the best ranges are analysed in finer detail.
 
-Figure \ref{coarse_fine} shows analyses at different scales on the training data: the
-coarsest and the finest (the intermediate results are omitted). Both $\epsilon$ and
-$\gamma$ are varied, however, the $\epsilon$ parameter is expected to be best at 0. This is because we
-are fitting the training data directly, as opposed to learning from the training data and
-fitting previously unseen test data (recall that $\epsilon$ controls the degree of
-generalisation). At the coarsest scale (Figure \ref{coarse}) it is
-observed that the contribution of $\epsilon$ affects the error a lot more in
-comparison to $\gamma$: the plot appears constant with respect to $\gamma$. After a number
-of stages, each time reducing the range of $\gamma$, it eventually becomes visible that the
-minima lie where $\gamma$ is small (Figure \ref{fine}). 
-
-\begin{figure}[ht]
+\begin{figure}[h!]
 \centering
 \begin{subfigure}[b]{.49\textwidth}
   \centering
@@ -1453,6 +1386,17 @@ minima lie where $\gamma$ is small (Figure \ref{fine}).
 	However, on the finer scale contour map (b), the minima can be found. As expected, MSE grows
 	monotonically with $\epsilon$ in both plots.\label{coarse_fine}}
 \end{figure}
+Figure \ref{coarse_fine} shows analyses at different scales on the training data: the
+coarsest and the finest (the intermediate results are omitted). Both $\epsilon$ and
+$\gamma$ are varied, however, the $\epsilon$ parameter is expected to be best at 0. This is because we
+are fitting the training data directly, as opposed to learning from the training data and
+fitting previously unseen test data (recall that $\epsilon$ controls the degree of
+generalisation). At the coarsest scale (Figure \ref{coarse}) it is
+observed that the contribution of $\epsilon$ affects the error a lot more in
+comparison to $\gamma$: the plot appears constant with respect to $\gamma$. After a number
+of stages, each time reducing the range of $\gamma$, it eventually becomes visible that the
+minima lie where $\gamma$ is small (Figure \ref{fine}). 
+
 \subsubsection*{Overfitting}
 In the previous section I found the best $\gamma$ and $\epsilon$ which fit the training
 data directly.
@@ -1464,19 +1408,19 @@ approaching zero, the test data is fit better when the $\epsilon$ is
 non-zero, as it prevents sensitivity to the noise in the training
 data. 
 
-\begin{figure}[ht]
+\begin{figure}[h]
 \centering
 \begin{subfigure}[b]{.49\textwidth}
   \centering
   \includegraphics[width=\linewidth]{figs/fine_tune_tr_zoom.png}
   \caption{Training Data}
-  \label{coarse}
+  \label{of:coarse}
 \end{subfigure}
 \begin{subfigure}[b]{.49\textwidth}
   \centering
   \includegraphics[width=\linewidth]{figs/fine_tune_ts.png}
   \caption{Test Data}
-  \label{fine}
+  \label{of:fine}
 \end{subfigure}
 \caption{Non-zero $\epsilon$ allows for better fit of the test data.\label{overfit}}
 \end{figure}
@@ -1603,22 +1547,14 @@ therefore, MSE is sensitive to outliers as opposed to Mean Absolute Error (MAE).
 hand, MAE is more sensitive to noise, which we expect when predicting continuous scores.
 Altogether, MSE provides a good measure that is easily visualised.
 \subsubsection*{Tolerance intervals}
-As MSE already captures the variance of the squared error, computing error bars to be the
-standard deviation of the squared error would offer no new information. However,
-the tolerance intervals for the mean error itself is a good measure of how spread the
-error is.  In the best case, the interval is tight, indicating the stability of the seen
-error. If the error is spread, the classifier is making inconsistent mistakes.
-It is particularly important to include these in our evaluation due to the presence of
-quantization error. The mean error of the ceiling and its spread is a good indicator of
-the mean and variance introduced by quantization.
-
-To compute confidence intervals one could repeat the measurement on different data
-subsets. The number of subsets would have to be around 20 or more for the Central Limit Theorem to
-apply. In practice, the data is scarce and recomputing the errors is time consuming, so a
-way to compute the intervals with just one error measurement is desirable. Bootstrapping
-achieves exactly that by sampling randomly from the array of squared errors to compute a
-new mean error.  Even though bootstrapping might be less reliable, it provides a simple
-way to check the stability of the results. 95\% confidence intervals were used throughout this
+To compute confidence intervals of the MSE one would have to obtain samples from different
+data subsets. The number of samples would have to be around 20 or more for the Central
+Limit Theorem to apply. In practice, the data is scarce and recomputing the errors is time
+consuming, so a way to compute the intervals using just one sample is desirable.
+Bootstrapping achieves this by resampling with replacement\cite{efron1981}, i.e. randomly choosing values
+from the sample of squared errors to compute a new mean error. Even though bootstrapping
+is not a replacement for multiple samples, it is a way of checking the stability of the
+results. 95\% confidence intervals obtained by bootstrapping were used throughout this
 chapter to compute error bars.
 \subsection{Linear and non-linear classification}
 \subsubsection*{Hypothesis: Naive Bayes performs better with linearly separable data.}
@@ -1749,15 +1685,15 @@ number is reached -- the number of distinct scores.
 \end{figure}
 Figure \ref{quants} shows a result inconsistent with the proposed hypothesis: the error is
 diminishing as rapidly as the quantization error (ceiling). This likely indicates that
-even though the number of classes increased, there remained sufficiently many examples for
-each class, so Bayes had no difficulty classifying the data. Figure
-\ref{separable} visualizes the data quantized to two and seven classes. It is visible that
-in both cases the points remain separable (as expected) independently of the number
-of classes. Clearly, Bayes is very effective at classification with the given heuristic.
-It is worth noting, that the actual performance is still worse than the ceiling and does
-not converge to zero as opposed to quantization error. It is possible that Bayes
-consistently misclassified a few particular examples, which lead to the gap between the
-ceiling and the actual performance in Figure \ref{quants}.
+even though the number of classes increased, there remained sufficiently many data points
+in each class, so Bayes had no difficulty classifying the data. Figure \ref{separable}
+shows the data quantized to two and seven classes. It can be seen that in both cases the
+points remain separable (as expected) independently of the number of classes. Clearly,
+Bayes is very effective at classification with the linear heuristic.  It is worth noting,
+that the actual performance is still worse than the ceiling and does not converge to zero
+as opposed to quantization error. It is possible that Bayes consistently misclassified a
+few particular examples, which lead to the gap between the ceiling and the actual
+performance in Figure \ref{quants}.
 
  
 \begin{figure}[ht]
@@ -1766,14 +1702,12 @@ ceiling and the actual performance in Figure \ref{quants}.
   \centering
   \includegraphics[width=1.1\linewidth]{figs/two.png}
   \caption{Two classes}
-  \label{def}
 \end{subfigure}
 %
 \begin{subfigure}[b]{.49\textwidth}
   \centering
   \includegraphics[width=1.1\linewidth]{figs/seven.png}
   \caption{Seven classes}
-  \label{html}
 \end{subfigure}
 \caption{Classification with different number of classes. The data is consistently
 	separable.\label{separable}}
@@ -1783,10 +1717,10 @@ The example chosen does not verify the hypothesis and proves the intuition wrong
 Bayes performance depends only on whether the data is separable or not as on the training data.
 
 \subsection{Hughes phenomenon}
-Hughes phenomenon is closely related to the curse of dimensionality and is characterized
-by reduction of predictive power of a classifier as the dimensionality increases, provided
+Hughes phenomenon is closely related to the Curse of Dimensionality and describes
+reduction of predictive power of a classifier as the dimensionality increases, provided
 the training data is fixed.
-In the next to experiments the training data is kept constant but the number of features
+In the next two experiments the training data is kept constant but the number of features
 is changed.
 \subsubsection*{Hypothesis: Bayes performance degrades rapidly as the number of features grows.}
 So far I have explored two dimensional cases where only two features were used for
@@ -1805,12 +1739,11 @@ however, it is important that the number of classes used produces a
 significantly better result than the baseline, to make sure a random guess
 could not produce a good result.
 
-\begin{figure}[ht]
+\begin{figure}[h!]
   \centering
   \includegraphics[width=0.8\linewidth]{figs/feats.png}
-  \caption{Bayes performancewith varying number of features.\label{feats}}
+  \caption{Bayes performance with varying number of features.\label{feats}}
 \end{figure}
-
 The result for a few linearly separable functions is computed and the average errors are
 plotted in Figure \ref{feats}. The actual classification diverges from the ceiling when
 the number of features is about six. The rapid growth of the random classification curve is
@@ -1824,8 +1757,6 @@ The ceiling and the actual curves are growing almost monotonically, as is expect
 flat regions at 5-6 and 7-8 are explained by the data specifics: the particular features added at
 those point appeared insignificant in the scores as they occurred infrequently and had
 small values.
-
-
 It has proven hard to pick many conditionally independent features. Among the ones used
 were PageRank, image count, word count, frequency of search term occurrence, quality of
 HTML and alike.
@@ -1834,23 +1765,18 @@ The hypothesis is verified: the error grows as the number of features is increas
 growth, however, depends also on the quality of features -- how much the addition of a new
 feature alters the classification, as well as on the training set -- how many training
 examples are supplied.
-\subsubsection*{Hypothesis: SVM performance does not degrade as the number of features grows.}
-
-As before, linear kernel is used in combination with a linear heuristic. Figure
-\ref{svm_feats} supports the hypothesis: the error looks almost constant even in
-logarithmic scale. Hyperplane fitting is more resilient to more dimensions in the presence
-of linear heuristics.
-
-\begin{figure}[ht]
+\begin{figure}[h!]
 \centering
-  \includegraphics[width=0.8\linewidth]{figs/svm_feats.png}
+  \includegraphics[width=0.7\linewidth]{figs/svm_feats.png}
   \caption{Both normal (upper figure) and logarithmic (lower figure)  scales are shown.
   The error grows too slow for the growth to be noticeable without the logarithmic scale.
   \label{svm_feats}}
 \end{figure}
-
-
-
+\subsubsection*{Hypothesis: SVM performance does not degrade as the number of features grows.}
+As before, linear kernel is used in combination with a linear heuristic. Figure
+\ref{svm_feats} supports the hypothesis: the error looks almost constant even in
+logarithmic scale. Hyperplane fitting is more resilient to more dimensions in the presence
+of linear heuristics.
 \section{Performance Evaluation}
 As stated in the Preparation chapter, the project does not have any hard timing requirements.
 PageRank computation, indexing and learning were envisaged as most time consuming. In the
@@ -1859,7 +1785,7 @@ the parser module.
 Throughout the implementation, it has become obvious that the most time was spent in
 indexing and PageRank computation. Therefore, in this section, I am looking in more detail
 at the timings and scalability of the two modules.
-\begin{figure}[H]
+\begin{figure}[h!]
   \centering
     \includegraphics[width=0.8\linewidth]{figs/pr.png}
     \caption{Time taken in computing PageRank for a growing set of pages. For convenience
@@ -1869,7 +1795,7 @@ at the timings and scalability of the two modules.
 The plots were generated using a benchmark suite, which makes repeat
 measurements and calculates means and confidence intervals. I have configured
 the suite to take a hundred repeat measurements for a range of page numbers.
-Appendix \ref{app:bench} illustrates how benchmarking code works. 95\%
+Appendix \ref{app:bench} illustrates how the benchmarking code works. 95\%
 confidence intervals are represented by the error bars on the plots.
 
 The benchmarks were performed on my personal computer with the following specifications:
@@ -1881,30 +1807,32 @@ CPU & Intel Core2 Duo CPU \\
 CPU Clock Frequency & 2.26 GHz \\
 \end{tabular}
 
-Both plots also display fitted cubic and quadratic curves. The curves are fitted using the
-\textit{Scipy} library curve fitting function, which uses the Levenburg-Marquardt
-algorithm\footnote{Also known as Damped Least Squares method, the Levenburg-Marquardt
-algorithm works by minimizing a function over the space of its parameters.}. 
-\begin{figure}[H]
+\begin{figure}[h]
   \centering
     \includegraphics[width=0.8\linewidth]{figs/ind.png}
     \caption{Time taken in indexing for a growing set of pages. For convenience
 	    of comparison, a cubic and a quadratic curves are fitted.\label{ind}}
 \end{figure}
+Both plots also display fitted cubic and quadratic curves. The curves are fitted using the
+\textit{Scipy} library curve fitting function, which uses the Levenburg-Marquardt
+algorithm\footnote{Also known as Damped Least Squares method, the Levenburg-Marquardt
+algorithm works by minimizing a function over the space of its parameters.}. 
+
 Figure \ref{pr} shows how the performance of the PageRank computation degrades with the
-number of pages. Although both cubic and quadratic curves fit well, it can be said that up
-to around 5000 pages the growth is bound by \(O(n^2)\). The PageRank computation uses
-matrix inversion, which is bounded by $O(n^3)$. However, in practice, matrices are sparse,
-with lots of zero entries, which positively impacts performance. The average
+number of pages. The PageRank computation uses
+matrix inversion, which is bounded by $O(n^3)$, which is consistent with the shape of the
+graph. However, in practice, matrices are sparse, with lots of zero entries,
+which positively impacts performance. The average
 number of pages used in the project was around 3000 for each directory, which meant it
 took around seven minutes to crawl and generate the PageRank vector. If dealing with
 more pages was within the scope of the project, the PageRank computation would have to be
 optimized further, as matrix inversion does not scale for a problem bigger than a few
 thousand pages.
 
-Indexing shows similar behaviour, although it seems a lot smoother and unambiguously exhibits cubic
-behaviour. Indexing 300 pages (the size of the development and verification corpora) takes around two minutes, which is satisfactory considering
-that speed was not the primary objective of the project.
+As for the indexing (Figure \ref{ind}), most of the work occurs in sorting the terms for the reverse index,
+which is done by external merge sort and is bouded by $O(n\cdot log(n))$.  Indexing 300
+pages (the size of the development and verification corpora) takes around two minutes,
+which is satisfactory considering that speed was not the primary objective of the project.
 
 Altogether, both modules could potentially become a bottleneck. However, as development
 was carried out on a comparatively small development corpus (only around 500 pages), and
@@ -1925,9 +1853,9 @@ addition, human analysis was often required to assess the quality of the program
 aspects of the system motivate the decision to use manual testing, which is described
 further in this section. 
 A small number of functions have also been unit tested using Python's Doctest module. Some
-examples of this are included in Appendix \ref{app:testing}. All of the maths libraries as
-well as the indexing library came with their own unit tests, which gives extra confidence
-in their implementation.
+examples of these are included in Appendix \ref{app:testing}. All of the maths libraries as
+well as the indexing library came with their own unit tests, which gives confidence
+in their implementations.
 \subsection{High Level Test Plan}
 Table \ref{tab:test} summarizes the test plan used. Each of these tests
 was conducted at the end of module development and whenever a substantial change occurred
@@ -1964,14 +1892,17 @@ the two- and three-dimensional cases. The data was plotted alongside the hyperpl
 or the separating line (Naive Bayes). The data was altered to provoke change in the
 hyperplane/separator and the subsequent change was verified.
 \section{Summary}
-In this chapter I assessed the performance of classifiers with different
-heuristics and drew some comparisons between them. I also benchmarked the
-performance of the slowest modules and illustrated the testing strategies
-adopted in this project. The performance results were, overall, pleasing and the
-implementations were fast enough for the purposes of the project. 
+In this chapter I assessed the performance of the Bayesian classifier and the SVM in a
+variety of scenarios, which included classification of linear and non-linear heuristics;
+classification of data quantized into different number of classes; and the degradation of
+classification under the Hughes phenomenon. Some of these scenarios enabled 
+comparisons between the machine learners. I also benchmarked the performance of the
+slowest modules and outlined the testing strategies adopted in this project. 
 
-Overall, the web pages used for testing and training were sufficiently interlinked and
-produced link matrices that could resemble real web. 
+The performance results were pleasing and the implementations were fast enough for the
+purposes of the project. Overall, the web pages used for testing and training were
+sufficiently interlinked and produced link matrices that could resemble the real web,
+validating the results.
 
 \chapter{Conclusions}
 The exploratory nature of the project allowed me to learn a lot both in the field of
@@ -1985,7 +1916,7 @@ engine heuristics with a machine learning approach. The framework set in place
 can be used as a stepping stone in this previously unexplored area. 
 
 With a little more work, the implemented framework could be easily made more general.
-Perhaps, usability is another shortcoming of the implementation. However, that could also
+Usability is another shortcoming of the implementation which could also
 be improved with more time.
 
 It is the largest project I have ever attempted and, perhaps, the most significant
@@ -2005,11 +1936,11 @@ writing loosely coupled and modular code pays off eventually. As code grew, refa
 often became unavoidable, but could have been made easier, had I programmed with
 re-usability in mind.
 
-Despite lack of clear planning, the project has been on schedule without many delays. This
-indicates that software engineering approach was overall successful and allowed for enough
-flexibility, which was required by the exploratory nature of the project. In addition,
-Python was a good language choice and met all my expectations, which helped to keep the
-project on track.
+Despite the little time spent planning, the project has been on schedule without any
+noticeable delays. This indicates that the software engineering approach was overall
+successful and allowed for enough flexibility, which was required by the exploratory
+nature of the project. In addition, Python was a good language choice and met all my
+expectations, which helped to keep the project on track.
 \section{Future Work}
 Although the implementation is complete in the sense that it fulfills the success criteria
 for the project, the greater goal of the project is open ended. The framework developed can be
@@ -2031,18 +1962,61 @@ for anyone to download, use and improve.
 % the appendices
 \appendix
 
+\chapter{Libraries}
+\label{app:libs}
+\subsubsection*{HTML parsing}
+Parsing HTML pages is crucial to the project and relies entirely on the library. Forgiving
+HTML parsing is a hard problem and I have
+chosen to use the \textbf{BeautifulSoup} library to build and navigate the parse tree.
+There are some simpler tools available for Python, however, they do not have such a
+diverse functionality. For example, the project made use of tag filtering and a
+variety of underlying parsers. The library was mainly used by the parsing module (when
+constructing feature sets) and the indexer.
+\subsubsection*{Maths}
+\textbf{NumPy} is the most popular scientific Python library and was used throughout the
+project for various purposes including linear algebra, array and matrix manipulation,
+random number generation and others.
+
+A library providing a Quadratic Programming Solver, required in order to implement the
+SVM, was the hardest to find. The \textbf{CvxOpt} library was one of very few with such
+functionality.
+
+Other maths libraries, such as \textbf{SciPy} and \textbf{Scikits}, were of secondary importance to
+the project and were needed primarily during evaluation for tasks such as curve fitting and
+statistical bootstrapping.
+\subsubsection*{Plotting}
+Adequate plotting capabilities were essential to the implementation and evaluation of the
+machine learners. \textbf{Matplotlib} is the de facto standard for plotting in Python. It
+has a simple API and importantly supports 3D plots, which were used extensively for the visual
+verification of SVM and Bayes.
+\subsubsection*{Indexing}
+The choice of indexer was driven primarily by the ease of customisation. The
+\textbf{Whoosh} library is a powerful open source indexer with a purely Pythonic API and
+plentiful capabilities, a lot of which are highly
+customisable.
+
+\subsubsection*{Object Serialization}
+This functionality was required mainly to allow for the pre-computing of the PageRank vector
+and other static page features. \textbf{Marshal} and \textbf{Pickle} were the two
+alternatives considered in the project. \textbf{Pickle} is more widely used and has proved more robust and
+portable, and so was preferred.
+\subsubsection*{Naive Bayes}
+A Bayesian classifier is not hard to implement, so after some consideration I decided to use a library
+implementation, as a fast solution was desirable for the first prototype. There were
+surprisingly many implementations available, from which I chose the \textbf{Natural
+Language Toolkit Library (NLTK)}, as it had a concise and clear implementation as well as a
+simple input format.
+
 \chapter{Unit Test Code}
 \label{app:testing}
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \lstset{commentstyle=\color{mygreen},keywordstyle=\color{blue},language=Python}
 Below is a snippet of unit tested code from a utility functions module. The unit tests are
-written inline within the comments. Lines starting with `>>>' are the testcases and
+written inline within the comments. Lines starting with $>>>$ are the test cases and
 subsequent lines define expected output.
 \lstinputlisting[firstline=4]{../../Code/src/util.py}
 
-The tests are run when the main method is called.
-
-\chapter{Benchmarks code}
+\chapter{Benchmark Suite}
 \label{app:bench}
 The code below is an example of benchmark code for the Indexer and the PageRank modules.
 Each class benchmarks a different module. The page size is varied by supplying different
@@ -2079,7 +2053,7 @@ class Benchmark_Spider(benchmark.Benchmark):
 
 \end{lstlisting}
 The result of running the benchmarks is presented below:
-\begin{lstlisting}
+\begin{verbatim}
 Benchmark Report
 ================
 
@@ -2089,7 +2063,7 @@ Benchmark Indexer
        name | rank | runs |  mean |     sd | timesBaseline
 ------------|------|------|-------|--------|--------------
 indexer  a  |    1 |  100 |  35.7 | 0.4772 |           1.0
-indexer  b  |    2 |  100 |  63.4 | 0.8149 |   1.775910364
+indexer  b  |    2 |  100 |  73.4 | 0.8149 |   1.775910364
 
 Benchmark Spider
 ----------------
@@ -2102,7 +2076,7 @@ pagerank b |    2 |  100 | 73.4  |  0.817  |   1.609649123
 Each of the above 400 runs were run in random, non-consecutive 
 order by `benchmark` v0.1.5 (http://jspi.es/benchmark) with 
 Python 2.7.3 Linux-3.2.0-40-generic-i686 on 2013-03-26 23:30:30.
-\end{lstlisting}
+\end{verbatim}
 \chapter{Project Proposal}
 \label{prop}
 

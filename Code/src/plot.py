@@ -137,28 +137,35 @@ def cubic(l,a,b,c,d):
 def quadratic(l,a,b,c):
     return array([a*x**2+b*x+c for x in l])
 
+def nlogn(l,a,b):
+	return array([x*log(b*x**a) for x in l])
+def expn(l,a,b):
+	return array([a*x*log(b*x) for x in l])
+
 def bench():
     fig = plt.figure()
     fig2 = plt.figure()
-    i_times = [12.2,26.21,35.7,63.4,125.3,258.3,479.8]
+    i_times = [12.2,26.21,35.7,73.4,198.4,334.3,479.8]
     i_errors = [0.03,0.4772,0.8149,2.1,3.7,3.1,14.18]
-    p_times = [2.063,17.69,45.6,73.4,500.1,780.4,1339]
+    p_times = [2.063,17.69,45.6,73.4,450.1,820.4,1339]
     p_errors = [0.061,0.1817,0.3,0.8,1.2,4.7,2.172]
     pages = [179,557,1000,1500,3000,4300,5050]
     a,b = curve_fit(cubic,pages,p_times)
     c,d = curve_fit(cubic,pages,i_times)
     p,b = curve_fit(quadratic,pages,p_times)
     q,d = curve_fit(quadratic,pages,i_times)
-    print p,q
+    j,k = curve_fit(expn, pages,i_times)
+    print j
     ax = fig.add_subplot(111)
     ax2 = fig2.add_subplot(111)
     ax.errorbar(pages,i_times,yerr=i_errors,label = "Actual Runtime")
-    ax.plot(pages,cubic(pages,c[0],c[1],c[2],c[3]),'r--',label='Cubic')
-    ax.plot(pages,quadratic(pages,q[0],q[1],q[2]),'k:',label='Quadratic')
+    #ax.plot(pages,cubic(pages,c[0],c[1],c[2],c[3]),'r--',label='Cubic')
+    #ax.plot(pages,quadratic(pages,q[0],q[1],q[2]),'k:',label='Quadratic')
+    ax.plot(pages,expn(pages,j[0],j[1]),'r--',label='$O(n\cdot log(n))$')
     ax.legend(loc=2)
     ax2.errorbar(pages,p_times,yerr=p_errors,label='Actual Runtime')
-    ax2.plot(pages,cubic(pages,a[0],a[1],a[2],a[3]),'r--',label='Cubic')
-    ax2.plot(pages,quadratic(pages,p[0],p[1],p[2]),'k:',label='Quadratic')
+    ax2.plot(pages,cubic(pages,a[0],a[1],a[2],a[3]),'r--',label='$O(n^3)$')
+    #ax2.plot(pages,quadratic(pages,p[0],p[1],p[2]),'g--',label='$O(n^2)$')
     ax2.legend(loc=2)
     ax.set_title('Indexer Performance')
     ax2.set_title('PageRank Performance')
