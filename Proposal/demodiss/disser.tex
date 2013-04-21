@@ -328,7 +328,7 @@ feature vector holding features of pages and \( \mathbf{t_i} \in R \) is the cor
 ranking of each page. The training sequence \(D\) is defined per query for a set of chosen
 queries.
 
-\begin{figure}[h!]
+\begin{figure}[ht!]
   \centering 
   \begin{subfigure}[b]{0.49\textwidth}
   \includegraphics[width=\linewidth]{figs/loss.pdf}
@@ -470,7 +470,7 @@ became obvious that due to the apparent convergence of the modules, integration 
 complex exercise. As a result, a prototype had to be implemented very early on to see the
 design at work and to avoid surprises. This meant the implementation of Naive Bayes
 classifier, the parser and the indexer was on the high priority path.
-\begin{figure}[h!]
+\begin{figure}[ht!]
 	\centering
 	\includegraphics[width=0.7\textwidth]{figs/dep.pdf}
 	\caption{Summary of Main Dependencies. Colour groups functionally related modules,
@@ -657,8 +657,9 @@ be tested. Moreover, the system was frequently evolving, which made it difficult
 useful unit tests. Therefore, most testing was conducted manually. However, certain
 commonly reused functions were stable enough to easily unit test. I chose to use Python's
 \textit{Doctest} module for inline unit testing, which offers a lightweight solution
-with enough flexibility to provide the assurance required. Testing is discussed in more
-detail in Section \ref{sec:testing}.
+with enough flexibility to provide the assurance required. All the libraries used came
+with their own unit tests, which gave me extra assurance of their implementation. Testing
+is discussed in more detail in Section \ref{sec:testing}.
 \section{Summary}
 In this chapter I have outlined the research and planning completed prior to the
 implementation stage. In particular, the chapter provided brief introductions to the machine
@@ -1865,10 +1866,11 @@ at the timings and scalability of the two modules.
 	    of comparison, cubic and quadratic curves are fitted.\label{pr}}
 \end{figure}
 
-The plots were generated using a benchmark suite, which makes repeat measurements and
-calculates means and confidence intervals. I have configured the suite to take a hundred
-repeat measurements for a range of page numbers. 95\% confidence intervals are represented by
-the error bars on the plots.
+The plots were generated using a benchmark suite, which makes repeat
+measurements and calculates means and confidence intervals. I have configured
+the suite to take a hundred repeat measurements for a range of page numbers.
+Appendix \ref{app:bench} illustrates how benchmarking code works. 95\%
+confidence intervals are represented by the error bars on the plots.
 
 The benchmarks were performed on my personal computer with the following specifications:
 
@@ -1890,13 +1892,15 @@ algorithm works by minimizing a function over the space of its parameters.}.
 	    of comparison, a cubic and a quadratic curves are fitted.\label{ind}}
 \end{figure}
 Figure \ref{pr} shows how the performance of the PageRank computation degrades with the
-number of pages. Although both cubic and quadratic curves fit well, it can be said that
-up to around 5000 pages the growth is bound by \(O(n^2)\). The average number of pages
-used in the project was around 3000 for each directory, which meant it took around seven
-minutes to crawl and generate the PageRank vector.  However, it is expected that the
-growth is more rapid beyond the limit of 5000 pages. If dealing with more pages was within
-the scope of the project, the PageRank computation would have to be optimized further, as
-matrix inversion does not scale for a problem bigger than a few thousand pages.
+number of pages. Although both cubic and quadratic curves fit well, it can be said that up
+to around 5000 pages the growth is bound by \(O(n^2)\). The PageRank computation uses
+matrix inversion, which is bounded by $O(n^3)$. However, in practice, matrices are sparse,
+with lots of zero entries, which positively impacts performance. The average
+number of pages used in the project was around 3000 for each directory, which meant it
+took around seven minutes to crawl and generate the PageRank vector. If dealing with
+more pages was within the scope of the project, the PageRank computation would have to be
+optimized further, as matrix inversion does not scale for a problem bigger than a few
+thousand pages.
 
 Indexing shows similar behaviour, although it seems a lot smoother and unambiguously exhibits cubic
 behaviour. Indexing 300 pages (the size of the development and verification corpora) takes around two minutes, which is satisfactory considering
@@ -1921,7 +1925,9 @@ addition, human analysis was often required to assess the quality of the program
 aspects of the system motivate the decision to use manual testing, which is described
 further in this section. 
 A small number of functions have also been unit tested using Python's Doctest module. Some
-examples of this are included in Appendix \ref{app:testing}.
+examples of this are included in Appendix \ref{app:testing}. All of the maths libraries as
+well as the indexing library came with their own unit tests, which gives extra confidence
+in their implementation.
 \subsection{High Level Test Plan}
 Table \ref{tab:test} summarizes the test plan used. Each of these tests
 was conducted at the end of module development and whenever a substantial change occurred
@@ -1951,7 +1957,8 @@ changes have taken effect. The clean index was built both without an existing in
 which case a new index was created -- and with an existing index -- to verify that the old
 index is replaced by the new one.  \subsubsection{Parser} The objective of the Parser
 testing was mainly its resilience to failure: examples of malformatted HTML and pages with
-special characters in the address were used to verify the robustness. \subsubsection{SVM
+special characters in the address were used to verify the robustness. All the test
+examples were real web HTML pages.\subsubsection{SVM
 and Bayes} Machine Learning modules both were tested with the visual aid of plotting in
 the two- and three-dimensional cases. The data was plotted alongside the hyperplane (SVM)
 or the separating line (Naive Bayes). The data was altered to provoke change in the
@@ -1960,23 +1967,32 @@ hyperplane/separator and the subsequent change was verified.
 In this chapter I assessed the performance of classifiers with different
 heuristics and drew some comparisons between them. I also benchmarked the
 performance of the slowest modules and illustrated the testing strategies
-adopted in this project.
+adopted in this project. The performance results were, overall, pleasing and the
+implementations were fast enough for the purposes of the project. 
+
+Overall, the web pages used for testing and training were sufficiently interlinked and
+produced link matrices that could resemble real web. 
 
 \chapter{Conclusions}
 The exploratory nature of the project allowed me to learn a lot both in the field of
-information retrieval and machine learning. I have started with very little insight in
+information retrieval and machine learning. I started with very little insight in
 either field and thoroughly enjoyed the discoveries I made throughout.
 
 \section{Achievements}
 The project was successful in meeting all the requirements laid out both in the proposal
 and elaborated in the preparation stage. It is the first project to attempt to tackle search
 engine heuristics with a machine learning approach. The framework set in place 
-can be used as a stepping stone in this previously unexplored area.
+can be used as a stepping stone in this previously unexplored area. 
+
+With a little more work, the implemented framework could be easily made more general.
+Perhaps, usability is another shortcoming of the implementation. However, that could also
+be improved with more time.
 
 It is the largest project I have ever attempted and, perhaps, the most significant
 achievement has been the knowledge I have acquired during the process.
 
 \section{Lessons Learnt}
+
 The main lesson I have learnt from this project is that the importance of design cannot be
 underestimated. At the beginning I expected the programming to be the hardest part and,
 perhaps, rushed into implementation without having spent adequate time planning what
@@ -1989,6 +2005,11 @@ writing loosely coupled and modular code pays off eventually. As code grew, refa
 often became unavoidable, but could have been made easier, had I programmed with
 re-usability in mind.
 
+Despite lack of clear planning, the project has been on schedule without many delays. This
+indicates that software engineering approach was overall successful and allowed for enough
+flexibility, which was required by the exploratory nature of the project. In addition,
+Python was a good language choice and met all my expectations, which helped to keep the
+project on track.
 \section{Future Work}
 Although the implementation is complete in the sense that it fulfills the success criteria
 for the project, the greater goal of the project is open ended. The framework developed can be
@@ -2010,11 +2031,6 @@ for anyone to download, use and improve.
 % the appendices
 \appendix
 
-\chapter{Project Proposal}
-\label{prop}
-
-\input{propbody}
-
 \chapter{Unit Test Code}
 \label{app:testing}
 \definecolor{mygreen}{rgb}{0,0.6,0}
@@ -2027,6 +2043,7 @@ subsequent lines define expected output.
 The tests are run when the main method is called.
 
 \chapter{Benchmarks code}
+\label{app:bench}
 The code below is an example of benchmark code for the Indexer and the PageRank modules.
 Each class benchmarks a different module. The page size is varied by supplying different
 sized directories. The example only shows the code for two distinct directories -- a and
@@ -2086,4 +2103,9 @@ Each of the above 400 runs were run in random, non-consecutive
 order by `benchmark` v0.1.5 (http://jspi.es/benchmark) with 
 Python 2.7.3 Linux-3.2.0-40-generic-i686 on 2013-03-26 23:30:30.
 \end{lstlisting}
+\chapter{Project Proposal}
+\label{prop}
+
+\input{propbody}
+
 \end{document}
