@@ -292,19 +292,19 @@ def bars():
     cStd =   [[0.5,1,3,5],[1,1,3,3]]
 
     ind = np.arange(N)  # the x locations for the groups
-    width = 0.2       # the width of the bars
+    width = 0.19       # the width of the bars
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    rects1 = ax.bar(ind, cMeans, width, color='r', yerr=cStd)
+    rects1 = ax.bar(ind, cMeans, width, color='r', yerr=cStd, align='center')
 
     aMeans = (-58,8,12,46)
     aStd =   [[1,2,3,7],[0.2,2,3,3]]
-    rects2 = ax.bar(ind+width, aMeans, width, color='m', yerr=aStd)
+    rects2 = ax.bar(ind+width, aMeans, width, color='m', yerr=aStd, align='center')
 
     bMeans = (3,9,11,45)
     bStd =   [[1,2,3,8],[1,2,3,3]]
-    rects3 = ax.bar(ind+2*width, bMeans, width, color='b', yerr=bStd)
+    rects3 = ax.bar(ind+2*width, bMeans, width, color='b', yerr=bStd, align='center')
     # add some
     ax.set_ylabel('Mean Squared Error (Log Scale)')
     plt.suptitle('Degradation of Linear Kernel Performance')
@@ -317,3 +317,36 @@ def bars():
     plt.rcParams.update(params)
     plt.show()
 
+def b_bars():
+    N = 2
+    cMeans = (130, 130)
+    cStd =   [[10,10],[10,10]]
+
+    ind = np.arange(N)  # the x locations for the groups
+    width = 0.20       # the width of the bars
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    rects1 = ax.bar(ind, cMeans, width, color='r', yerr=cStd,align='center')
+
+    aMeans = (220,660)
+    aStd =   [[20,50],[20,20]]
+    rects2 = ax.bar(ind+width, aMeans, width, color='m', yerr=aStd, align='center')
+
+    bMeans = (700,800)
+    bStd =   [[60,60],[60,60]]
+    rects3 = ax.bar(ind+2*width, bMeans, width, color='b', yerr=bStd, align='center')
+    # add some
+    ax.set_ylabel('Mean Squared Error in Score')
+    plt.suptitle('Degradation of Naive Bayes Performance')
+    ax.set_xticks(ind+width)
+    ax.set_xticklabels( ('Separable', 'Inseparable') )
+
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.76, box.height])
+    ax.legend( (rects1[0], rects2[0], rects3[0]), ('Ceiling', 'Actual', 'Baseline'),bbox_to_anchor=(1.02,1),borderaxespad=0 ,loc=2)
+
+    params = {'font.size': 16}
+    plt.rcParams.update(params)
+    plt.savefig('si.png')
+    plt.show()

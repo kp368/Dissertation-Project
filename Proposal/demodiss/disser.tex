@@ -1591,27 +1591,16 @@ classes, whereas the ceiling error illustrates the contribution of quantization 
 inherent in classification of non-discrete scores.
 
 \begin{figure}[ht]
-  \begin{subfigure}[b]{0.49\textwidth}
-    \centering
- \includegraphics[width=\linewidth]{figs/insep.png}
- \caption{The mean error is near the baseline performance
- with similarly wide spread. \label{insep}}
-\end{subfigure}
-\quad
-\begin{subfigure}[b]{0.49\textwidth}
   \centering
-  \includegraphics[width=\linewidth]{figs/sep.png}
-  \caption{The mean error
-  approaches the goal performance. \label{sep}}
-\end{subfigure}
-\caption{Naive Bayes Performance \label{fig:bayes_perf}}
+  \includegraphics[width=0.8\linewidth]{figs/si.png}
+\caption{Naive Bayes Performance with separable and inseparable data. The error in the case of separable data is significantly smaller and approaches the ceiling performance. \label{fig:bayes_perf}}
 \end{figure}
 
-The mean squared error in the inseparable case (Figure \ref{insep}) is significantly larger: in fact, its
+The mean squared error is significantly larger in the inseparable case: in fact, its
 confidence interval overlaps with the one of the error in random classification (the
 baseline error). Similarly, the standard deviation of the error is similar in width to the
 baseline. This is due to the fact that the classifier is making mistakes as frequently as random choice. In
-contrast, the separable data case (Figure \ref{sep}) shows a convincing improvement in classification error,
+contrast, the separable data case shows a convincing improvement in classification error,
 however, the classifier is still not perfect. This might be a result of insufficient
 or unbalanced training data. In this particular case and in general, adding more training
 data improves the error up to a point when overfitting occurs. Nonetheless, it is rarely
@@ -1649,7 +1638,7 @@ which has the form of the particular heuristic used. \textit{Numpy} provides a
 \textit{lstsq} function which finds the coefficients of a particular heuristic such that
 the squared error is minimal.
 
-\begin{figure}[ht]
+\begin{figure}[h!]
 \centering
   \includegraphics[width=0.8\linewidth]{figs/lin_degrad.png}
   \caption{SVM with a linear kernel is evaluated against four different heuristics (x
