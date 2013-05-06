@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Bouml (http://bouml.free.fr/) -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="676" height="330" version="1.1" xmlns="http://www.w3.org/2000/svg">
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="303" y="261" width="3" height="47" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="135" y="305" width="171" height="3" />
+	<rect fill="#f6f6f6" stroke="black" stroke-width="1" stroke-opacity="1" x="131" y="257" width="172" height="48" />
+	<text font-family="Helvetica" font-size="9" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="217" y="268">LabeledFeatureSetCollection</text>
+	<line stroke="black" stroke-opacity="1" x1="131" y1="277" x2="303" y2="277" />
+	<text font-family="Helvetica" font-size="9" fill="#000000" xml:space="preserve" x="135" y="288">training_pages : </text>
+	<line stroke="black" stroke-opacity="1" x1="131" y1="297" x2="303" y2="297" />
+</g>
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="505" y="258" width="3" height="59" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="351" y="314" width="157" height="3" />
+	<rect fill="#f6f6f6" stroke="black" stroke-width="1" stroke-opacity="1" x="347" y="254" width="158" height="60" />
+	<text font-family="Helvetica" font-size="9" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="426" y="265">TestFeatureSetCollection</text>
+	<line stroke="black" stroke-opacity="1" x1="347" y1="274" x2="505" y2="274" />
+	<text font-family="Helvetica" font-size="9" fill="#000000" xml:space="preserve" x="351" y="285">test_pages : </text>
+	<line stroke="black" stroke-opacity="1" x1="347" y1="294" x2="505" y2="294" />
+	<text font-family="Helvetica" font-size="9" fill="#000000" xml:space="preserve" x="351" y="305">predict_category(Classifier)</text>
+</g>
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="410" y="69" width="3" height="113" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="218" y="179" width="195" height="3" />
+	<rect fill="#f6f6f6" stroke="black" stroke-width="1" stroke-opacity="1" x="214" y="65" width="196" height="114" />
+	<text font-family="Helvetica" font-size="9" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="312" y="76">FeatureSetCollection</text>
+	<line stroke="black" stroke-opacity="1" x1="214" y1="85" x2="410" y2="85" />
+	<text font-family="Helvetica" font-size="9" fill="#000000" xml:space="preserve" x="218" y="96">terms : </text>
+	<line stroke="black" stroke-opacity="1" x1="214" y1="105" x2="410" y2="105" />
+	<text font-family="Helvetica" font-size="9" fill="#000000" xml:space="preserve" x="218" y="116">compute_feature_set(dir)</text>
+	<text font-family="Helvetica" font-size="9" fill="#000000" xml:space="preserve" x="218" y="134">compute_category(dir)</text>
+	<text font-family="Helvetica" font-size="9" fill="#000000" xml:space="preserve" x="218" y="152">compute_rank(dir)</text>
+	<text font-family="Helvetica" font-size="9" fill="#000000" xml:space="preserve" x="218" y="170">get_labeled_feature_sets(list-&gt;int)</text>
+</g>
+<g>
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="660" y="86" width="3" height="81" />
+	<rect fill="#808080" stroke="none" stroke-opacity="1" x="502" y="164" width="161" height="3" />
+	<rect fill="#ededed" stroke="black" stroke-width="1" stroke-opacity="1" x="498" y="82" width="162" height="82" />
+	<text font-family="Helvetica" font-size="9" fill="#000000" xml:space="preserve" font-weight="bold" text-anchor="middle" x="579" y="93">LabeledFeatureSet</text>
+	<line stroke="black" stroke-opacity="1" x1="498" y1="102" x2="660" y2="102" />
+	<text font-family="Helvetica" font-size="9" fill="#000000" xml:space="preserve" x="502" y="113">features : </text>
+	<line stroke="black" stroke-opacity="1" x1="498" y1="122" x2="660" y2="122" />
+	<text font-family="Helvetica" font-size="9" fill="#000000" xml:space="preserve" x="502" y="133">get_score(list-&gt;int)</text>
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="233" y1="256" x2="280" y2="187" />
+	<line stroke="black" stroke-opacity="1" x1="284" y1="183" x2="275" y2="184" />
+	<line stroke="black" stroke-opacity="1" x1="284" y1="183" x2="285" y2="191" />
+	<line stroke="black" stroke-opacity="1" x1="275" y1="184" x2="285" y2="191" />
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="405" y1="253" x2="358" y2="187" />
+	<line stroke="black" stroke-opacity="1" x1="355" y1="183" x2="353" y2="191" />
+	<line stroke="black" stroke-opacity="1" x1="355" y1="183" x2="363" y2="184" />
+	<line stroke="black" stroke-opacity="1" x1="353" y1="191" x2="363" y2="184" />
+</g>
+<g>
+	<line stroke="black" stroke-opacity="1" x1="414" y1="124" x2="497" y2="124" />
+</g>
+<g>
+	<text font-family="Helvetica" font-size="9" fill="#000000" xml:space="preserve" x="482" y="141">*</text>
+</g>
+<g>
+	<text font-family="Helvetica" font-size="9" fill="#000000" xml:space="preserve" x="424" y="141">1</text>
+</g>
+</svg>
