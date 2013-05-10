@@ -41,20 +41,20 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Title
 \begin{titlepage}
-\hfill{\LARGE \bf Karina Palyutina}
-
 \begin{center}
 \vspace*{30mm}
-\includegraphics[width=35mm]{figs/shield.png}
-\\
-\Huge
-{\bf Machine Learning Inference of Existing Search Engine Heuristics} \\
+{ \LARGE \textsc Part II Project} \\
 \vspace*{5mm}
-Part II Project \\
+{\huge \bfseries Machine Learning Inference of Existing Search Engine Heuristics} \\
 \vspace*{5mm}
-St Catharine's College \\
+{\LARGE Karina Palyutina}\\
 \vspace*{5mm}
-\today  % today's date
+\vspace*{15mm}
+\includegraphics[width=45mm]{figs/shield.png}\\
+\vspace*{5mm}
+{\large \textsc St Catharine's College} 
+\vfill
+{\large \today}  % today's date
 \end{center}
 \end{titlepage}
 
@@ -71,8 +71,8 @@ College:            & \bf St Catharine's College                     \\
 Project Title:      & \bf Machine Learning Inference of \\& \bf Existing  Search Engine Heuristics \\
 Examination:        & \bf Part II Project        \\
 Word Count:         & \bf 11,687 words     \\
-Project Originator: & Dr Jon Crowcroft                    \\
-Supervisor:         & Dr Jon Crowcroft                  \\
+Project Originator: & Prof Jon Crowcroft                    \\
+Supervisor:         & Prof Jon Crowcroft                  \\
 \end{tabular}
 }
 \section*{Original Aims of the Project}
@@ -104,6 +104,9 @@ that this dissertation and the work described in it are my own work,
 unaided except as may be specified below, and that the dissertation
 does not contain material that has already been used to any substantial
 extent for a comparable purpose.
+
+I give permission for my dissertation to be made available in the archive
+area of the Laboratory's website.
 
 \bigskip
 \leftline{Signed }
@@ -339,16 +342,16 @@ queries.
 
 In simple linear regression the aim is to minimize a regularized error
 function. I will be using an \(\epsilon\)-insensitive error function (see
-Figure \ref{eps1}).
+Figure \ref{eps}(a)):
 
 \(E(y(\mathbf{x})-t)) = \left\{ \begin{array}{l l} 0 & \quad \text{if
 \(|y(\mathbf{x})-t|<\epsilon\)}\\ |y(\mathbf{x})-t|-\epsilon & \quad
 \text{otherwise} \end{array} \right.\)
 
 where \(y(\mathbf{x}) = \mathbf{w^T}\phi(\mathbf{x})+b\) is the hyperplane
-equation (and so \(y(\mathbf{x}) \) is the predicted output) and \(t\) is the
-target (true) output.
-
+equation\footnote{\(\phi(\mathbf{x})\) represents a fixed feature space
+tranformation.} (and so \(y(\mathbf{x}) \) is the predicted output) and \(t\)
+is the target (true) output.
 The regression tube then contains all the points for which \(
 y(\mathbf{x_n})-\epsilon \leq t_n \leq y(\mathbf{x_n})+\epsilon \) as shown in
 Figure \ref{eps}(b).
@@ -361,7 +364,8 @@ as follows:
 \begin{gather} E= C\sum_{n=1}^{N}(\xi_n+\xi_n^*)+\frac{1}{2}\|\mathbf{w}\|^2
 \end{gather}
 
-\(E\) must be minimized subject to four constraints:
+where \(C\geq 0\) is a regularization parameter\footnote{\(C\) represents the trade-off between the slack variable penalty
+and the margin.}. \(E\) must be minimized subject to four constraints:
 
 \begin{gather} \xi_n\geq 0,\\ \xi_n^*\geq 0,\\ t_n \leq
   y(\mathbf{x_n})+\epsilon+\xi_n,\\ t_n \geq y(\mathbf{x_n})-\epsilon-\xi_n^*
@@ -399,10 +403,12 @@ The basic idea is to capture the link structure of the web and provide a ranking
 that is robust against manipulation. The importance is proportional to the number of links
 from other important pages. Thus, the importance `flows' forward: the backlinks share
 their importance with the pages they link to. Such a simplified ranking of a set of pages
-can be expressed as an assignment
+can be expressed as an assignment:
 \begin{gather}
-  R(u)=c\sum_{v\in B_u}\frac{R(v)}{N_v}
+  R(u)=(1-\alpha)\sum_{v\in B_u}\frac{R(v)}{N_v}+\alpha E(u)
 \end{gather}
+where \(R\) is the PageRank assignment, \(B_u\) is the set of pages pointing to \(u\), \(E\) is the \textit{teleportation vector} and
+\(N(v)\) is the number of outgoing links from page \(v\).
 
 An intuitive justification for such ranking is by analogy with a citation
 network: we are likely to find highly cited pages more important.  The equation
@@ -415,10 +421,9 @@ links, as it does not have a significant effect on the ranking.
 
 The teleportation vector determines whether the PageRank is ``personalized''. For
 the non-personalized version the teleportation vector holds equal probabilities
-for all pages in the web, whereas in a personalized approach the probabilities
+for all pages in the web, whereas in the personalized approach the probabilities
 are distributed according the knowledge of the surfer's previous activity. In
-this project we are only concerned with non-personalized ranking, which is simpler and
-enough for the purposes of the project.
+this project we are only concerned with non-personalized ranking.
 
 \section{Requirements Analysis}
 \label{req_anal}
@@ -457,7 +462,7 @@ and user interface.
 \footnotetext[1]{The project imposes no rigid speed requirements, however, it is highly desirable that the computing time does not slow the project down.}
 \subsection{Dependency analysis}
 To effectively plan the development, I also evaluated the dependencies of the core modules
-of the project(see Figure \ref{dep}). It
+of the project (see Figure \ref{dep}). It
 can be seen that there was a lot of freedom as to the order of implementation. It also
 became obvious that due to the apparent convergence of the modules, integration would be a
 complex exercise. As a result, a prototype had to be implemented very early on to see the
@@ -484,10 +489,7 @@ generalisations more accurate.  Originally, I was hoping to get such a collectio
 resource, for example, the web corpus of the \textit{Text Retrieval Conference} (TREC).
 However, such data is not easily available, so I had to retrieve pages using the
 \textit{Wget} tool. In order to enhance the link structure of the downloaded pages, I restricted the corpus to one
-semantic area by only downloading websites related to construction
-materials\footnote{There is no particular reason to choose this topic, except that it had
-been used by the external project originator in his experiment trying to infer Google's
-ranking factors. This is described in the Proposal in more detail.}. This limitation of
+semantic area. This limitation of
 topic has certain advantages: relatively few pages need to be  downloaded before the pages
 appear sufficiently interlinked, so the corpus has a distinct structure (as web pages
 similar in the field link to each other). All the links were converted, so that the link
@@ -689,8 +691,7 @@ challenges faced and the optimizations applied.
 The existence of the search engine had twofold significance in the project: firstly, it
 gave me an insight into how search engines work and secondly, it was a way of gathering
 data for the machine learners. The first prototype of the system was heavily reliant on
-the engine ranking the pages. In the following iterations, however, its importance was
-diminishing: scores were computed for all pages, making the queries irrelevant.
+the engine ranking the pages. In the following iterations, however, the scores alone were used.
 
 Because I had decided to concentrate on precision, as discussed in Section \ref{prep:se}
 of the Preparation chapter, it was assumed for simplicity that all relevant documents were
@@ -701,7 +702,7 @@ which is concerned a lot more with the nature of the hidden score function than 
 features themselves.
 
 Even though the search engine capabilities were not used to the extent I had envisaged,
-this section will elaborate further on the implementation of the indexer, as it helped me
+this section will elaborate further on the implementation, as it helped me
 gain a useful insight into the field.
 
 \subsection{Indexer and Searcher}
@@ -715,7 +716,7 @@ indexing is done rarely. The predecessors of Whoosh have served as the basis of 
 search engines such as \textit{Lucene}, so it is also a powerful indexing tool, should I
 have needed more sophistication.
 
-I have defined a very simple indexing schema. Perhaps, one notable detail is that Whoosh
+I have defined a simple indexing schema. Perhaps, one notable detail is that Whoosh
 can store timestamps with the index, which enabled me to provide both clean and
 incremental index methods. The incremental indexing relies on the timestamp stored with
 the index and compares it to the last-modified time provided by the file system. The user
@@ -724,18 +725,23 @@ page changes or page addition/deletion. Even though I had not originally expecte
 to need the incremental indexing capabilities, throughout the project it has provided
 significant speedups.
 
-In the first prototype of the system, the search engine output the pages in the order of
-non-increasing PageRank. Subsequently, the sorting has been decoupled from retrieval and
-incorporated into the Parser module, which is described in detail in Section
-\ref{sec:parser}.
+The difficult part of the indexing was extracting visible text from HTML pages
+correctly. The library parsers did not provide a satisfactory solution, so regular
+expressions were used to determine which text is visible.
+
+In the first prototype of the system, the searcher output the pages to the learner in the order of
+non-increasing PageRank. However, in subsequent prototypes more sophisticated heuristics
+were used and the scores were inferred
+directly. The scores depend on the features of the pages, which require HTML
+parsing, therefore, the search engine functionalities have been subsumed by the Parser module
+(described in detail in Section \ref{sec:parser}).
 
 \section{Computing PageRank}
 \label{impl:pr}
 
 Section \ref{prep:pr} of the Preparation Chapter explains the principles of the PageRank
 algorithm. In this section the PageRank algorithm is implemented using matrix inversion.
-This is the simplest method to compute PageRank for a few thousand pages and turned
-out to be reasonably fast. All matrix operations were performed using \textit{NumPy} --
+This is a simple and reasonably fast method of computing PageRank for a few thousand pages. All matrix operations were performed using \textit{NumPy} --
 the Python numerical library. The implementation is derived in the rest of the section.
 
 First, a few variables need to be defined:
@@ -750,7 +756,8 @@ First, a few variables need to be defined:
 Matrix \(G\) can be defined as follows:
 \begin{equation*}
 	G_{i,j} = \begin{cases}
-    1/L & \text{if there is a link from i to j, where L = number of links from i}\\
+    1/L & \text{if there is a link from \(i\) to \(j\), where \(L\) = number of links from
+    \(i\)}\\
     0   & \text{otherwise}
   \end{cases}
 \end{equation*}
@@ -779,11 +786,11 @@ surfer's activity:
 \begin{equation}\label{2}
 	\bm{p} = \bm{M}\bm{p}
 \end{equation}
-Substituting \ref{1} into \ref{2}
+Substituting \ref{1} into \ref{2}:
 \begin{equation} \label{a}
 	\bm{p} = (s\bm{G}+t\bm{E})\bm{p} = s\bm{G} \bm{p} + t\bm{E} \bm{p}
 \end{equation}
-Rearranging equation \ref{a} gives
+Rearranging equation \ref{a} gives:
 \begin{equation}
 	(\bm{I}-s\bm{G})\bm{p} = t\bm{E} \bm{p}
 \end{equation}
@@ -843,7 +850,7 @@ dangling page -- a page that has no outbound links -- a teleportation step
 occurs. Therefore, every dangling page links to every page in the pool
 including itself with equal probability \(\frac{1}{N}\). For non-dangling pages, all links
 are assumed equiprobable and all pages that are not linked to have probability
-of 0. So if page A links to pages B and C, but not itself or D, its row in G is
+of \(0\). So if page A links to pages B and C, but not itself or D, its row in G is
 described by the Table \ref{tab}.
 
 \begin{table}
@@ -933,9 +940,9 @@ loads the vectors lazily.
 So far we have looked at the search engine. This section describes the parser -- a
 functional unit, which provides an interface from the search engine to the machine
 learners. The search engine simply retrieves pages in response to a query and the machine
-learner expects as its input a set of labelled features for training and unlabelled
+learner expects as its input a set of labeled features for training and unlabeled
 features for classification/regression. The parser, therefore, must hide the nature of
-the data we are dealing with by translating it into the universal language of machine
+the data we are dealing with by translating it into the format understood by the machine
 learners. Hence, the primary function of the parser is to compute feature vectors for
 pages. However, it is easy to outsource search engine heuristics into the Parser, too, as
 they require page parsing.
@@ -1058,14 +1065,14 @@ particulars of this process were described in Section \ref{sec:parser}.
 
 \section{Support Vector Regression}
 \label{sec:svm}
-In Section \ref{prep:svm} I have introduced the theory of support vector machines. This
+In Section \ref{prep:svm} I have introduced the theory of Support Vector Machines. This
 section starts off with the implementation, which builds on the theory described in
 Section \ref{prep:svm} and explains further transformations, which made up the essential
 part of the implementation. The section goes on to introduce some kernel functions and
 finishes off by explaining how hyperparameters might be tuned.
 
 \subsection{Implementation}
-To implement a support vector machine one must solve a problem of optimizing a quadratic
+To implement a Support Vector Machine (SVM) one must solve a problem of optimizing a quadratic
 function subject to linear constraints, usually referred to as the \textit{Quadratic
 Programming} (QP) problem. Therefore, the first implementation task was to convert our
 existing optimization problem into a generic QP form to make use of the available solvers.
@@ -1385,7 +1392,7 @@ time only the best ranges are analysed in finer detail.
 \end{figure}
 Figure \ref{coarse_fine} shows analyses at different scales on the training data: the
 coarsest and the finest (the intermediate results are omitted). Both $\epsilon$ and
-$\gamma$ are varied, however, the $\epsilon$ parameter is expected to be best at 0. This is because we
+$\gamma$ are varied, however, the $\epsilon$ parameter is expected to be best at \(0\). This is because we
 are fitting the training data directly, as opposed to learning from the training data and
 fitting previously unseen test data (recall that $\epsilon$ controls the degree of
 generalisation). At the coarsest scale (Figure \ref{coarse}) it is
